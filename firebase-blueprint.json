@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "activeWorkspaceId": { "type": "string" }
+      },
+      "required": ["userId", "email"]
+    },
+    "Workspace": {
+      "title": "Workspace",
+      "description": "A business profile that can have multiple social connections",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "Connection": {
+      "title": "Social Connection",
+      "description": "A connected social media account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "platform": { "type": "string", "enum": ["facebook", "instagram", "tiktok", "whatsapp", "sms", "telegram"] },
+        "platformId": { "type": "string" },
+        "platformName": { "type": "string" },
+        "status": { "type": "string" },
+        "lastSynced": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "workspaceId", "platform"]
+    },
+    "Flow": {
+      "title": "Automation Flow",
+      "description": "A chatbot or automation flow",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "name": { "type": "string" },
+        "trigger": { "type": "object" },
+        "nodes": { "type": "array" },
+        "edges": { "type": "array" },
+        "status": { "type": "string", "enum": ["draft", "active", "paused"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "workspaceId", "name"]
+    },
+    "FlowAnalytics": {
+      "title": "Flow Analytics",
+      "description": "Daily metrics for an automation flow",
+      "type": "object",
+      "properties": {
+        "day": { "type": "string" },
+        "sends": { "type": "number" },
+        "uniques": { "type": "number" },
+        "clicks": { "type": "number" },
+        "conversations": { "type": "number" }
+      },
+      "required": ["day", "sends"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Root user documents"
+    },
+    "/workspaces/{workspaceId}": {
+      "schema": "Workspace",
+      "description": "Profiles/Workspaces"
+    },
+    "/workspaces/{workspaceId}/connections/{connectionId}": {
+      "schema": "Connection",
+      "description": "Social media connections per workspace"
+    },
+    "/workspaces/{workspaceId}/flows/{flowId}": {
+      "schema": "Flow",
+      "description": "Automation flows per workspace"
+    },
+    "/workspaces/{workspaceId}/flows/{flowId}/analytics/{dayId}": {
+      "schema": "FlowAnalytics",
+      "description": "Daily metrics for a specific flow"
+    }
+  }
+}

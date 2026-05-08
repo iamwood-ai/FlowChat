@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Primitives ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Role check: Is the user the owner of the workspace?
+    function isWorkspaceOwner(workspaceId) {
+      return isSignedIn() && get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
+    }
+
+    // --- Validation Helpers ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'email'])
+        && data.userId == request.auth.uid
+        && data.email is string && data.email.size() <= 256
+        && (data.get('displayName', '') is string && data.get('displayName', '').size() <= 128)
+        && (data.get('photoURL', '') is string && data.get('photoURL', '').size() <= 512);
+    }
+
+    function isValidWorkspace(data) {
+      return data.keys().hasAll(['name', 'ownerId', 'createdAt'])
+        && data.ownerId == request.auth.uid
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 128;
+    }
+
+    function isValidFlow(data) {
+       return data.keys().hasAll(['name', 'workspaceId'])
+         && data.name is string && data.name.size() <= 128
+         && data.workspaceId is string;
+    }
+
+    // --- Collection Rules ---
+
+    // 1. Users
+    match /users/{userId} {
+      allow get: if isEmailVerified() && request.auth.uid == userId;
+      allow create: if isEmailVerified() && userId == request.auth.uid && isValidUser(incoming());
+      allow update: if isEmailVerified() && userId == request.auth.uid 
+        && isValidUser(incoming())
+        && incoming().userId == existing().userId; // Immutable ID
+    }
+
+    // 2. Workspaces
+    match /workspaces/{workspaceId} {
+      // List/Query: Must be owner
+      allow list: if isEmailVerified() && resource.data.ownerId == request.auth.uid;
+      // Get: Must be owner
+      allow get: if isEmailVerified() && resource.data.ownerId == request.auth.uid;
+      
+      allow create: if isEmailVerified() && isValidWorkspace(incoming()) && isValidId(workspaceId);
+      
+      allow update: if isEmailVerified() && resource.data.ownerId == request.auth.uid
+        && isValidWorkspace(incoming())
+        && incoming().ownerId == existing().ownerId // Immutable owner
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'activeWorkspaceId', 'updatedAt']);
+
+      allow delete: if isEmailVerified() && resource.data.ownerId == request.auth.uid;
+
+      // 3. Subcollections: Connections
+      match /connections/{connectionId} {
+        allow read: if isWorkspaceOwner(workspaceId);
+        allow write: if isWorkspaceOwner(workspaceId);
+      }
+
+      // 4. Subcollections: Flows
+       match /flows/{flowId} {
+        allow read: if isWorkspaceOwner(workspaceId);
+        allow create: if isWorkspaceOwner(workspaceId) && isValidFlow(incoming());
+        allow update: if isWorkspaceOwner(workspaceId) && isValidFlow(incoming())
+          && incoming().workspaceId == existing().workspaceId; // Immutable link
+        allow delete: if isWorkspaceOwner(workspaceId);
+      }
+    }
+  }
+}
