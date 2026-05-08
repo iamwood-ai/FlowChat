@@ -118,6 +118,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const createWorkspace = async (name: string) => {
     if (!user) return null;
+    if (workspaces.length >= 10) {
+      alert("You have reached the maximum limit of 10 profiles.");
+      return null;
+    }
     const wsData = {
       name,
       ownerId: user.uid,

@@ -216,8 +216,8 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
   useEffect(() => {
     if (!activeWorkspace) return;
 
-    if (flowId) {
-      const loadFlow = async () => {
+    const initFlow = async () => {
+      if (flowId) {
         try {
           const flowRef = doc(db, 'workspaces', activeWorkspace.id, 'flows', flowId);
           const flowDoc = await getDoc(flowRef);
@@ -230,16 +230,82 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
         } catch (error) {
           console.warn("Could not load flow:", error);
         }
-      };
-      loadFlow();
-    } else if (templateId) {
-      loadTemplate(templateId);
-      setFlowName(`Template: ${templateId.replace(/-/g, ' ')}`);
-    } else if (prompt) {
-      setFlowName(`AI: ${prompt.slice(0, 20)}...`);
-      // Could generate nodes from prompt here if integrated with useAI
-    }
-  }, [activeWorkspace, flowId, templateId, prompt]);
+      } else if (templateId) {
+        // Load template data
+        const templates: Record<string, { nodes: Node[], edges: Edge[] }> = {
+          'ig-comment': {
+            nodes: [
+              { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "OFFER"' }, position: { x: 250, y: 50 } },
+              { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is your 20% discount code: SAVE20" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'te1', source: 't1', target: 't2', animated: true }]
+          },
+          'fb-welcome': {
+            nodes: [
+              { id: 'w1', type: 'triggerNode', data: { trigger: 'New Follower' }, position: { x: 250, y: 50 } },
+              { id: 'w2', type: 'messageNode', data: { label: "Welcome to our page! How can we help you today?" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'we1', source: 'w1', target: 'w2' }]
+          },
+          'tt-keyword': {
+            nodes: [
+              { id: 'tk1', type: 'triggerNode', data: { trigger: 'Keyword: "CATALOG"' }, position: { x: 250, y: 50 } },
+              { id: 'tk2', type: 'messageNode', data: { label: "Our full catalog is right here: flows.ai/catalog" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'tke1', source: 'tk1', target: 'tk2' }]
+          },
+          'wa-updates': {
+            nodes: [
+              { id: 'wa1', type: 'triggerNode', data: { trigger: 'Order Received' }, position: { x: 250, y: 50 } },
+              { id: 'wa2', type: 'messageNode', data: { label: "Your order has been received and is being processed!" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'wae1', source: 'wa1', target: 'wa2' }]
+          },
+          'tt-live': {
+            nodes: [
+              { id: 'ttl1', type: 'triggerNode', data: { trigger: 'Live Question' }, position: { x: 250, y: 50 } },
+              { id: 'ttl2', type: 'messageNode', data: { label: "I'll answer that question in just a second! Keep watching." }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'ttle1', source: 'ttl1', target: 'ttl2' }]
+          },
+          'sms-sale': {
+            nodes: [
+              { id: 'sms1', type: 'triggerNode', data: { trigger: 'Flash Sale Start' }, position: { x: 250, y: 50 } },
+              { id: 'sms2', type: 'messageNode', data: { label: "FLASH SALE: Use code SALE50 for 50% off for the next hour!" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'smse1', source: 'sms1', target: 'sms2' }]
+          }
+        };
+
+        const template = templates[templateId];
+        if (template) {
+          setNodes(template.nodes);
+          setEdges(template.edges);
+          const name = `Template: ${templateId.replace(/-/g, ' ')}`;
+          setFlowName(name);
+
+          // Auto-save as draft
+          const newFlowId = `flow-${Date.now()}`;
+          const path = `workspaces/${activeWorkspace.id}/flows/${newFlowId}`;
+          setDoc(doc(db, path), {
+            id: newFlowId,
+            workspaceId: activeWorkspace.id,
+            name: name,
+            nodes: template.nodes,
+            edges: template.edges,
+            status: 'draft',
+            updatedAt: serverTimestamp()
+          }).then(() => {
+            setFlowId(newFlowId);
+          });
+        }
+      } else if (prompt) {
+        setFlowName(`AI: ${prompt.slice(0, 20)}...`);
+      }
+    };
+
+    initFlow();
+  }, [activeWorkspace, flowId, templateId, prompt, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),

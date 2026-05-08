@@ -57,6 +57,10 @@ export default function SettingsView() {
   };
 
   const handleAddWorkspace = async () => {
+    if (workspaces.length >= 10) {
+      alert("You have already reached the maximum limit of 10 profiles.");
+      return;
+    }
     const name = prompt("Enter profile name (e.g. My Agency, Personal Brand):");
     if (name) {
       await createWorkspace(name);
@@ -340,16 +344,25 @@ export default function SettingsView() {
                 <p className="text-xs text-neutral-500 mt-0.5">Control how quickly your bot replies to maintain a human-like feel.</p>
               </div>
               <span className="text-sm font-bold text-blue-600">
-                {smartReplyDelay}
-                <span className="inline sm:hidden">s</span>
-                <span className="hidden sm:inline"> Seconds</span>
+                {smartReplyDelay === 61 ? (
+                  <>
+                    <span className="inline sm:hidden">24h</span>
+                    <span className="hidden sm:inline">24 Hours</span>
+                  </>
+                ) : (
+                  <>
+                    {smartReplyDelay}
+                    <span className="inline sm:hidden">s</span>
+                    <span className="hidden sm:inline"> Seconds</span>
+                  </>
+                )}
               </span>
             </div>
             <input 
               type="range" 
               className="w-full accent-blue-600" 
               min="0" 
-              max="60" 
+              max="61" 
               value={smartReplyDelay}
               onChange={(e) => setSmartReplyDelay(parseInt(e.target.value))}
             />
