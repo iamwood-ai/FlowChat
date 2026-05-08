@@ -1,15 +1,19 @@
 {
+  "github": {
+    "silent": true
+  },
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/index.ts"
     },
     {
       "source": "/auth/callback",
-      "destination": "/api"
+      "destination": "/api/index.ts"
     },
     {
-      "source": "/((?!api/|auth/callback).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

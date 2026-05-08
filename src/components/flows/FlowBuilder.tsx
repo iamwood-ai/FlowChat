@@ -238,10 +238,37 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
         const templates: Record<string, { nodes: Node[], edges: Edge[] }> = {
           'auto-dm-comments': {
             nodes: [
-              { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "INFO"' }, position: { x: 250, y: 50 } },
-              { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the info you requested." }, position: { x: 250, y: 180 } }
+              { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "LINK"' }, position: { x: 250, y: 50 } },
+              { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the link you requested: https://example.com/info" }, position: { x: 250, y: 180 } }
             ],
             edges: [{ id: 'te1', source: 't1', target: 't2', animated: true }]
+          },
+          'generate-leads-stories': {
+            nodes: [
+              { id: 's1', type: 'triggerNode', data: { trigger: 'Story Reply' }, position: { x: 250, y: 50 } },
+              { id: 's2', type: 'messageNode', data: { label: "Thanks for the reply! What's your best email so we can send you more details?" }, position: { x: 250, y: 180 } },
+              { id: 's3', type: 'delayNode', data: { duration: '5 minutes' }, position: { x: 250, y: 310 } },
+              { id: 's4', type: 'messageNode', data: { label: "Just checking if you had a chance to reply with your email?" }, position: { x: 250, y: 410 } }
+            ],
+            edges: [
+              { id: 'se1', source: 's1', target: 's2', animated: true },
+              { id: 'se2', source: 's2', target: 's3' },
+              { id: 'se3', source: 's3', target: 's4' }
+            ]
+          },
+          'recognize-questions-ai': {
+            nodes: [
+              { id: 'q1', type: 'triggerNode', data: { trigger: 'Any Question' }, position: { x: 250, y: 50 } },
+              { id: 'q2', type: 'aiNode', data: { prompt: "Analyze the user message. If it's a question about pricing, explain our $49/mo plan. If it's about features, mention AI flows." }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'qe1', source: 'q1', target: 'q2' }]
+          },
+          'sell-reel-comments': {
+            nodes: [
+              { id: 'r1', type: 'triggerNode', data: { trigger: 'Reel Comment: "BUY"' }, position: { x: 250, y: 50 } },
+              { id: 'r2', type: 'messageNode', data: { label: "Ready to upgrade? Here is your exclusive checkout link: https://buy.stripe.com/demo" }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 're1', source: 'r1', target: 'r2', animated: true }]
           },
           'run-giveaway': {
             nodes: [
@@ -424,10 +451,37 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
     const templates: Record<string, { nodes: Node[], edges: Edge[] }> = {
       'auto-dm-comments': {
         nodes: [
-          { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "INFO"' }, position: { x: 250, y: 50 } },
-          { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the info you requested." }, position: { x: 250, y: 180 } }
+          { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "LINK"' }, position: { x: 250, y: 50 } },
+          { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the link you requested: https://example.com/info" }, position: { x: 250, y: 180 } }
         ],
         edges: [{ id: 'te1', source: 't1', target: 't2', animated: true }]
+      },
+      'generate-leads-stories': {
+        nodes: [
+          { id: 's1', type: 'triggerNode', data: { trigger: 'Story Reply' }, position: { x: 250, y: 50 } },
+          { id: 's2', type: 'messageNode', data: { label: "Thanks for the reply! What's your best email so we can send you more details?" }, position: { x: 250, y: 180 } },
+          { id: 's3', type: 'delayNode', data: { duration: '5 minutes' }, position: { x: 250, y: 310 } },
+          { id: 's4', type: 'messageNode', data: { label: "Just checking if you had a chance to reply with your email?" }, position: { x: 250, y: 410 } }
+        ],
+        edges: [
+          { id: 'se1', source: 's1', target: 's2', animated: true },
+          { id: 'se2', source: 's2', target: 's3' },
+          { id: 'se3', source: 's3', target: 's4' }
+        ]
+      },
+      'recognize-questions-ai': {
+        nodes: [
+          { id: 'q1', type: 'triggerNode', data: { trigger: 'Any Question' }, position: { x: 250, y: 50 } },
+          { id: 'q2', type: 'aiNode', data: { prompt: "Analyze the user message. If it's a question about pricing, explain our $49/mo plan. If it's about features, mention AI flows." }, position: { x: 250, y: 180 } }
+        ],
+        edges: [{ id: 'qe1', source: 'q1', target: 'q2' }]
+      },
+      'sell-reel-comments': {
+        nodes: [
+          { id: 'r1', type: 'triggerNode', data: { trigger: 'Reel Comment: "BUY"' }, position: { x: 250, y: 50 } },
+          { id: 'r2', type: 'messageNode', data: { label: "Ready to upgrade? Here is your exclusive checkout link: https://buy.stripe.com/demo" }, position: { x: 250, y: 180 } }
+        ],
+        edges: [{ id: 're1', source: 'r1', target: 'r2', animated: true }]
       },
       'run-giveaway': {
         nodes: [

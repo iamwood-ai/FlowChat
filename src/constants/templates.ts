@@ -57,6 +57,16 @@ export const ALL_TEMPLATES: Template[] = [
     count: 'Utility',
     icon: MessageSquare 
   },
+  { 
+    id: 'recognize-questions-ai', 
+    title: 'Recognize questions in DM with AI', 
+    desc: 'Use AI to identify common questions and answer them automatically or flag for support.', 
+    category: 'Recommended', 
+    platform: 'Multi-Channel', 
+    color: 'bg-violet-50 border-violet-100 text-violet-600', 
+    count: 'AI Powered',
+    icon: Sparkles 
+  },
 
   // Grow your followers
   { 
@@ -78,6 +88,16 @@ export const ALL_TEMPLATES: Template[] = [
     color: 'bg-purple-50 border-purple-100 text-purple-600', 
     count: '850 uses',
     icon: Gift 
+  },
+  { 
+    id: 'grow-email-list', 
+    title: 'Grow your email list', 
+    desc: 'Collect emails in DMs and sync them directly to your CRM.', 
+    category: 'Grow your followers', 
+    platform: 'Multi-Channel', 
+    color: 'bg-teal-50 border-teal-100 text-teal-600', 
+    count: 'Essential',
+    icon: Users 
   },
 
   // Engage your audience
@@ -112,6 +132,16 @@ export const ALL_TEMPLATES: Template[] = [
     icon: Zap 
   },
   { 
+    id: 'trigger-dms-live', 
+    title: 'Trigger DMs during IG Live', 
+    desc: 'Send info or links to viewers based on live triggers or keywords.', 
+    category: 'Engage your audience', 
+    platform: 'Instagram', 
+    color: 'bg-rose-50 border-rose-100 text-rose-600', 
+    count: 'High Engagement',
+    icon: Zap 
+  },
+  { 
     id: 'faq-story-replies', 
     title: 'Answer FAQs from story replies', 
     desc: 'Instant answers to common questions asked via story reply stickers.', 
@@ -120,6 +150,16 @@ export const ALL_TEMPLATES: Template[] = [
     color: 'bg-sky-50 border-sky-100 text-sky-600', 
     count: 'Utility',
     icon: HelpCircle 
+  },
+  { 
+    id: 'get-collabs-stories', 
+    title: 'Get more collabs from Story replies', 
+    desc: 'Automate outreach and qualification for potential brand collaborators.', 
+    category: 'Engage your audience', 
+    platform: 'Instagram', 
+    color: 'bg-cyan-50 border-cyan-100 text-cyan-600', 
+    count: 'Networking',
+    icon: Briefcase 
   },
 
   // Drive traffic
@@ -132,16 +172,6 @@ export const ALL_TEMPLATES: Template[] = [
     color: 'bg-lime-50 border-lime-100 text-lime-600', 
     count: 'Profitable',
     icon: Link 
-  },
-  { 
-    id: 'grow-email-list', 
-    title: 'Grow your email list', 
-    desc: 'Collect emails in DMs and sync them directly to your CRM.', 
-    category: 'Drive traffic', 
-    platform: 'Multi-Channel', 
-    color: 'bg-teal-50 border-teal-100 text-teal-600', 
-    count: 'Essential',
-    icon: Users 
   },
   { 
     id: 'grow-youtube', 
@@ -191,6 +221,16 @@ export const ALL_TEMPLATES: Template[] = [
     platform: 'Instagram', 
     color: 'bg-cyan-50 border-cyan-100 text-cyan-600', 
     count: 'Best Seller',
+    icon: ShoppingBag 
+  },
+  { 
+    id: 'send-offers-live', 
+    title: 'Send offers in DMs during Live', 
+    desc: 'Maximize live conversions by sending limited-time offers directly to DMs.', 
+    category: 'Drive traffic', 
+    platform: 'Instagram', 
+    color: 'bg-amber-50 border-amber-100 text-amber-600', 
+    count: 'Conversion Focus',
     icon: ShoppingBag 
   },
 ];
