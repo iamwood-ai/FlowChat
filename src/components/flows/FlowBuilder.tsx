@@ -37,6 +37,7 @@ import { cn } from '../../lib/utils';
 import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
+import { ALL_TEMPLATES } from '../../constants/templates';
 
 // --- Custom Node Components ---
 
@@ -232,7 +233,30 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
         }
       } else if (templateId) {
         // Load template data
+        const templateInfo = ALL_TEMPLATES.find(t => t.id === templateId);
+        
         const templates: Record<string, { nodes: Node[], edges: Edge[] }> = {
+          'auto-dm-comments': {
+            nodes: [
+              { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "INFO"' }, position: { x: 250, y: 50 } },
+              { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the info you requested." }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'te1', source: 't1', target: 't2', animated: true }]
+          },
+          'run-giveaway': {
+            nodes: [
+              { id: 'g1', type: 'triggerNode', data: { trigger: 'Comment: "WIN"' }, position: { x: 250, y: 50 } },
+              { id: 'g2', type: 'messageNode', data: { label: "You've been entered into the giveaway! We'll announce winners soon." }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'ge1', source: 'g1', target: 'g2' }]
+          },
+          'respond-dms': {
+            nodes: [
+              { id: 'rd1', type: 'triggerNode', data: { trigger: 'Any Message' }, position: { x: 250, y: 50 } },
+              { id: 'rd2', type: 'aiNode', data: { prompt: "Be a helpful customer support agent for FlowChat." }, position: { x: 250, y: 180 } }
+            ],
+            edges: [{ id: 'rde1', source: 'rd1', target: 'rd2' }]
+          },
           'ig-comment': {
             nodes: [
               { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "OFFER"' }, position: { x: 250, y: 50 } },
@@ -277,11 +301,18 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
           }
         };
 
-        const template = templates[templateId];
+        const template = templates[templateId] || {
+          nodes: [
+            { id: 'd1', type: 'triggerNode', data: { trigger: 'Keyword: "START"' }, position: { x: 250, y: 50 } },
+            { id: 'd2', type: 'messageNode', data: { label: templateInfo ? `Welcome! You've triggered the ${templateInfo.title} automation.` : "Welcome to your new automation!" }, position: { x: 250, y: 180 } }
+          ],
+          edges: [{ id: 'de1', source: 'd1', target: 'd2', animated: true }]
+        };
+
         if (template) {
           setNodes(template.nodes);
           setEdges(template.edges);
-          const name = `Template: ${templateId.replace(/-/g, ' ')}`;
+          const name = templateInfo ? `Template: ${templateInfo.title}` : `Template: ${templateId.replace(/-/g, ' ')}`;
           setFlowName(name);
 
           // Auto-save as draft
@@ -389,7 +420,29 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
   };
 
   const loadTemplate = (templateName: string) => {
+    const templateInfo = ALL_TEMPLATES.find(t => t.id === templateName);
     const templates: Record<string, { nodes: Node[], edges: Edge[] }> = {
+      'auto-dm-comments': {
+        nodes: [
+          { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "INFO"' }, position: { x: 250, y: 50 } },
+          { id: 't2', type: 'messageNode', data: { label: "Thanks for commenting! Here is the info you requested." }, position: { x: 250, y: 180 } }
+        ],
+        edges: [{ id: 'te1', source: 't1', target: 't2', animated: true }]
+      },
+      'run-giveaway': {
+        nodes: [
+          { id: 'g1', type: 'triggerNode', data: { trigger: 'Comment: "WIN"' }, position: { x: 250, y: 50 } },
+          { id: 'g2', type: 'messageNode', data: { label: "You've been entered into the giveaway! We'll announce winners soon." }, position: { x: 250, y: 180 } }
+        ],
+        edges: [{ id: 'ge1', source: 'g1', target: 'g2' }]
+      },
+      'respond-dms': {
+        nodes: [
+          { id: 'rd1', type: 'triggerNode', data: { trigger: 'Any Message' }, position: { x: 250, y: 50 } },
+          { id: 'rd2', type: 'aiNode', data: { prompt: "Be a helpful customer support agent for FlowChat." }, position: { x: 250, y: 180 } }
+        ],
+        edges: [{ id: 'rde1', source: 'rd1', target: 'rd2' }]
+      },
       'ig-comment': {
         nodes: [
           { id: 't1', type: 'triggerNode', data: { trigger: 'Comment: "OFFER"' }, position: { x: 250, y: 50 } },
@@ -434,7 +487,13 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
       }
     };
 
-    const template = templates[templateName];
+    const template = templates[templateName] || {
+      nodes: [
+        { id: 'd1', type: 'triggerNode', data: { trigger: 'Keyword: "START"' }, position: { x: 250, y: 50 } },
+        { id: 'd2', type: 'messageNode', data: { label: templateInfo ? `Welcome! You've triggered the ${templateInfo.title} automation.` : "Welcome to your new automation!" }, position: { x: 250, y: 180 } }
+      ],
+      edges: [{ id: 'de1', source: 'd1', target: 'd2', animated: true }]
+    };
     if (template) {
       setNodes(template.nodes);
       setEdges(template.edges);

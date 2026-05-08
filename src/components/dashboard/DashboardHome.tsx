@@ -18,6 +18,8 @@ import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { useAI } from '../../hooks/useAI';
 import { useAuth } from '../../context/AuthContext';
+import { ALL_TEMPLATES } from '../../constants/templates';
+import TemplatesModal from './TemplatesModal';
 
 const stats = [
   { label: 'Total Contacts', value: '12,482', change: '+12%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -40,6 +42,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
   const { generateResponse, loading } = useAI();
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState('');
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [visibleSections, setVisibleSections] = useState({
     stats: true,
     ai: true,
@@ -58,15 +61,6 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
   const toggleSection = (section: keyof typeof visibleSections) => {
     setVisibleSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
-
-  const templates = [
-    { id: 'ig-comment', title: 'Auto-DM Links from Comments', desc: 'Instantly reply to post comments with a link in DMs. Perfect for "Comment YES for the link".', color: 'border-blue-100 bg-blue-50/30', count: 'New', platform: 'Meta' },
-    { id: 'fb-welcome', title: 'Story Reply Multiplier', desc: 'Auto-thank users for story mentions and send a personalized discount or link.', color: 'border-pink-100 bg-pink-50/30', count: 'Featured', platform: 'Instagram' },
-    { id: 'tt-keyword', title: 'Keyword Lead Magnet', desc: 'Qualify leads automatically when they DM a specific keyword like "GUIDE".', color: 'border-emerald-100 bg-emerald-50/30', count: 'Popular', platform: 'Multi-Channel' },
-    { id: 'wa-updates', title: 'WhatsApp Order Updates', desc: 'Send real-time updates and notifications on WhatsApp.', color: 'border-neutral-100 bg-neutral-50/50', count: '920 uses', platform: 'WhatsApp' },
-    { id: 'tt-live', title: 'TikTok Live Engagement', desc: 'Auto-reply to common questions in your TikTok Live chat.', color: 'border-neutral-100 bg-neutral-50/50', count: '3.1K uses', platform: 'TikTok' },
-    { id: 'sms-sale', title: 'Flash Sale SMS Blast', desc: 'High-conversion timed SMS series for your list.', color: 'border-neutral-100 bg-neutral-50/50', count: '1.8K uses', platform: 'SMS' },
-  ];
 
   return (
     <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-[1400px] mx-auto pb-20">
@@ -251,29 +245,29 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                   <p className="text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your profiles.</p>
                 </div>
                 <button 
-                  onClick={() => onNavigate('flows')}
+                  onClick={() => setIsTemplatesModalOpen(true)}
                   className="text-blue-600 text-[11px] font-bold uppercase tracking-widest hover:underline px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
                 >
                   Explore All Templates
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((flow) => (
+                {ALL_TEMPLATES.slice(0, 6).map((flow) => (
                   <div 
-                    key={flow.title} 
+                    key={flow.id} 
                     onClick={() => onNavigate('flows', { templateId: flow.id })}
                     className={cn("p-5 rounded-xl border transition-all hover:shadow-xl hover:translate-y-[-2px] cursor-pointer group flex flex-col justify-between min-h-[160px]", flow.color)}
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{flow.platform}</span>
+                        <span className="text-[10px] font-bold opacity-60 uppercase tracking-widest">{flow.platform}</span>
                         <Sparkles size={14} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <h4 className="font-bold text-neutral-900 text-sm leading-tight">{flow.title}</h4>
-                      <p className="text-[11px] text-neutral-500 mt-2 leading-relaxed line-clamp-2">{flow.desc}</p>
+                      <p className="text-[11px] opacity-70 mt-2 leading-relaxed line-clamp-2">{flow.desc}</p>
                     </div>
                     <div className="mt-4 flex items-center justify-between pt-3 border-t border-neutral-100/50">
-                      <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count}</span>
+                      <span className="text-[9px] font-bold opacity-40 uppercase tracking-wider">{flow.count}</span>
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm border border-neutral-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         <ChevronRight size={14} />
                       </div>
@@ -302,6 +296,19 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           )}
         </div>
       </div>
+
+      <TemplatesModal 
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onSelect={(id) => {
+          setIsTemplatesModalOpen(false);
+          onNavigate('flows', { templateId: id });
+        }}
+        onCreateNew={() => {
+          setIsTemplatesModalOpen(false);
+          onNavigate('flows');
+        }}
+      />
     </div>
   );
 }
