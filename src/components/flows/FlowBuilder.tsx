@@ -102,16 +102,8 @@ const MessageNode = ({ data, selected }: any) => {
           </p>
         </div>
 
-        {data.type === 'email_capture' && (
-          <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 flex items-center gap-2">
-            <Mail size={12} className="text-neutral-400" />
-            <div className="h-4 w-px bg-neutral-200" />
-            <span className="text-[10px] text-neutral-400 italic">User replies with email...</span>
-          </div>
-        )}
-        
         {data.buttons?.length > 0 && (
-          <div className="space-y-1.5 mt-2 border-t border-neutral-50 pt-2">
+          <div className="space-y-1.5 mt-2">
             {data.buttons.map((btn: any, i: number) => (
               <div 
                 key={i} 
@@ -121,6 +113,18 @@ const MessageNode = ({ data, selected }: any) => {
                 {btn.type === 'external_link' ? <ExternalLink size={10} /> : <ChevronRight size={10} />}
               </div>
             ))}
+          </div>
+        )}
+
+        {data.type === 'email_capture' && (
+          <div className="mt-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-1.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Mail size={12} className="text-neutral-400" />
+              <span className="text-[10px] text-neutral-400 italic">User replies with email...</span>
+            </div>
+            <div className="bg-blue-500 text-white p-1 rounded-md">
+              <ChevronRight size={10} />
+            </div>
           </div>
         )}
 
@@ -775,6 +779,34 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                   </button>
                </div>
 
+               {/* LAYOUT PRESETS (SHARED) */}
+               <div className="bg-white border border-neutral-100 rounded-2xl p-4 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Layout Presets</label>
+                    <span className="text-[10px] text-neutral-300 font-mono">Instant Apply</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'square', label: 'Square', w: 250, h: 250 },
+                      { id: 'vertical', label: 'Vertical', w: 220, h: 320 },
+                      { id: 'horizontal', label: 'Wide', w: 350, h: 180 }
+                    ].map((p) => (
+                      <button 
+                        key={p.id}
+                        onClick={() => {
+                          setNodes(nds => nds.map(n => n.id === selectedNodeId ? { 
+                            ...n, 
+                            style: { ...n.style, width: p.w, height: p.h } 
+                          } : n));
+                        }}
+                        className="py-2.5 rounded-xl border border-neutral-200 bg-neutral-50/50 text-[9px] font-black uppercase text-neutral-500 hover:border-blue-500 hover:bg-blue-50 transition-all font-bold"
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+               </div>
+
                {/* TRIGGER CONFIG */}
                {selectedNode.type === 'triggerNode' && (
                  <div className="space-y-6">
@@ -999,27 +1031,6 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 block">Layout Presets</label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: 'square', label: 'Square', w: 250, h: 250 },
-                          { id: 'vertical', label: 'Vertical', w: 220, h: 320 },
-                          { id: 'horizontal', label: 'Wide', w: 350, h: 180 }
-                        ].map((p) => (
-                          <button 
-                            key={p.id}
-                            onClick={() => {
-                              setNodes(nds => nds.map(n => n.id === selectedNodeId ? { ...n, style: { width: p.w, height: p.h } } : n));
-                            }}
-                            className="py-2 rounded-xl border border-neutral-200 bg-white text-[9px] font-black uppercase text-neutral-500 hover:border-blue-500 hover:bg-blue-50 transition-all"
-                          >
-                            {p.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
                       <div className="flex items-center justify-between mb-3 border-b border-neutral-100 pb-2">
                         <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Buttons</label>
                         <span className="text-[10px] text-neutral-300 font-mono">Max 3</span>
@@ -1195,7 +1206,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
               selectable: true
             }}
           >
-            <Background variant={BackgroundVariant.Dots} color="#e2e8f0" gap={20} size={1.5} />
+            <Background variant={BackgroundVariant.Lines} color="#e5e7eb" gap={20} size={1} />
             <Controls position="bottom-left" showInteractive={false} className="hidden sm:flex border-neutral-200 shadow-xl rounded-xl" />
             <MiniMap 
               nodeColor={(node) => {
