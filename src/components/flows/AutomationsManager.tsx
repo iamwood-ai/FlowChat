@@ -31,8 +31,8 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
     setView('analytics');
   };
 
-  const handleCreateNew = () => {
-    setSelectedFlow(null);
+  const handleCreateNew = (templateId?: string) => {
+    setSelectedFlow(templateId ? { templateId } : null);
     setView('builder');
   };
 

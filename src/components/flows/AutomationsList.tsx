@@ -27,6 +27,8 @@ import { collection, query, where, getDocs, doc, deleteDoc, updateDoc, serverTim
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
+import { ALL_TEMPLATES } from '../../constants/templates';
+
 interface Automation {
   id: string;
   name: string;
@@ -39,7 +41,7 @@ interface Automation {
 interface AutomationsListProps {
   onEdit: (id: string) => void;
   onAnalytics: (flow: Automation) => void;
-  onCreateNew: () => void;
+  onCreateNew: (templateId?: string) => void;
 }
 
 export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: AutomationsListProps) {
@@ -61,33 +63,15 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
         
         // Add 3 ready-to-use templates if the list is empty
         if (docs.length === 0) {
-          const templates: Automation[] = [
-            { 
-              id: 'template-dm-link', 
-              name: 'Auto-DM Links from Comments', 
-              status: 'draft', 
-              createdAt: { seconds: Date.now() / 1000 },
-              platform: 'Instagram', 
-              triggerType: 'Comment'
-            },
-            { 
-              id: 'template-lead-gen', 
-              name: 'Lead Magnet Delivery & Email Capture', 
-              status: 'draft', 
-              createdAt: { seconds: Date.now() / 1000 },
-              platform: 'Facebook', 
-              triggerType: 'Keyword'
-            },
-            { 
-              id: 'template-story-reward', 
-              name: 'Story Mention Reward Flow', 
-              status: 'draft', 
-              createdAt: { seconds: Date.now() / 1000 },
-              platform: 'Multi-platform', 
-              triggerType: 'Mention'
-            }
-          ];
-          setAutomations(templates);
+          const defaultTemplates: Automation[] = ALL_TEMPLATES.slice(0, 3).map(t => ({
+            id: `template-${t.id}`,
+            name: t.title,
+            status: 'draft',
+            createdAt: { seconds: Date.now() / 1000 },
+            platform: t.platform,
+            triggerType: t.platform === 'Instagram' ? 'Comment' : 'Messenger'
+          }));
+          setAutomations(defaultTemplates);
         } else {
           setAutomations(docs);
         }
@@ -130,7 +114,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     return matchesSearch && matchesFilter;
   });
 
-  const templates = [
+  const pickerTemplates = [
     { 
       id: 'blank', 
       name: 'Start from Scratch', 
@@ -138,41 +122,13 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
       icon: Plus,
       color: 'bg-neutral-100 text-neutral-600'
     },
-    { 
-      id: 'opening-dm', 
-      name: 'The Opening DM', 
-      desc: 'Auto-reply to the first message your profile receives.',
-      icon: Zap,
-      color: 'bg-amber-100 text-amber-600'
-    },
-    { 
-      id: 'follow-gate', 
-      name: 'Follow-to-Link Gate', 
-      desc: 'Ask users to follow you before they get the resource link.',
-      icon: UserPlus,
-      color: 'bg-blue-100 text-blue-600'
-    },
-    { 
-      id: 'email-capture', 
-      name: 'Email Collector', 
-      desc: 'Qualify leads by asking for their email address first.',
-      icon: Mail,
-      color: 'bg-emerald-100 text-emerald-600'
-    },
-    { 
-      id: 'link-delivery', 
-      name: 'Direct Link Delivery', 
-      desc: 'Instant delivery of links based on keywords.',
-      icon: LinkIcon,
-      color: 'bg-purple-100 text-purple-600'
-    },
-    { 
-      id: 'follow-up', 
-      name: 'Smart Follow-up', 
-      desc: 'Automated follow-up if DM links haven\'t been clicked.',
-      icon: Smartphone,
-      color: 'bg-pink-100 text-pink-600'
-    }
+    ...ALL_TEMPLATES.slice(0, 5).map(t => ({
+      id: t.id,
+      name: t.title,
+      desc: t.desc,
+      icon: t.icon,
+      color: t.color
+    }))
   ];
 
   if (showTemplatePicker) {
@@ -191,10 +147,13 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {templates.map((tpl) => (
+          {pickerTemplates.map((tpl) => (
             <button
               key={tpl.id}
-              onClick={onCreateNew}
+              onClick={() => {
+                setShowTemplatePicker(false);
+                onCreateNew(tpl.id === 'blank' ? undefined : tpl.id);
+              }}
               className="flex items-center gap-4 p-5 rounded-2xl border border-neutral-200 bg-white hover:border-blue-600 hover:shadow-xl transition-all text-left group"
             >
               <div className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-xl", tpl.color)}>
@@ -202,7 +161,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-neutral-900 group-hover:text-blue-600 transition-colors">{tpl.name}</h3>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{tpl.desc}</p>
+                <p className="text-xs text-neutral-500 mt-1 leading-relaxed line-clamp-2">{tpl.desc}</p>
               </div>
               <ChevronRight size={18} className="text-neutral-300 group-hover:text-blue-600 transition-colors" />
             </button>
@@ -307,7 +266,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
                         {automation.status}
                       </span>
                       <span className="text-[10px] text-neutral-400 font-medium">•</span>
-                      <span className="text-[10px] text-neutral-400 font-medium capitalize">{automation.platform || 'Multi-platform'}</span>
+                      <span className="text-[10px] text-neutral-400 font-medium capitalize">{automation.platform || 'Instagram'}</span>
                     </div>
                   </div>
                 </div>

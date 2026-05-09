@@ -11,7 +11,8 @@ import {
   Smartphone,
   Gift,
   HelpCircle,
-  Briefcase
+  Briefcase,
+  Sparkles
 } from 'lucide-react';
 
 export interface Template {
@@ -52,7 +53,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Respond to all your DMs', 
     desc: 'Never miss a message. AI-powered auto-responses for every incoming DM.', 
     category: 'Recommended', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-emerald-50 border-emerald-100 text-emerald-600', 
     count: 'Utility',
     icon: MessageSquare 
@@ -62,7 +63,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Recognize questions in DM with AI', 
     desc: 'Use AI to identify common questions and answer them automatically or flag for support.', 
     category: 'Recommended', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-violet-50 border-violet-100 text-violet-600', 
     count: 'AI Powered',
     icon: Sparkles 
@@ -84,7 +85,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Follow first, then freebie', 
     desc: 'Automatically verify if a user follows you before sending a lead magnet.', 
     category: 'Grow your followers', 
-    platform: 'Multi-Channel', 
+    platform: 'Facebook', 
     color: 'bg-purple-50 border-purple-100 text-purple-600', 
     count: '850 uses',
     icon: Gift 
@@ -94,7 +95,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Grow your email list', 
     desc: 'Collect emails in DMs and sync them directly to your CRM.', 
     category: 'Grow your followers', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-teal-50 border-teal-100 text-teal-600', 
     count: 'Essential',
     icon: Users 
@@ -106,7 +107,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Automate conversations with AI', 
     desc: 'Use Gemini to handle complex customer queries and maintain natural conversations.', 
     category: 'Engage your audience', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-fuchsia-50 border-fuchsia-100 text-fuchsia-600', 
     count: 'New',
     icon: Sparkles 
@@ -178,7 +179,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Grow your YouTube', 
     desc: 'Drive social traffic to your latest YouTube videos via automated DMs.', 
     category: 'Drive traffic', 
-    platform: 'Multi-Channel', 
+    platform: 'Facebook', 
     color: 'bg-red-50 border-red-100 text-red-600', 
     count: 'Videos',
     icon: Youtube 
@@ -188,7 +189,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Go from Instagram to WhatsApp', 
     desc: 'Move your high-value conversations from IG DM to WhatsApp for closer contact.', 
     category: 'Drive traffic', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-emerald-50 border-emerald-100 text-emerald-600', 
     count: 'Sales',
     icon: Smartphone 
@@ -198,7 +199,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'DM your course like a closer', 
     desc: 'Qualify students for your online courses automatically in the DMs.', 
     category: 'Drive traffic', 
-    platform: 'Multi-Channel', 
+    platform: 'Instagram', 
     color: 'bg-violet-50 border-violet-100 text-violet-600', 
     count: 'High ROI',
     icon: Briefcase 
@@ -234,5 +235,3 @@ export const ALL_TEMPLATES: Template[] = [
     icon: ShoppingBag 
   },
 ];
-
-import { Sparkles } from 'lucide-react';
