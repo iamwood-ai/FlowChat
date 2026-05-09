@@ -86,7 +86,7 @@ const MessageNode = ({ data, selected }: any) => {
       "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
       selected ? "border-blue-500 ring-4 ring-blue-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-3 w-3 bg-white border-2 border-blue-400 rounded-full" />
+      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-4 w-4 sm:h-3 sm:w-3 bg-white border-2 border-blue-400 rounded-full shadow-lg" />
       <div className="bg-blue-600 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <MessageSquare size={14} className="fill-white/20" />
@@ -149,7 +149,7 @@ const TriggerNode = ({ data, selected }: any) => {
       "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
       selected ? "border-amber-500 ring-4 ring-amber-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-3 w-3 bg-white border-2 border-amber-400 rounded-full" />
+      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-4 w-4 sm:h-3 sm:w-3 bg-white border-2 border-amber-400 rounded-full shadow-lg" />
       <div className="bg-amber-500 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <Zap size={14} fill="currentColor" />
@@ -197,7 +197,7 @@ const DelayNode = ({ data, selected }: any) => {
       "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
       selected ? "border-purple-500 ring-4 ring-purple-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-3 w-3 bg-white border-2 border-purple-400 rounded-full" />
+      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-4 w-4 sm:h-3 sm:w-3 bg-white border-2 border-purple-400 rounded-full shadow-lg" />
       <div className="bg-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Clock size={14} />
         <span className="text-[11px] font-black uppercase tracking-wider">Delay</span>
@@ -220,7 +220,7 @@ const AINode = ({ data, selected }: any) => {
       "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
       selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-3 w-3 bg-white border-2 border-fuchsia-400 rounded-full" />
+      <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-4 w-4 sm:h-3 sm:w-3 bg-white border-2 border-fuchsia-400 rounded-full shadow-lg" />
       <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Zap size={14} fill="white" />
         <span className="text-[11px] font-black uppercase tracking-wider">AI Intent</span>
@@ -248,40 +248,8 @@ const nodeTypes = {
   aiNode: AINode,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'triggerNode',
-    data: { 
-      type: 'comment', 
-      postType: 'any', 
-      keywords: ['INFO'], 
-      replyToComment: true,
-      replies: ['Check your DMs! 🚀'],
-      trigger: 'On Comment: "INFO"' 
-    },
-    position: { x: 400, y: 50 },
-    style: { width: 180, height: 130 }
-  },
-  {
-    id: '2',
-    type: 'messageNode',
-    data: { 
-      type: 'dm',
-      label: "Hey! Glad you commented. Are you following us yet for more updates?",
-      buttons: [
-        { label: 'Yes, Following!', type: 'next_step' },
-        { label: 'Check Profile', type: 'external_link', link: 'https://instagram.com' }
-      ]
-    },
-    position: { x: 400, y: 220 },
-    style: { width: 220, height: 160 }
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', animated: true },
-];
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 export default function FlowBuilderContainer(props: FlowBuilderProps) {
   return (
@@ -601,22 +569,31 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       type === 'delayNode' ? { width: 150, height: 100 } :
       { width: 200, height: 160 };
 
+    // Position new node below the last one, or at center
+    const x = lastNode ? lastNode.position.x : (window.innerWidth < 1024 ? 50 : 400);
+    const y = lastNode ? lastNode.position.y + (typeof lastNode.style?.height === 'number' ? lastNode.style.height : 150) + 100 : 100;
+
     const newNode = {
       id,
       type,
-      position: { x: lastNode?.position.x || 400, y: (lastNode?.position.y || 0) + 180 },
+      position: { x, y },
       data: initialData,
       style
     };
     setNodes((nds) => nds.concat(newNode));
+    
+    // Close sidebar on mobile after adding node
+    if (window.innerWidth < 1024 && type !== 'triggerNode') {
+      setIsPanelOpen(false);
+    }
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] w-full flex overflow-hidden relative bg-[#F8FAFC]">
+    <div className="h-full w-full flex overflow-hidden relative bg-[#F8FAFC]">
       {/* Sidebar Toggle for Mobile */}
       <button 
         onClick={() => setIsPanelOpen(!isPanelOpen)}
-        className="lg:hidden absolute bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center transition-transform active:scale-95"
+        className="lg:hidden absolute bottom-24 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center transition-transform active:scale-95"
       >
         {isPanelOpen ? <X size={24} /> : <Settings2 size={24} />}
       </button>
@@ -625,14 +602,14 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       <div 
         className={cn(
           "h-full border-r border-neutral-200 bg-white flex flex-col overflow-hidden shadow-2xl relative z-40 transition-all duration-300",
-          window.innerWidth < 1024 ? (isPanelOpen ? "fixed inset-0 w-full" : "w-0 opacity-0 -translate-x-full") : "w-96"
+          window.innerWidth < 1024 ? (isPanelOpen ? "fixed inset-0 w-full" : "w-0 opacity-0 pointer-events-none -translate-x-full") : "w-96"
         )}
       >
-        <div className="flex border-b border-neutral-100 h-14 shrink-0">
+        <div className="flex border-b border-neutral-100 h-14 shrink-0 px-2">
           <button 
             onClick={() => setActiveTab('nodes')}
             className={cn(
-              "flex-1 text-[10px] font-black uppercase tracking-widest transition-all",
+              "flex-1 text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all",
               activeTab === 'nodes' ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/30" : "text-neutral-400 hover:text-neutral-600"
             )}
           >
@@ -641,7 +618,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
           <button 
             onClick={() => setActiveTab('templates')}
             className={cn(
-              "flex-1 text-[10px] font-black uppercase tracking-widest transition-all",
+              "flex-1 text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all",
               activeTab === 'templates' ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/30" : "text-neutral-400 hover:text-neutral-600"
             )}
           >
@@ -1022,10 +999,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                               <button 
                                 key={t.id}
                                 onClick={() => {
-                                  const updates: any = { type: t.id };
-                                  if (!selectedNode.data.label || selectedNode.data.label === 'Enter your message here...') {
-                                    updates.label = t.defaultContent;
-                                  }
+                                  const updates: any = { type: t.id, label: t.defaultContent };
                                   
                                   // Add default follow button if type is follow_check
                                   if (t.id === 'follow_check' && (!selectedNode.data.buttons || selectedNode.data.buttons.length === 0)) {
@@ -1174,10 +1148,10 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
           )}
         </div>
 
-        <div className="p-4 border-t border-neutral-100 flex gap-2 h-20 bg-neutral-50/50">
+        <div className="p-4 border-t border-neutral-100 flex gap-3 h-20 bg-neutral-50/50 shrink-0">
            <button 
              onClick={onBack}
-             className="flex-1 flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl text-xs font-black uppercase text-neutral-700 hover:border-neutral-400 transition-all"
+             className="flex-1 flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl text-[10px] sm:text-[11px] font-black uppercase text-neutral-700 hover:border-neutral-400 transition-all h-full"
            >
               Exit
            </button>
@@ -1185,12 +1159,12 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
              onClick={() => saveFlow('active')}
              disabled={publishing || saveStatus === 'saving'}
              className={cn(
-               "flex-1 flex items-center justify-center gap-2 text-white rounded-xl text-xs font-black uppercase shadow-xl transition-all disabled:opacity-50",
-               saveStatus === 'saved' && publishing === false ? "bg-emerald-600" : "bg-neutral-900 hover:bg-black"
+               "flex-1 flex items-center justify-center gap-2 text-white rounded-xl text-[10px] sm:text-[11px] font-black uppercase shadow-xl transition-all disabled:opacity-50 h-full",
+               saveStatus === 'saved' && publishing === false ? "bg-emerald-600 shadow-emerald-500/20" : "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
              )}
            >
-              {publishing ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} fill="white" />}
-              {saveStatus === 'saved' && publishing === false ? 'Published ✨' : 'Publish'}
+              {publishing ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} fill="white" />}
+              {saveStatus === 'saved' && publishing === false ? 'Active ✨' : 'Publish'}
            </button>
         </div>
       </div>
@@ -1237,7 +1211,33 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             }}
           >
             <Background variant={BackgroundVariant.Lines} color="#e5e7eb" gap={20} size={1} />
-            <Controls position="bottom-left" showInteractive={false} className="hidden sm:flex border-neutral-200 shadow-xl rounded-xl" />
+            
+            {nodes.length === 0 && (
+              <Panel position="center" className="bg-white/90 backdrop-blur-md p-10 rounded-[32px] border border-neutral-100 shadow-2xl flex flex-col items-center text-center gap-6 max-w-sm m-4 animate-in fade-in zoom-in duration-500">
+                <div className="h-20 w-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/20">
+                  <Plus size={40} className="text-white" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black text-neutral-900 tracking-tight">Empty Canvas</h3>
+                  <p className="text-sm text-neutral-500 leading-relaxed font-medium">Your automation is empty. Start by adding a trigger from the sidebar or using a template.</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    setIsPanelOpen(true);
+                    setActiveTab('nodes');
+                  }}
+                  className="px-8 py-4 bg-neutral-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl"
+                >
+                  Configure Trigger
+                </button>
+              </Panel>
+            )}
+
+            <Controls 
+              position="bottom-left" 
+              showInteractive={false} 
+              className="flex border-neutral-200 shadow-xl rounded-xl !bg-white/80 !backdrop-blur-sm scale-110 sm:scale-100 origin-bottom-left mb-[88px] sm:mb-4 ml-4 sm:ml-4" 
+            />
             <MiniMap 
               nodeColor={(node) => {
                 switch (node.type) {
@@ -1251,31 +1251,31 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
               className="hidden lg:block !bottom-4 !right-4 !bg-white !border-neutral-200 !rounded-xl !shadow-2xl"
             />
             
-            <Panel position="top-left" className="bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-neutral-200 shadow-xl m-4 flex items-center gap-2 max-w-[200px] sm:max-w-none overflow-hidden">
+            <Panel position="top-left" className="bg-white/90 backdrop-blur-md px-2 py-0 h-9 sm:h-10 rounded-2xl border border-neutral-200 shadow-xl m-2 sm:m-4 flex items-center gap-1.5 sm:gap-2 max-w-[140px] sm:max-w-none overflow-hidden">
                <button 
                 onClick={onBack}
-                className="lg:hidden p-2 text-neutral-500 hover:bg-neutral-50 rounded-lg shrink-0"
+                className="lg:hidden p-1 sm:p-1.5 text-neutral-500 hover:bg-neutral-50 rounded-lg shrink-0"
                >
-                 <ChevronRight size={18} className="rotate-180" />
+                 <ChevronRight size={14} className="rotate-180" />
                </button>
-               <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 hidden sm:flex">
-                  <Languages size={20} className="text-white" />
+               <div className="h-6 w-6 sm:h-7 sm:w-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 hidden sm:flex">
+                  <Languages size={12} sm:size={14} className="text-white" />
                </div>
-               <div className="min-w-0">
+               <div className="min-w-0 flex flex-col justify-center">
                  <input 
                    value={flowName}
                    onChange={(e) => setFlowName(e.target.value)}
-                   className="text-sm font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-full truncate"
+                   className="text-[10px] sm:text-xs font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-full truncate leading-none"
                  />
-                 <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest truncate">Automation Flow</p>
+                 <p className="text-[6px] sm:text-[9px] text-neutral-400 font-bold uppercase tracking-widest truncate leading-none mt-0.5">Flow</p>
                </div>
             </Panel>
 
-            <Panel position="top-right" className="flex items-center gap-2 m-4">
+            <Panel position="top-right" className="flex items-center gap-1 sm:gap-2 m-2 sm:m-4 shrink-0">
                <button 
                  onClick={() => saveFlow('draft')}
                  disabled={saving || saveStatus === 'saving'}
-                 className="h-10 px-4 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[10px] font-black uppercase shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
+                 className="h-9 sm:h-10 px-3 sm:px-4 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-xl hover:shadow-2xl transition-all flex items-center gap-1.5"
                >
                  {saving ? <Loader2 className="animate-spin" size={14} /> : (saveStatus === 'saved' ? <CheckCircle2 size={14} className="text-emerald-500" /> : <Save size={14} />)}
                  <span className="hidden sm:inline">{saveStatus === 'saved' && !saving ? 'Saved' : 'Save'}</span>
@@ -1283,7 +1283,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                <button 
                  onClick={() => saveFlow('active')}
                  disabled={publishing}
-                 className="h-10 px-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
+                 className="h-9 sm:h-10 px-3 sm:px-4 bg-blue-600 text-white rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-1.5"
                >
                  {publishing ? <Loader2 className="animate-spin" size={14} /> : <Play size={14} fill="white" />}
                  <span>Publish</span>
