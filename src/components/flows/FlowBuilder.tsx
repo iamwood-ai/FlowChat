@@ -7,6 +7,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  reconnectEdge,
   Connection,
   Edge,
   Node,
@@ -15,7 +16,8 @@ import {
   Panel,
   NodeResizer,
   useReactFlow,
-  ReactFlowProvider
+  ReactFlowProvider,
+  BackgroundVariant
 } from '@xyflow/react';
 
 import { motion } from 'motion/react';
@@ -80,10 +82,10 @@ interface MessageData {
 const MessageNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[120px] min-w-[210px]",
       selected ? "border-blue-500 ring-4 ring-blue-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-2 w-2 bg-white border-2 border-blue-400 rounded-full" />
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-3 w-3 bg-white border-2 border-blue-400 rounded-full" />
       <div className="bg-blue-600 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <MessageSquare size={14} className="fill-white/20" />
@@ -93,7 +95,7 @@ const MessageNode = ({ data, selected }: any) => {
           <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
         </div>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex-1 overflow-auto scrollbar-hide">
         <div className="min-h-[60px] flex flex-col justify-center">
           <p className="text-xs text-neutral-600 leading-relaxed">
             {data.label || 'Enter your message here...'}
@@ -101,7 +103,7 @@ const MessageNode = ({ data, selected }: any) => {
         </div>
         
         {data.buttons?.length > 0 && (
-          <div className="space-y-2 pt-2 border-t border-neutral-50">
+          <div className="space-y-2 pt-2 border-t border-neutral-50 mt-auto">
             {data.buttons.map((btn: any, i: number) => (
               <div 
                 key={i} 
@@ -114,7 +116,7 @@ const MessageNode = ({ data, selected }: any) => {
           </div>
         )}
 
-        <div className="flex gap-1.5 pt-2">
+        <div className="flex gap-1.5 pt-2 mt-auto">
           <div className={cn(
             "px-2 py-1 rounded-md text-[9px] font-bold uppercase",
             data.type === 'follow_check' ? "bg-purple-100 text-purple-600" :
@@ -134,17 +136,17 @@ const MessageNode = ({ data, selected }: any) => {
 const TriggerNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[120px] min-w-[210px]",
       selected ? "border-amber-500 ring-4 ring-amber-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-2 w-2 bg-white border-2 border-amber-400 rounded-full" />
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-3 w-3 bg-white border-2 border-amber-400 rounded-full" />
       <div className="bg-amber-500 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <Zap size={14} fill="currentColor" />
           <span className="text-[11px] font-black uppercase tracking-wider">Trigger</span>
         </div>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex-1 overflow-auto scrollbar-hide space-y-3">
         <div>
           <p className="text-[9px] text-neutral-400 font-black uppercase tracking-widest mb-1">
              On {data.type === 'comment' ? 'Comment' : 'Interaction'}
@@ -182,15 +184,15 @@ const TriggerNode = ({ data, selected }: any) => {
 const DelayNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[100px] min-w-[180px]",
       selected ? "border-purple-500 ring-4 ring-purple-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={180} minHeight={100} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-2 w-2 bg-white border-2 border-purple-400 rounded-full" />
+      <NodeResizer minWidth={180} minHeight={100} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-3 w-3 bg-white border-2 border-purple-400 rounded-full" />
       <div className="bg-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Clock size={14} />
         <span className="text-[11px] font-black uppercase tracking-wider">Delay</span>
       </div>
-      <div className="p-4">
+      <div className="p-4 flex-1 overflow-auto scrollbar-hide flex flex-col justify-center">
         <div className="bg-purple-50 p-3 rounded-xl border border-purple-100 text-center">
           <p className="text-lg font-black text-purple-700">{data.duration || '24 hrs'}</p>
           <p className="text-[9px] text-purple-400 font-bold uppercase tracking-widest mt-1">Wait Time</p>
@@ -205,17 +207,17 @@ const DelayNode = ({ data, selected }: any) => {
 const AINode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[120px] min-w-[210px]",
       selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10" : "border-neutral-200"
     )}>
-      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-2 w-2 bg-white border-2 border-fuchsia-400 rounded-full" />
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-3 w-3 bg-white border-2 border-fuchsia-400 rounded-full" />
       <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Zap size={14} fill="white" />
         <span className="text-[11px] font-black uppercase tracking-wider">AI Intent</span>
       </div>
-      <div className="p-4 space-y-2">
+      <div className="p-4 flex-1 overflow-auto scrollbar-hide space-y-2">
         <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Model Context</p>
-        <p className="text-xs text-neutral-500 italic line-clamp-3 bg-neutral-50 p-2 rounded-lg border border-neutral-100">
+        <p className="text-xs text-neutral-500 italic bg-neutral-50 p-2 rounded-lg border border-neutral-100">
           "{data.prompt || 'Analyze intent and reply accordingly...'}"
         </p>
       </div>
@@ -478,8 +480,13 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
   }, [activeWorkspace, flowId, templateId]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
     [setEdges],
+  );
+
+  const onEdgeReconnect = useCallback(
+    (oldEdge: any, newConnection: any) => setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
+    []
   );
 
   const onNodeClick = useCallback((_: any, node: Node) => {
@@ -1108,10 +1115,15 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onEdgeReconnect={onEdgeReconnect}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
+            snapToGrid={true}
+            snapGrid={[15, 15]}
+            reconnectMode="around"
+            deleteKeyCode={["Backspace", "Delete"]}
             className="bg-transparent touch-none"
             nodesDraggable={true}
             defaultEdgeOptions={{ 
@@ -1120,7 +1132,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
               type: 'smoothstep'
             }}
           >
-            <Background color="#CBD5E1" gap={20} size={1} />
+            <Background variant={BackgroundVariant.Lines} color="#f1f5f9" gap={15} size={1} />
             <Controls position="bottom-left" showInteractive={false} className="hidden sm:flex border-neutral-200 shadow-xl rounded-xl" />
             <MiniMap 
               nodeColor={(node) => {
