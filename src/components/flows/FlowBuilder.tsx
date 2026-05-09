@@ -96,21 +96,21 @@ const MessageNode = ({ data, selected }: any) => {
           <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
         </div>
       </div>
-      <div className="p-3 flex-1 overflow-auto scrollbar-hide">
-        <div className="min-h-[40px] flex flex-col justify-start">
-          <p className="text-xs text-neutral-600 leading-relaxed">
+      <div className="p-3 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2">
+        <div className="flex flex-col justify-start">
+          <p className="text-xs text-neutral-600 leading-relaxed font-medium">
             {data.label || 'Enter your message here...'}
           </p>
         </div>
 
         {data.buttons?.length > 0 && (
-          <div className="space-y-1.5 mt-2">
+          <div className="space-y-1">
             {data.buttons.map((btn: any, i: number) => (
               <div 
                 key={i} 
-                className="w-full py-1.5 px-3 bg-neutral-50 border border-neutral-100 rounded-lg text-[10px] font-bold text-neutral-500 flex items-center justify-between group"
+                className="w-full py-1.5 px-3 bg-neutral-50 border border-neutral-100 rounded-lg text-[10px] font-bold text-neutral-500 flex items-center justify-between group hover:bg-blue-50 hover:border-blue-100 transition-colors cursor-pointer"
               >
-                <span className="truncate max-w-[150px]">{btn.label}</span>
+                <span className="truncate max-w-[120px]">{btn.label}</span>
                 {btn.type === 'external_link' ? <ExternalLink size={10} /> : <ChevronRight size={10} />}
               </div>
             ))}
@@ -118,20 +118,17 @@ const MessageNode = ({ data, selected }: any) => {
         )}
 
         {data.type === 'email_capture' && (
-          <div className="mt-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-1.5 flex items-center justify-between">
+          <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-1.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Mail size={12} className="text-neutral-400" />
-              <span className="text-[10px] text-neutral-400 italic">User replies with email...</span>
-            </div>
-            <div className="bg-blue-500 text-white p-1 rounded-md">
-              <ChevronRight size={10} />
+              <Mail size={12} className="text-emerald-500" />
+              <span className="text-[10px] text-emerald-600 font-bold">Email Capture Active</span>
             </div>
           </div>
         )}
 
-        <div className="flex gap-1.5 mt-2">
+        <div className="flex gap-1.5 mt-auto pt-2">
           <div className={cn(
-            "px-2 py-1 rounded-md text-[9px] font-bold uppercase",
+            "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider",
             data.type === 'follow_check' ? "bg-purple-100 text-purple-600" :
             data.type === 'email_capture' ? "bg-teal-100 text-teal-600" :
             "bg-blue-100 text-blue-600"
@@ -159,7 +156,7 @@ const TriggerNode = ({ data, selected }: any) => {
           <span className="text-[11px] font-black uppercase tracking-wider">Trigger</span>
         </div>
       </div>
-      <div className="p-4 flex-1 overflow-auto scrollbar-hide space-y-3">
+      <div className="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-3">
         <div>
           <p className="text-[9px] text-neutral-400 font-black uppercase tracking-widest mb-1">
              On {data.type === 'comment' ? 'Comment' : 'Interaction'}
@@ -205,10 +202,10 @@ const DelayNode = ({ data, selected }: any) => {
         <Clock size={14} />
         <span className="text-[11px] font-black uppercase tracking-wider">Delay</span>
       </div>
-      <div className="p-4 flex-1 overflow-auto scrollbar-hide flex flex-col justify-center">
+      <div className="p-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col justify-center">
         <div className="bg-purple-50 p-3 rounded-xl border border-purple-100 text-center">
-          <p className="text-lg font-black text-purple-700">{data.duration || '24 hrs'}</p>
-          <p className="text-[9px] text-purple-400 font-bold uppercase tracking-widest mt-1">Wait Time</p>
+          <p className="text-lg font-black text-purple-700 leading-tight">{data.duration || '24 hrs'}</p>
+          <p className="text-[9px] text-purple-400 font-bold uppercase tracking-widest mt-0.5">Wait Time</p>
         </div>
       </div>
       <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-purple-500 !border-2 !border-white shadow-sm" />
@@ -228,11 +225,15 @@ const AINode = ({ data, selected }: any) => {
         <Zap size={14} fill="white" />
         <span className="text-[11px] font-black uppercase tracking-wider">AI Intent</span>
       </div>
-      <div className="p-4 flex-1 overflow-auto scrollbar-hide space-y-2">
-        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Model Context</p>
-        <p className="text-xs text-neutral-500 italic bg-neutral-50 p-2 rounded-lg border border-neutral-100">
-          "{data.prompt || 'Analyze intent and reply accordingly...'}"
-        </p>
+      <div className="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-3">
+        <div>
+          <p className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1.5">Model Context</p>
+          <div className="bg-neutral-50 px-3 py-2.5 rounded-xl border border-neutral-100">
+            <p className="text-xs text-neutral-500 leading-relaxed font-medium italic">
+              "{data.prompt || 'Analyze intent and reply accordingly...'}"
+            </p>
+          </div>
+        </div>
       </div>
       <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-fuchsia-500 !border-2 !border-white shadow-sm" />
       <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-fuchsia-500 !border-2 !border-white shadow-sm" />
@@ -781,96 +782,57 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                </div>
 
                {/* LAYOUT PRESETS (SHARED) */}
-               <div className="bg-white border border-neutral-100 rounded-2xl p-4 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Layout & Alignment</label>
-                    <span className="text-[10px] text-neutral-300 font-mono italic">Smart Sync</span>
+               <div className="bg-white border border-neutral-100 rounded-2xl p-4 shadow-sm space-y-5">
+                   <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Smart Transform</label>
+                    <span className="text-[10px] text-blue-500 font-black uppercase tracking-tighter">Area Sync</span>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { id: 'square', label: 'Square', w: 180, h: 180 },
-                      { id: 'vertical', label: 'Vertical', w: 160, h: 240 },
-                      { id: 'horizontal', label: 'Wide', w: 250, h: 130 }
+                      { id: 'square', label: 'Square', ratio: 1 },
+                      { id: 'vertical', label: 'Vertical', ratio: 0.65 },
+                      { id: 'horizontal', label: 'Wide', ratio: 1.6 }
                     ].map((p) => (
                       <button 
-                        key={p.id}
-                        onClick={() => {
-                          setNodes(nds => nds.map(n => n.id === selectedNodeId ? { 
-                            ...n, 
-                            style: { ...n.style, width: p.w, height: p.h } 
-                          } : n));
-                        }}
-                        className="py-2.5 rounded-xl border border-neutral-200 bg-neutral-50/50 text-[9px] font-black uppercase text-neutral-500 hover:border-blue-500 hover:bg-blue-50 transition-all font-bold"
+                         key={p.id}
+                         onClick={() => {
+                           if (!selectedNodeId) return;
+                           setNodes(nds => nds.map(n => {
+                             if (n.id !== selectedNodeId || !n.style) return n;
+                             const currW = typeof n.style.width === 'number' ? n.style.width : 200;
+                             const currH = typeof n.style.height === 'number' ? n.style.height : 150;
+                             const area = currW * currH;
+                             
+                             // Calculate new dimensions preserving area but changing ratio
+                             const newH = Math.sqrt(area / p.ratio);
+                             const newW = newH * p.ratio;
+                             
+                             return {
+                               ...n,
+                               style: { 
+                                 ...n.style, 
+                                 width: Math.max(150, Math.round(newW)), 
+                                 height: Math.max(80, Math.round(newH)) 
+                               }
+                             };
+                           }));
+                         }}
+                         className="flex flex-col items-center gap-2 p-3 rounded-xl border border-neutral-100 bg-neutral-50/30 hover:border-blue-500 hover:bg-blue-50 transition-all group"
                       >
-                        {p.label}
+                         <div className={cn(
+                           "border-2 border-neutral-200 group-hover:border-blue-500 rounded-sm transition-all shadow-sm",
+                           p.id === 'square' ? "w-6 h-6 bg-white" : p.id === 'vertical' ? "w-4 h-6 bg-white" : "w-8 h-4 bg-white"
+                         )} />
+                         <span className="text-[9px] font-black uppercase tracking-tighter text-neutral-400 group-hover:text-blue-600">{p.label}</span>
                       </button>
                     ))}
                   </div>
- 
-                   <div className="flex gap-2 pt-2">
-                    <button 
-                      onClick={() => {
-                        if (!selectedNodeId) return;
-                        const refNode = nodes.find(n => n.id !== selectedNodeId);
-                        if (refNode && refNode.style) {
-                          setNodes(nds => nds.map(n => n.id === selectedNodeId ? {
-                            ...n,
-                            style: { ...n.style, width: refNode.style?.width, height: refNode.style?.height }
-                          } : n));
-                        }
-                      }}
-                      className="flex-1 py-3 bg-neutral-900 text-white rounded-xl text-[9px] font-black uppercase tracking-tighter hover:bg-black transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95"
-                    >
-                      <Layers size={12} /> Sync Size
-                    </button>
-                    <button 
-                      onClick={() => {
-                        const currentWidth = selectedNode?.style?.width;
-                        const currentHeight = selectedNode?.style?.height;
-                        if (currentWidth && currentHeight) {
-                          setNodes(nds => nds.map(n => ({
-                            ...n,
-                            style: { ...n.style, width: currentWidth, height: currentHeight }
-                          })));
-                        }
-                      }}
-                      className="flex-1 py-3 bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-tighter hover:bg-blue-700 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95"
-                    >
-                      <Zap size={12} /> Unify All
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <button 
-                      onClick={() => {
-                        if (!selectedNodeId) return;
-                        const selection = nodes.filter(n => n.selected);
-                        if (selection.length < 2) return;
-                        const masterX = selection[0].position.x;
-                        setNodes(nds => nds.map(n => n.selected ? { ...n, position: { ...n.position, x: masterX } } : n));
-                      }}
-                      className="py-2 rounded-lg border border-neutral-200 bg-white text-[9px] font-bold uppercase text-neutral-500 hover:border-blue-500 hover:text-blue-600 transition-all font-bold"
-                    >
-                      Align Left
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (!selectedNodeId) return;
-                        const selection = nodes.filter(n => n.selected);
-                        if (selection.length < 2) return;
-                        const masterY = selection[0].position.y;
-                        setNodes(nds => nds.map(n => n.selected ? { ...n, position: { ...n.position, y: masterY } } : n));
-                      }}
-                      className="py-2 rounded-lg border border-neutral-200 bg-white text-[9px] font-bold uppercase text-neutral-500 hover:border-blue-500 hover:text-blue-600 transition-all font-bold"
-                    >
-                      Align Top
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 px-1 py-1 bg-neutral-50 rounded-lg border border-neutral-100">
+
+                  <div className="flex items-center gap-2 px-3 py-2.5 bg-blue-50/50 rounded-xl border border-blue-100">
                     <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
-                    <p className="text-[9px] text-neutral-400 font-bold leading-tight">
-                      Select reference node, then use <span className="text-neutral-900 uppercase">Apply to All</span> to unify sizes.
+                    <p className="text-[10px] text-blue-700/70 font-medium leading-tight">
+                      Adjusting aspect ratios will maintain the node's relative scale.
                     </p>
                   </div>
                </div>
