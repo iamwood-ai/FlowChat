@@ -128,7 +128,7 @@ if (process.env.NODE_ENV !== "production") {
   const distPath = path.join(process.cwd(), "dist");
   app.use(express.static(distPath));
   
-  // SPA Fallback for production (only if not handled by Vercel rewrites)
+  // SPA Fallback for production
   app.get("*", (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
