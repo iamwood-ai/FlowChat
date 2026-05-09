@@ -95,19 +95,27 @@ const MessageNode = ({ data, selected }: any) => {
           <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
         </div>
       </div>
-      <div className="p-4 flex-1 overflow-auto scrollbar-hide">
-        <div className="min-h-[60px] flex flex-col justify-center">
+      <div className="p-3 flex-1 overflow-auto scrollbar-hide">
+        <div className="min-h-[40px] flex flex-col justify-start">
           <p className="text-xs text-neutral-600 leading-relaxed">
             {data.label || 'Enter your message here...'}
           </p>
         </div>
+
+        {data.type === 'email_capture' && (
+          <div className="mt-3 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 flex items-center gap-2">
+            <Mail size={12} className="text-neutral-400" />
+            <div className="h-4 w-px bg-neutral-200" />
+            <span className="text-[10px] text-neutral-400 italic">User replies with email...</span>
+          </div>
+        )}
         
         {data.buttons?.length > 0 && (
-          <div className="space-y-2 pt-2 border-t border-neutral-50 mt-auto">
+          <div className="space-y-1.5 mt-2 border-t border-neutral-50 pt-2">
             {data.buttons.map((btn: any, i: number) => (
               <div 
                 key={i} 
-                className="w-full py-2 px-3 bg-neutral-50 border border-neutral-100 rounded-lg text-[10px] font-bold text-neutral-500 flex items-center justify-between group"
+                className="w-full py-1.5 px-3 bg-neutral-50 border border-neutral-100 rounded-lg text-[10px] font-bold text-neutral-500 flex items-center justify-between group"
               >
                 <span className="truncate max-w-[150px]">{btn.label}</span>
                 {btn.type === 'external_link' ? <ExternalLink size={10} /> : <ChevronRight size={10} />}
@@ -116,7 +124,7 @@ const MessageNode = ({ data, selected }: any) => {
           </div>
         )}
 
-        <div className="flex gap-1.5 pt-2 mt-auto">
+        <div className="flex gap-1.5 mt-2">
           <div className={cn(
             "px-2 py-1 rounded-md text-[9px] font-bold uppercase",
             data.type === 'follow_check' ? "bg-purple-100 text-purple-600" :
@@ -480,9 +488,16 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
   }, [activeWorkspace, flowId, templateId]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
+    (params: Connection) => {
+      if (params.source === params.target) return; // Prevent self-connection
+      setEdges((eds) => addEdge({ ...params, animated: true }, eds));
+    },
     [setEdges],
   );
+
+  const isValidConnection = useCallback((connection: Connection) => {
+    return connection.source !== connection.target;
+  }, []);
 
   const onEdgeReconnect = useCallback(
     (oldEdge: any, newConnection: any) => setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
@@ -937,14 +952,26 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                         <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 block">Message Type</label>
                         <div className="grid grid-cols-2 gap-2">
                            {[
-                             { id: 'dm', label: 'Standard DM', icon: MessageSquare },
-                             { id: 'follow_check', label: 'Follow Guard', icon: UserPlus },
-                             { id: 'email_capture', label: 'Email Opt-in', icon: Mail },
-                             { id: 'link_delivery', label: 'Link Send', icon: LinkIcon }
+                             { id: 'dm', label: 'Standard DM', icon: MessageSquare, defaultContent: "Hello! How can we help you today?" },
+                             { id: 'follow_check', label: 'Follow Guard', icon: UserPlus, defaultContent: "Thanks for reaching out! To proceed, please make sure you're following our profile." },
+                             { id: 'email_capture', label: 'Email Opt-in', icon: Mail, defaultContent: "Great! Please reply with your email address to receive the details." },
+                             { id: 'link_delivery', label: 'Link Send', icon: LinkIcon, defaultContent: "Here is the exclusive link I promised! Enjoy." }
                            ].map((t) => (
                               <button 
                                 key={t.id}
-                                onClick={() => updateNodeData({ type: t.id })}
+                                onClick={() => {
+                                  const updates: any = { type: t.id };
+                                  if (!selectedNode.data.label || selectedNode.data.label === 'Enter your message here...') {
+                                    updates.label = t.defaultContent;
+                                  }
+                                  
+                                  // Add default follow button if type is follow_check
+                                  if (t.id === 'follow_check' && (!selectedNode.data.buttons || selectedNode.data.buttons.length === 0)) {
+                                    updates.buttons = [{ label: 'Follow Profile', type: 'external_link', link: `https://instagram.com/${activeWorkspace?.name || 'profile'}` }];
+                                  }
+
+                                  updateNodeData(updates);
+                                }}
                                 className={cn(
                                   "flex items-center gap-2 p-3 rounded-xl border text-[10px] font-bold transition-all",
                                   selectedNode.data.type === t.id ? "bg-blue-600 border-blue-700 text-white shadow-lg" : "bg-white border-neutral-200 text-neutral-400"
@@ -963,11 +990,32 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                         value={selectedNode.data.label}
                         onChange={(e) => updateNodeData({ label: e.target.value })}
                         placeholder="Type your message..."
-                        className="w-full h-40 bg-neutral-50 border border-neutral-200 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full h-32 bg-neutral-50 border border-neutral-200 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
                       />
                       <div className="flex items-center gap-2 mt-2 text-[10px] text-neutral-400 font-bold bg-blue-50/50 p-2 rounded-lg">
                         <Zap size={12} className="text-amber-500" />
                         <span>TIP: Include a clear call-to-action</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 block">Layout Presets</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'square', label: 'Square', w: 250, h: 250 },
+                          { id: 'vertical', label: 'Vertical', w: 220, h: 320 },
+                          { id: 'horizontal', label: 'Wide', w: 350, h: 180 }
+                        ].map((p) => (
+                          <button 
+                            key={p.id}
+                            onClick={() => {
+                              setNodes(nds => nds.map(n => n.id === selectedNodeId ? { ...n, style: { width: p.w, height: p.h } } : n));
+                            }}
+                            className="py-2 rounded-xl border border-neutral-200 bg-white text-[9px] font-black uppercase text-neutral-500 hover:border-blue-500 hover:bg-blue-50 transition-all"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
@@ -1109,6 +1157,16 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       {/* Main Flow Canvas */}
       <div className="flex-1 bg-[#F8FAFC] relative">
         <div className="h-full w-full">
+          <style>{`
+            .react-flow__edge.selected .react-flow__edge-path {
+              stroke: #3b82f6 !important;
+              stroke-width: 4px !important;
+            }
+            .react-flow__edge:hover .react-flow__edge-path {
+              stroke: #60a5fa !important;
+              stroke-width: 3px !important;
+            }
+          `}</style>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -1116,23 +1174,28 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onEdgeReconnect={onEdgeReconnect}
+            isValidConnection={isValidConnection}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
             snapToGrid={true}
-            snapGrid={[15, 15]}
+            snapGrid={[20, 20]}
             reconnectMode="around"
             deleteKeyCode={["Backspace", "Delete"]}
             className="bg-transparent touch-none"
             nodesDraggable={true}
+            edgesUpdatable={true}
+            edgesFocusable={true}
+            connectionRadius={50}
             defaultEdgeOptions={{ 
               animated: true, 
-              style: { stroke: '#CBD5E1', strokeWidth: 2 },
-              type: 'smoothstep'
+              style: { stroke: '#94A3B8', strokeWidth: 2.5 },
+              type: 'smoothstep',
+              selectable: true
             }}
           >
-            <Background variant={BackgroundVariant.Lines} color="#f1f5f9" gap={15} size={1} />
+            <Background variant={BackgroundVariant.Dots} color="#e2e8f0" gap={20} size={1.5} />
             <Controls position="bottom-left" showInteractive={false} className="hidden sm:flex border-neutral-200 shadow-xl rounded-xl" />
             <MiniMap 
               nodeColor={(node) => {

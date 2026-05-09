@@ -63,14 +63,19 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
         
         // Add 3 ready-to-use templates if the list is empty
         if (docs.length === 0) {
-          const defaultTemplates: Automation[] = ALL_TEMPLATES.slice(0, 3).map(t => ({
-            id: `template-${t.id}`,
-            name: t.title,
-            status: 'draft',
-            createdAt: { seconds: Date.now() / 1000 },
-            platform: t.platform,
-            triggerType: t.platform === 'Instagram' ? 'Comment' : 'Messenger'
-          }));
+          // Use specific indices to ensure variety
+          const indices = [0, 5, 8]; 
+          const defaultTemplates: Automation[] = indices.map(idx => {
+            const t = ALL_TEMPLATES[idx] || ALL_TEMPLATES[0];
+            return {
+              id: `template-${t.id}-${Date.now()}-${idx}`, // More unique ID
+              name: t.title,
+              status: 'draft',
+              createdAt: { seconds: Date.now() / 1000 },
+              platform: t.platform,
+              triggerType: t.platform === 'Instagram' ? 'Comment' : 'Messenger'
+            };
+          });
           setAutomations(defaultTemplates);
         } else {
           setAutomations(docs);
