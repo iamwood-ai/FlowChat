@@ -18,7 +18,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
   switchWorkspace: (id: string) => void;
   createWorkspace: (name: string) => Promise<Workspace | null>;
-  updateWorkspace: (id: string, name: string) => Promise<void>;
+  updateWorkspace: (id: string, data: any) => Promise<void>;
+  updateUserProfile: (data: { displayName?: string; photoURL?: string }) => Promise<void>;
+  userProfile: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,12 +30,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
         try {
+          // Fetch user profile from Firestore
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUserProfile(userData);
+
+            if (userData?.activeWorkspaceId) {
+              // We'll sync active workspace later after fetching workspaces
+            }
+          }
+
           // Fetch workspaces
           const q = query(collection(db, 'workspaces'), where('ownerId', '==', user.uid));
           const snapshot = await getDocs(q);
@@ -41,11 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setWorkspaces(ws);
 
           // Fetch user preferences for active workspace
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const userData = userDoc.data();
-          
-          if (userData?.activeWorkspaceId) {
-            const active = ws.find(w => w.id === userData.activeWorkspaceId);
+          if (userProfile?.activeWorkspaceId || userDoc.data()?.activeWorkspaceId) {
+            const activeId = userProfile?.activeWorkspaceId || userDoc.data()?.activeWorkspaceId;
+            const active = ws.find(w => w.id === activeId);
             setActiveWorkspace(active || ws[0] || null);
           } else if (ws.length > 0) {
             setActiveWorkspace(ws[0]);
@@ -109,7 +122,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (ws) {
       setActiveWorkspace(ws);
       try {
-        await setDoc(doc(db, 'users', user.uid), { activeWorkspaceId: id }, { merge: true });
+        await setDoc(doc(db, 'users', user.uid), { 
+          activeWorkspaceId: id,
+          displayName: ws.name 
+        }, { merge: true });
+        
+        // Also update local state for immediate feedback
+        setUserProfile(prev => prev ? { ...prev, displayName: ws.name } : { displayName: ws.name });
       } catch (error) {
         handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
       }
@@ -138,16 +157,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateWorkspace = async (id: string, name: string) => {
+  const updateWorkspace = async (id: string, data: any) => {
     if (!user) return;
+    const updateData = typeof data === 'string' ? { name: data } : data;
     try {
-      await setDoc(doc(db, 'workspaces', id), { name }, { merge: true });
-      setWorkspaces(prev => prev.map(w => w.id === id ? { ...w, name } : w));
-      if (activeWorkspace?.id === id) {
-        setActiveWorkspace(prev => prev ? { ...prev, name } : null);
+      await setDoc(doc(db, 'workspaces', id), updateData, { merge: true });
+      
+      if (updateData.name) {
+        setWorkspaces(prev => prev.map(w => w.id === id ? { ...w, name: updateData.name } : w));
+        if (activeWorkspace?.id === id) {
+          setActiveWorkspace(prev => prev ? { ...prev, name: updateData.name } : null);
+          // Sync user displayName as well
+          await setDoc(doc(db, 'users', user.uid), { displayName: updateData.name }, { merge: true });
+          setUserProfile(prev => prev ? { ...prev, displayName: updateData.name } : { displayName: updateData.name });
+        }
+      } else {
+        // Just update local workspaces state if other fields changed
+        setWorkspaces(prev => prev.map(w => w.id === id ? { ...w, ...updateData } : w));
+        if (activeWorkspace?.id === id) {
+          setActiveWorkspace(prev => prev ? { ...prev, ...updateData } : null);
+        }
       }
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `workspaces/${id}`);
+    }
+  };
+
+  const updateUserProfile = async (data: { displayName?: string; photoURL?: string }) => {
+    if (!user) return;
+    try {
+      // 1. Update Auth Profile (only displayName to avoid 'URL too long' error)
+      const { updateProfile } = await import('firebase/auth');
+      const authUpdate: any = {};
+      if (data.displayName) authUpdate.displayName = data.displayName;
+      
+      // We explicitly DO NOT update photoURL in Firebase Auth if it's a data URL
+      // to avoid the character limit error. We'll rely on Firestore.
+      if (data.photoURL && !data.photoURL.startsWith('data:')) {
+        authUpdate.photoURL = data.photoURL;
+      }
+
+      await updateProfile(user, authUpdate);
+
+      // 2. Update Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        ...data,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      
+      // 3. Update local states
+      setUser({ ...auth.currentUser } as User);
+      setUserProfile((prev: any) => ({ ...prev, ...data }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     }
   };
 
@@ -161,7 +223,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout, 
       switchWorkspace,
       createWorkspace,
-      updateWorkspace
+      updateWorkspace,
+      updateUserProfile,
+      userProfile
     }}>
       {children}
     </AuthContext.Provider>

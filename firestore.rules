@@ -38,8 +38,11 @@ service cloud.firestore {
       return data.keys().hasAll(['userId', 'email'])
         && data.userId == request.auth.uid
         && data.email is string && data.email.size() <= 256
-        && (data.get('displayName', '') is string && data.get('displayName', '').size() <= 128)
-        && (data.get('photoURL', '') is string && data.get('photoURL', '').size() <= 512);
+        && (data.get('displayName', null) == null || (data.displayName is string && data.displayName.size() <= 256))
+        && (data.get('photoURL', null) == null || (data.photoURL is string && data.photoURL.size() <= 1048576))
+        && (data.get('activeWorkspaceId', null) == null || (data.activeWorkspaceId is string && data.activeWorkspaceId.size() <= 128))
+        && (data.get('createdAt', null) == null || data.createdAt is timestamp)
+        && (data.get('updatedAt', null) == null || data.updatedAt is timestamp);
     }
 
     function isValidWorkspace(data) {

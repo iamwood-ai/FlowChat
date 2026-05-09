@@ -27,7 +27,7 @@ import Login from './components/auth/Login';
 type View = 'dashboard' | 'flows' | 'audience' | 'analytics' | 'settings';
 
 function MainApp() {
-  const { user, loading, activeWorkspace, workspaces, switchWorkspace, createWorkspace, logout } = useAuth();
+  const { user, userProfile, loading, activeWorkspace, workspaces, switchWorkspace, createWorkspace, logout } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [viewParams, setViewParams] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -246,9 +246,18 @@ function MainApp() {
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live
             </div>
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden">
-               {user.photoURL ? <img src={user.photoURL} alt="User" /> : <div className="h-full w-full flex items-center justify-center text-neutral-400 text-xs font-bold">{user.displayName?.[0]}</div>}
-            </div>
+            <button 
+              onClick={() => setActiveView('settings')}
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all cursor-pointer"
+            >
+               {(userProfile?.photoURL || user?.photoURL) ? (
+                 <img src={userProfile?.photoURL || user?.photoURL} alt="User" className="h-full w-full object-cover" />
+               ) : (
+                 <div className="h-full w-full flex items-center justify-center text-neutral-400 text-xs font-bold bg-white">
+                   {activeWorkspace?.name?.[0] || userProfile?.displayName?.[0] || user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
+                 </div>
+               )}
+            </button>
           </div>
         </header>
 

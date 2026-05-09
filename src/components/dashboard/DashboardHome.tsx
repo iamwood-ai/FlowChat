@@ -38,7 +38,7 @@ const channels = [
 ];
 
 export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dashboard' | 'flows' | 'audience' | 'analytics' | 'settings', params?: any) => void }) {
-  const { user, activeWorkspace } = useAuth();
+  const { user, userProfile, activeWorkspace } = useAuth();
   const { generateResponse, loading } = useAI();
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState('');
@@ -67,7 +67,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
       {/* Welcome Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Welcome back, {user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
           <p className="text-neutral-500 mt-1 text-xs sm:text-sm">Here's what's happening with your multi-channel automations today.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -251,25 +251,34 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                   Explore All Templates
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {ALL_TEMPLATES.slice(0, 6).map((flow) => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {ALL_TEMPLATES.slice(0, 3).map((flow) => (
                   <div 
                     key={flow.id} 
                     onClick={() => onNavigate('flows', { templateId: flow.id })}
-                    className={cn("p-5 rounded-xl border transition-all hover:shadow-xl hover:translate-y-[-2px] cursor-pointer group flex flex-col justify-between min-h-[160px]", flow.color)}
+                    className={cn("p-6 rounded-2xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer group flex flex-col justify-between min-h-[220px] relative overflow-hidden", flow.color)}
                   >
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-bold opacity-60 uppercase tracking-widest">{flow.platform}</span>
-                        <Sparkles size={14} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                      <h4 className="font-bold text-neutral-900 text-sm leading-tight">{flow.title}</h4>
-                      <p className="text-[11px] opacity-70 mt-2 leading-relaxed line-clamp-2">{flow.desc}</p>
+                    <div className="absolute top-0 right-0 p-4 opacity-5 flex items-center gap-1">
+                      <Sparkles size={40} />
                     </div>
-                    <div className="mt-4 flex items-center justify-between pt-3 border-t border-neutral-100/50">
-                      <span className="text-[9px] font-bold opacity-40 uppercase tracking-wider">{flow.count}</span>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm border border-neutral-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <ChevronRight size={14} />
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="px-2 py-1 bg-white/50 backdrop-blur-sm rounded-md border border-white/20">
+                          <span className="text-[9px] font-black text-neutral-600 uppercase tracking-widest">{flow.platform}</span>
+                        </div>
+                        <div className="bg-blue-600 text-white rounded-lg p-1.5 shadow-lg shadow-blue-200 opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
+                          <Plus size={14} />
+                        </div>
+                      </div>
+                      <h4 className="font-black text-neutral-900 text-lg leading-tight group-hover:text-blue-700 transition-colors">{flow.title}</h4>
+                      <p className="text-xs text-neutral-500 mt-3 leading-relaxed font-medium line-clamp-3">{flow.desc}</p>
+                    </div>
+                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-neutral-100/50">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-white flex items-center justify-center border border-neutral-100 overflow-hidden">
+                          <img src={userProfile?.photoURL || user?.photoURL} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count} uses</span>
                       </div>
                     </div>
                   </div>

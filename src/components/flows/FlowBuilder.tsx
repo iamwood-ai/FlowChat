@@ -12,8 +12,13 @@ import {
   Node,
   Handle,
   Position,
-  Panel
+  Panel,
+  NodeResizer,
+  useReactFlow,
+  ReactFlowProvider
 } from '@xyflow/react';
+
+import { motion } from 'motion/react';
 
 import '@xyflow/react/dist/style.css';
 import { 
@@ -26,7 +31,9 @@ import {
   Plus,
   Trash2,
   ChevronRight,
+  CheckCircle2,
   Settings2,
+  X,
   Instagram,
   Facebook,
   Loader2,
@@ -73,9 +80,10 @@ interface MessageData {
 const MessageNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-[260px] shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
-      selected ? "border-blue-500 ring-4 ring-blue-500/10 scale-[1.02]" : "border-neutral-200"
+      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      selected ? "border-blue-500 ring-4 ring-blue-500/10" : "border-neutral-200"
     )}>
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-2 w-2 bg-white border-2 border-blue-400 rounded-full" />
       <div className="bg-blue-600 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-white">
           <MessageSquare size={14} className="fill-white/20" />
@@ -126,9 +134,10 @@ const MessageNode = ({ data, selected }: any) => {
 const TriggerNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-[260px] shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
-      selected ? "border-amber-500 ring-4 ring-amber-500/10 scale-[1.02]" : "border-neutral-200"
+      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      selected ? "border-amber-500 ring-4 ring-amber-500/10" : "border-neutral-200"
     )}>
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-2 w-2 bg-white border-2 border-amber-400 rounded-full" />
       <div className="bg-amber-500 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-white">
           <Zap size={14} fill="currentColor" />
@@ -173,9 +182,10 @@ const TriggerNode = ({ data, selected }: any) => {
 const DelayNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-[220px] shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
-      selected ? "border-purple-500 ring-4 ring-purple-500/10 scale-[1.02]" : "border-neutral-200"
+      "min-w-[180px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      selected ? "border-purple-500 ring-4 ring-purple-500/10" : "border-neutral-200"
     )}>
+      <NodeResizer minWidth={180} minHeight={100} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-2 w-2 bg-white border-2 border-purple-400 rounded-full" />
       <div className="bg-purple-600 px-4 py-2 flex items-center gap-2 text-white">
         <Clock size={14} />
         <span className="text-[11px] font-black uppercase tracking-wider">Delay</span>
@@ -195,9 +205,10 @@ const DelayNode = ({ data, selected }: any) => {
 const AINode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "w-[260px] shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
-      selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10 scale-[1.02]" : "border-neutral-200"
+      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10" : "border-neutral-200"
     )}>
+      <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-2 w-2 bg-white border-2 border-fuchsia-400 rounded-full" />
       <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-4 py-2 flex items-center gap-2 text-white">
         <Zap size={14} fill="white" />
         <span className="text-[11px] font-black uppercase tracking-wider">AI Intent</span>
@@ -254,7 +265,15 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: FlowBuilderProps) {
+export default function FlowBuilderContainer(props: FlowBuilderProps) {
+  return (
+    <ReactFlowProvider>
+      <FlowBuilder {...props} />
+    </ReactFlowProvider>
+  );
+}
+
+function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: FlowBuilderProps) {
   const { activeWorkspace } = useAuth();
   const [flowId, setFlowId] = useState<string | null>(initialFlowId || null);
   const [flowName, setFlowName] = useState('New Automation Flow');
@@ -266,8 +285,20 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
   const [publishing, setPublishing] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const { fitView } = useReactFlow();
+  const [isPanelOpen, setIsPanelOpen] = useState(window.innerWidth >= 1024);
 
   const selectedNode = useMemo(() => nodes.find(n => n.id === selectedNodeId), [nodes, selectedNodeId]);
+
+  // Handle fitView on initial load or template load
+  useEffect(() => {
+    if (nodes.length > 0) {
+      const timer = setTimeout(() => {
+        fitView({ duration: 800, padding: 0.2 });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [flowId, templateId, fitView]);
 
   // Template Data Generator
   const getTemplateData = (id: string) => {
@@ -544,17 +575,22 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
 
   return (
     <div className="h-[calc(100vh-64px)] w-full flex overflow-hidden relative bg-[#F8FAFC]">
-      {/* Mobile Overlay */}
-      <div className="lg:hidden absolute inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-neutral-900">
-        <Smartphone size={32} className="text-blue-600 mb-4" />
-        <h3 className="text-xl font-bold mb-2">Desktop Recommended</h3>
-        <p className="text-sm text-neutral-500 max-w-xs">Building flows requires precision. Switch to a larger screen for the best experience.</p>
-        <button onClick={onBack} className="mt-8 px-6 py-2 bg-neutral-900 text-white rounded-xl text-sm font-bold">Back to List</button>
-      </div>
+      {/* Sidebar Toggle for Mobile */}
+      <button 
+        onClick={() => setIsPanelOpen(!isPanelOpen)}
+        className="lg:hidden absolute bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center transition-transform active:scale-95"
+      >
+        {isPanelOpen ? <X size={24} /> : <Settings2 size={24} />}
+      </button>
 
       {/* Settings Side Panel */}
-      <div className="w-96 border-r border-neutral-200 bg-white flex flex-col overflow-hidden shadow-2xl relative z-10 transition-all duration-300">
-        <div className="flex border-b border-neutral-100 h-14">
+      <div 
+        className={cn(
+          "h-full border-r border-neutral-200 bg-white flex flex-col overflow-hidden shadow-2xl relative z-40 transition-all duration-300",
+          window.innerWidth < 1024 ? (isPanelOpen ? "fixed inset-0 w-full" : "w-0 opacity-0 -translate-x-full") : "w-96"
+        )}
+      >
+        <div className="flex border-b border-neutral-100 h-14 shrink-0">
           <button 
             onClick={() => setActiveTab('nodes')}
             className={cn(
@@ -727,6 +763,63 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
                         ))}
                       </div>
                     </div>
+
+                    {selectedNode.data.postType === 'specific' && (
+                      <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                        <div className="flex items-center justify-between">
+                           <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Select Post Slot</label>
+                           <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-bold text-neutral-400">Last 90 days</span>
+                              <button className="w-8 h-4 bg-emerald-500 rounded-full relative transition-all">
+                                <div className="absolute right-0.5 top-0.5 h-3 w-3 bg-white rounded-full shadow-sm" />
+                              </button>
+                           </div>
+                        </div>
+                        
+                        {/* 1:1 Post Preview Overlay */}
+                        {selectedNode.data.selectedPostId && (
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="aspect-square w-full rounded-2xl border-4 border-amber-500 shadow-2xl relative overflow-hidden bg-neutral-100"
+                          >
+                             <img 
+                               src={`https://picsum.photos/seed/${parseInt(selectedNode.data.selectedPostId.split('-')[1]) + 10}/600`} 
+                               alt="Selected Post" 
+                               className="w-full h-full object-cover"
+                             />
+                             <div className="absolute top-3 right-3 bg-amber-500 text-white p-1.5 rounded-full shadow-lg">
+                               <CheckCircle2 size={16} />
+                             </div>
+                             <div className="absolute bottom-4 inset-x-4 bg-white/90 backdrop-blur-sm p-3 rounded-xl border border-white/20 shadow-xl">
+                               <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest mb-0.5">Post Attached</p>
+                               <p className="text-[11px] text-neutral-600 font-bold truncate">@{activeWorkspace?.name || 'User'} • Instagram Reel</p>
+                             </div>
+                          </motion.div>
+                        )}
+                        
+                        <div className="grid grid-cols-3 gap-2 h-44 overflow-y-auto pr-1 scrollbar-hide bg-neutral-50/50 p-2 rounded-xl border border-neutral-100">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                            <button 
+                              key={i}
+                              onClick={() => updateNodeData({ selectedPostId: `post-${i}` })}
+                              className={cn(
+                                "aspect-square rounded-lg bg-white border-2 transition-all relative overflow-hidden group shadow-sm",
+                                selectedNode.data.selectedPostId === `post-${i}` ? "border-amber-500 ring-2 ring-amber-500/20" : "border-transparent"
+                              )}
+                            >
+                              <img src={`https://picsum.photos/seed/${i + 10}/200`} alt="" className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                              {selectedNode.data.selectedPostId === `post-${i}` && (
+                                <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                                  <div className="bg-amber-500 text-white rounded-full p-1 shadow-md"><CheckCircle2 size={10} /></div>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-neutral-400 italic text-center">Tap a post to attach this automation</p>
+                      </div>
+                    )}
 
                     <div>
                       <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 block">Trigger Keywords (Max 10)</label>
@@ -997,7 +1090,7 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
       </div>
 
       {/* Main Flow Canvas */}
-      <div className="flex-1 bg-[#F8FAFC]">
+      <div className="flex-1 bg-[#F8FAFC] relative">
         <div className="h-full w-full">
           <ReactFlow
             nodes={nodes}
@@ -1009,7 +1102,7 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
-            className="bg-transparent"
+            className="bg-transparent touch-none"
             nodesDraggable={true}
             defaultEdgeOptions={{ 
               animated: true, 
@@ -1018,7 +1111,7 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
             }}
           >
             <Background color="#CBD5E1" gap={20} size={1} />
-            <Controls />
+            <Controls position="bottom-left" showInteractive={false} className="hidden sm:flex border-neutral-200 shadow-xl rounded-xl" />
             <MiniMap 
               nodeColor={(node) => {
                 switch (node.type) {
@@ -1029,37 +1122,45 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
                 }
               }}
               maskColor="rgba(248, 250, 252, 0.7)"
-              className="!bottom-4 !right-4 !bg-white !border-neutral-200 !rounded-xl !shadow-2xl"
+              className="hidden lg:block !bottom-4 !right-4 !bg-white !border-neutral-200 !rounded-xl !shadow-2xl"
             />
             
-            <Panel position="top-left" className="bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-neutral-200 shadow-xl m-4 flex items-center gap-4">
-               <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <Panel position="top-left" className="bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-neutral-200 shadow-xl m-4 flex items-center gap-2 max-w-[200px] sm:max-w-none overflow-hidden">
+               <button 
+                onClick={onBack}
+                className="lg:hidden p-2 text-neutral-500 hover:bg-neutral-50 rounded-lg shrink-0"
+               >
+                 <ChevronRight size={18} className="rotate-180" />
+               </button>
+               <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 hidden sm:flex">
                   <Languages size={20} className="text-white" />
                </div>
-               <div>
+               <div className="min-w-0">
                  <input 
                    value={flowName}
                    onChange={(e) => setFlowName(e.target.value)}
-                   className="text-sm font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-48"
+                   className="text-sm font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-full truncate"
                  />
-                 <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Automation Flow</p>
+                 <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest truncate">Automation Flow</p>
                </div>
             </Panel>
 
-            <Panel position="top-right" className="flex items-center gap-3 m-4">
-               {lastSaved && (
-                 <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-neutral-200 text-[10px] font-bold text-neutral-400 flex items-center gap-2">
-                    <div className={cn("h-1.5 w-1.5 rounded-full", saveStatus === 'saving' ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
-                    Last saved: {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                 </div>
-               )}
+            <Panel position="top-right" className="flex items-center gap-2 m-4">
                <button 
                  onClick={() => saveFlow('draft')}
                  disabled={saving || saveStatus === 'saving'}
-                 className="px-6 py-2.5 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[10px] font-black uppercase shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                 className="h-10 px-4 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[10px] font-black uppercase shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
                >
-                 {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
-                 {saveStatus === 'saved' && !saving ? 'Saved ✅' : 'Save Draft'}
+                 {saving ? <Loader2 className="animate-spin" size={14} /> : (saveStatus === 'saved' ? <CheckCircle2 size={14} className="text-emerald-500" /> : <Save size={14} />)}
+                 <span className="hidden sm:inline">{saveStatus === 'saved' && !saving ? 'Saved' : 'Save'}</span>
+               </button>
+               <button 
+                 onClick={() => saveFlow('active')}
+                 disabled={publishing}
+                 className="h-10 px-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
+               >
+                 {publishing ? <Loader2 className="animate-spin" size={14} /> : <Play size={14} fill="white" />}
+                 <span>Publish</span>
                </button>
             </Panel>
           </ReactFlow>

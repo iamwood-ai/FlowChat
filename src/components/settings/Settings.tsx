@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../../lib/cropImage';
 import { 
   User, 
   Shield, 
@@ -35,24 +37,109 @@ const tabs = [
 ];
 
 export default function SettingsView() {
-  const { user, activeWorkspace, workspaces, updateWorkspace, createWorkspace } = useAuth();
-  const [activeTab, setActiveTab] = useState('integrations');
+  const { user, userProfile, activeWorkspace, workspaces, updateWorkspace, createWorkspace, updateUserProfile } = useAuth();
+  const [activeTab, setActiveTab] = useState('profile'); // Default to profile as requested
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [displayName, setDisplayName] = useState(userProfile?.displayName || user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [profilePhoto, setProfilePhoto] = useState(user?.photoURL || '');
+  const [profilePhoto, setProfilePhoto] = useState(userProfile?.photoURL || user?.photoURL || '');
   const [workspaceName, setWorkspaceName] = useState(activeWorkspace?.name || '');
-  const [smartReplyDelay, setSmartReplyDelay] = useState(3);
+  const [smartReplyDelay, setSmartReplyDelay] = useState(activeWorkspace?.automationConfig?.smartReplyDelay || 5);
+  const [keywordSensitivity, setKeywordSensitivity] = useState(activeWorkspace?.automationConfig?.keywordSensitivity || 'Strict Match');
+
+  // Sync with workspace config
+  React.useEffect(() => {
+    if (activeWorkspace?.automationConfig) {
+      setSmartReplyDelay(activeWorkspace.automationConfig.smartReplyDelay || 5);
+      setKeywordSensitivity(activeWorkspace.automationConfig.keywordSensitivity || 'Strict Match');
+    }
+  }, [activeWorkspace?.id]);
+
+  // Manual save for Automation Config
+  const handleSaveAutomationConfig = async () => {
+    if (!activeWorkspace) return;
+    setIsSaving(true);
+    try {
+      await updateWorkspace(activeWorkspace.id, {
+        automationConfig: {
+          smartReplyDelay: Number(smartReplyDelay),
+          keywordSensitivity: String(keywordSensitivity)
+        }
+      });
+      // Show a success state for the button instead of alert
+      setIsSaving(false);
+      const btn = document.activeElement as HTMLButtonElement;
+      const originalText = btn.innerText;
+      btn.innerText = "Saved! ✓";
+      btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.replace('bg-emerald-600', 'bg-blue-600');
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to save automation config:", error);
+      alert("Failed to save automation config.");
+      setIsSaving(false);
+    }
+  };
+
+  // 2FA State
+  const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
+  const [twoFactorStep, setTwoFactorStep] = useState<'method' | 'verify'>('method');
+  const [selected2FAMethod, setSelected2FAMethod] = useState<'email' | 'phone' | null>(null);
+  const [twoFactorValue, setTwoFactorValue] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+
+  // Sync with user prop if it changes
+  React.useEffect(() => {
+    if (user) {
+      setDisplayName(userProfile?.displayName || user.displayName || '');
+      setEmail(user.email || '');
+      setProfilePhoto(userProfile?.photoURL || user.photoURL || '');
+    }
+  }, [user, userProfile]);
+
+  // Sync workspace name
+  React.useEffect(() => {
+    if (activeWorkspace) {
+      setWorkspaceName(activeWorkspace.name);
+    }
+  }, [activeWorkspace]);
+
+  // Cropper State
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
+  const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleApplyCrop = async () => {
+    if (imageToCrop && croppedAreaPixels) {
+      try {
+        const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+        setProfilePhoto(croppedImage);
+        setImageToCrop(null);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   const handleSaveWorkspaceName = async () => {
     if (!activeWorkspace || !workspaceName || workspaceName === activeWorkspace.name) return;
     setIsSaving(true);
     await updateWorkspace(activeWorkspace.id, workspaceName);
+    // Also sync the display name state in settings view
+    setDisplayName(workspaceName);
     setIsSaving(false);
   };
 
@@ -71,17 +158,29 @@ export default function SettingsView() {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      setProfilePhoto(url);
+      setImageToCrop(url);
     }
   };
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // Simulation of saving to Firestore/Auth
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      alert("Changes saved: Display Name: " + displayName + ", Email: " + email);
+      // 1. Update User Profile
+      await updateUserProfile({
+        displayName,
+        photoURL: profilePhoto
+      });
+
+      // 2. Update Active Workspace Name to match Display Name
+      // This ensures "Wood" appears in the sidebar/header as the user expects
+      if (activeWorkspace && displayName && displayName !== activeWorkspace.name) {
+        await updateWorkspace(activeWorkspace.id, { name: displayName });
+        setWorkspaceName(displayName);
+      }
+
+      alert("Changes saved successfully!");
     } catch (error) {
+      console.error(error);
       alert("Failed to save changes.");
     } finally {
       setIsSaving(false);
@@ -293,9 +392,27 @@ export default function SettingsView() {
               </div>
             </div>
             <div className="flex items-center gap-3 w-fit">
-              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Active</span>
-              <button className="w-12 h-6 bg-emerald-500 rounded-full relative transition-all shadow-inner shadow-black/10">
-                <div className="absolute right-1 top-1 h-4 w-4 bg-white rounded-full shadow-sm" />
+              <span className={cn("text-[10px] font-bold uppercase tracking-widest", is2FAEnabled ? "text-emerald-600" : "text-neutral-400")}>
+                {is2FAEnabled ? "Active" : "Inactive"}
+              </span>
+              <button 
+                onClick={() => {
+                  if (is2FAEnabled) {
+                    setIs2FAEnabled(false);
+                  } else {
+                    setIs2FAModalOpen(true);
+                    setTwoFactorStep('method');
+                  }
+                }}
+                className={cn(
+                  "w-12 h-6 rounded-full relative transition-all shadow-inner",
+                  is2FAEnabled ? "bg-emerald-500" : "bg-neutral-200"
+                )}
+              >
+                <motion.div 
+                  animate={{ x: is2FAEnabled ? 24 : 0 }}
+                  className="absolute left-1 top-1 h-4 w-4 bg-white rounded-full shadow-sm" 
+                />
               </button>
             </div>
           </div>
@@ -335,7 +452,16 @@ export default function SettingsView() {
   const renderAutomations = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <h3 className="text-lg font-bold text-neutral-900 mb-6">Global Automation Config</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-neutral-900">Global Automation Config</h3>
+          <button 
+            onClick={handleSaveAutomationConfig}
+            disabled={isSaving}
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95"
+          >
+            {isSaving ? "Saving..." : "Save Config"}
+          </button>
+        </div>
         <div className="space-y-8">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -379,7 +505,11 @@ export default function SettingsView() {
               <p className="font-bold text-neutral-900">Keyword Sensitivity</p>
               <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed">How strictly keyword matching should be applied (Case sensitive, fuzzy, etc.)</p>
             </div>
-            <select className="bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-xs font-bold text-neutral-600 outline-none focus:ring-2 focus:ring-blue-500 w-fit">
+            <select 
+              value={keywordSensitivity}
+              onChange={(e) => setKeywordSensitivity(e.target.value)}
+              className="bg-neutral-50 border border-neutral-200 rounded-xl pl-4 pr-12 py-3 text-xs font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-blue-500 w-fit appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_1.25rem_center] bg-[size:1.25em_1.25em] bg-no-repeat transition-all shadow-sm"
+            >
               <option>Strict Match</option>
               <option>Fuzzy Match</option>
               <option>Natural Language (AI)</option>
@@ -531,6 +661,242 @@ export default function SettingsView() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Cropper Modal */}
+      <AnimatePresence>
+        {imageToCrop && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-neutral-900/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[80vh]"
+            >
+              <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="font-bold text-neutral-900">Crop Profile Photo</h3>
+                <button 
+                  onClick={() => setImageToCrop(null)}
+                  className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="flex-1 relative bg-neutral-100">
+                <Cropper
+                  image={imageToCrop}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                  cropShape="round"
+                  showGrid={false}
+                />
+              </div>
+
+              <div className="p-6 border-t border-neutral-100 space-y-6 bg-white">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-neutral-400 uppercase tracking-widest">
+                    <span>Zoom</span>
+                    <span>{zoom.toFixed(1)}x</span>
+                  </div>
+                  <input
+                    type="range"
+                    value={zoom}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    aria-labelledby="Zoom"
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className="w-full accent-blue-600 h-1.5 bg-neutral-100 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setImageToCrop(null)}
+                    className="flex-1 px-6 py-3 border border-neutral-200 rounded-2xl text-sm font-bold text-neutral-600 hover:bg-neutral-50"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleApplyCrop}
+                    className="flex-[2] px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-bold shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all"
+                  >
+                    Apply Crop
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 2FA Modal */}
+      <AnimatePresence>
+        {is2FAModalOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl"
+            >
+              <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="font-bold text-neutral-900">Setup Two-Factor Authentication</h3>
+                <button 
+                  onClick={() => setIs2FAModalOpen(false)}
+                  className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-8">
+                {twoFactorStep === 'method' ? (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 text-blue-600">
+                        <Lock size={32} />
+                      </div>
+                      <h4 className="text-lg font-bold text-neutral-900">Choose a Verification Method</h4>
+                      <p className="text-sm text-neutral-500 mt-2">Where should we send your verification code?</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      <button 
+                        onClick={() => {
+                          setSelected2FAMethod('email');
+                          setTwoFactorValue(user?.email || '');
+                        }}
+                        className={cn(
+                          "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left",
+                          selected2FAMethod === 'email' ? "border-blue-600 bg-blue-50/50" : "border-neutral-100 hover:border-neutral-200"
+                        )}
+                      >
+                        <div className="p-3 bg-white rounded-xl shadow-sm border border-neutral-100 text-blue-600">
+                          <Send size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-neutral-800">Email Address</p>
+                          <p className="text-xs text-neutral-500">Send code to your registered email</p>
+                        </div>
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          setSelected2FAMethod('phone');
+                          setTwoFactorValue('');
+                        }}
+                        className={cn(
+                          "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left",
+                          selected2FAMethod === 'phone' ? "border-blue-600 bg-blue-50/50" : "border-neutral-100 hover:border-neutral-200"
+                        )}
+                      >
+                        <div className="p-3 bg-white rounded-xl shadow-sm border border-neutral-100 text-blue-600">
+                          <Smartphone size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-neutral-800">Phone Number</p>
+                          <p className="text-xs text-neutral-500">Receive SMS with a unique code</p>
+                        </div>
+                      </button>
+                    </div>
+
+                    {selected2FAMethod === 'phone' && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="space-y-2 p-1"
+                      >
+                        <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Phone Number</label>
+                        <input 
+                          type="tel"
+                          placeholder="+1 (555) 000-0000"
+                          value={twoFactorValue}
+                          onChange={(e) => setTwoFactorValue(e.target.value)}
+                          className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      </motion.div>
+                    )}
+
+                    <button 
+                      disabled={!selected2FAMethod || (selected2FAMethod === 'phone' && !twoFactorValue)}
+                      onClick={() => setTwoFactorStep('verify')}
+                      className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4 text-emerald-600">
+                        <CheckCircle2 size={32} />
+                      </div>
+                      <h4 className="text-lg font-bold text-neutral-900">Verify your identity</h4>
+                      <p className="text-sm text-neutral-500 mt-2">
+                        Enter the 6-digit code we sent to 
+                        <span className="font-bold text-neutral-800 ml-1">{twoFactorValue || user?.email}</span>
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2 justify-center">
+                      {[0, 1, 2, 3, 4, 5].map((i) => (
+                        <input 
+                          key={i}
+                          type="text"
+                          maxLength={1}
+                          className="w-12 h-14 bg-neutral-50 border-2 border-neutral-100 rounded-xl text-center text-xl font-bold focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all"
+                          value={verificationCode[i] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (/^\d?$/.test(val)) {
+                              const newCode = verificationCode.split('');
+                              newCode[i] = val;
+                              setVerificationCode(newCode.join(''));
+                              // Auto-focus next
+                              if (val && i < 5) {
+                                (e.target.nextSibling as HTMLInputElement)?.focus();
+                              }
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="text-center">
+                      <button className="text-xs font-bold text-blue-600 hover:underline">Resend Code</button>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setTwoFactorStep('method')}
+                        className="flex-1 px-6 py-3 border border-neutral-200 rounded-2xl text-sm font-bold text-neutral-600 hover:bg-neutral-50"
+                      >
+                        Back
+                      </button>
+                      <button 
+                        disabled={verificationCode.length !== 6}
+                        onClick={() => {
+                          setIs2FAEnabled(true);
+                          setIs2FAModalOpen(false);
+                          alert("Two-Factor Authentication has been enabled!");
+                        }}
+                        className="flex-[2] px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-bold shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all"
+                      >
+                        Verify & Enable
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Connection Modal */}
       <AnimatePresence>
