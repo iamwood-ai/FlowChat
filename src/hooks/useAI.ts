@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+const ai = new GoogleGenAI({ 
+  apiKey: (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : (import.meta as any).env?.VITE_GEMINI_API_KEY) || "MISSING_KEY" 
+});
 
 export function useAI() {
   const [loading, setLoading] = useState(false);
