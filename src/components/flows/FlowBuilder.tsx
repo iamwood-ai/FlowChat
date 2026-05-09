@@ -30,6 +30,8 @@ import {
   Instagram,
   Facebook,
   Loader2,
+  CheckCircle2,
+  X,
   Smartphone,
   ExternalLink,
   Mail,
@@ -39,6 +41,7 @@ import {
   Repeat
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
@@ -262,10 +265,51 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [activeTab, setActiveTab] = useState<'nodes' | 'templates' | 'properties'>('nodes');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [status, setStatus] = useState<'draft' | 'active'>('draft');
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  // Load existing flow data if flowId is provided
+  useEffect(() => {
+    const loadFlow = async () => {
+      if (!initialFlowId || !activeWorkspace) return;
+      
+      const flowDoc = await getDoc(doc(db, `workspaces/${activeWorkspace.id}/flows/${initialFlowId}`));
+      if (flowDoc.exists()) {
+        const data = flowDoc.data();
+        setNodes(data.nodes || initialNodes);
+        setEdges(data.edges || initialEdges);
+        setFlowName(data.name || 'New Automation Flow');
+        setStatus(data.status || 'draft');
+        setLastSaved(data.updatedAt?.toDate() || null);
+      }
+    };
+    loadFlow();
+  }, [initialFlowId, activeWorkspace]);
 
   const selectedNode = useMemo(() => nodes.find(n => n.id === selectedNodeId), [nodes, selectedNodeId]);
+
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [isPostSelectionOpen, setIsPostSelectionOpen] = useState(false);
+  const [mockPosts, setMockPosts] = useState<any[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+
+  useEffect(() => {
+    if (isPostSelectionOpen) {
+      setLoadingPosts(true);
+      // Mock API call to fetch posts
+      setTimeout(() => {
+        setMockPosts([
+          { id: '1', type: 'image', thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=100&h=100&fit=crop', caption: 'Summer Vibes ☀️ #holidays' },
+          { id: '2', type: 'reel', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=100&h=100&fit=crop', caption: 'How to build flows in 60s 🚀' },
+          { id: '3', type: 'image', thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=100&h=100&fit=crop', caption: 'New features alert! ⚡️' },
+        ]);
+        setLoadingPosts(false);
+      }, 800);
+    }
+  }, [isPostSelectionOpen]);
 
   // Template Data Generator
   const getTemplateData = (id: string) => {
@@ -485,18 +529,26 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
     // Don't auto-save if there's no meaningful content yet
     if (nodes.length <= 1 && edges.length === 0 && flowName === 'New Automation Flow') return;
     
+    setSaveStatus('saving');
     const timer = setTimeout(() => {
-      saveFlow('draft');
+      saveFlow(status); // Auto-save with current status
     }, 2000);
 
     return () => clearTimeout(timer);
   }, [nodes, edges, flowName]);
 
-  const saveFlow = async (status: 'draft' | 'active' = 'draft') => {
-    if (!activeWorkspace) return;
-    const isPublishing = status === 'active';
+  const saveFlow = async (newStatus?: 'draft' | 'active') => {
+    if (!activeWorkspace) {
+      setSaveStatus('error');
+      return;
+    }
+    
+    const finalStatus = newStatus || status;
+    const isPublishing = finalStatus === 'active' && status === 'draft';
+    
     if (isPublishing) setPublishing(true);
     else setSaving(true);
+    setSaveStatus('saving');
 
     const currentFlowId = flowId || `flow-${Date.now()}`;
     const path = `workspaces/${activeWorkspace.id}/flows/${currentFlowId}`;
@@ -507,11 +559,17 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
         name: flowName,
         nodes: nodes,
         edges: edges,
-        status: status,
+        status: finalStatus,
         updatedAt: serverTimestamp()
       }, { merge: true });
+      
       if (!flowId) setFlowId(currentFlowId);
+      setStatus(finalStatus);
+      setLastSaved(new Date());
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
+      setSaveStatus('error');
       handleFirestoreError(error, OperationType.WRITE, path);
     } finally {
       setSaving(false);
@@ -717,8 +775,39 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
                       </div>
                     </div>
 
+                    {/* Trigger Post Selection UI */}
+                    {selectedNode.data.postType === 'specific' && (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block">Selected Post</label>
+                        {selectedNode.data.postId ? (
+                          <div className="flex items-center gap-3 p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                            <div className="h-12 w-12 rounded-lg bg-neutral-200 overflow-hidden shrink-0">
+                               <img src={selectedNode.data.postThumbnail || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=100&h=100&fit=crop"} alt="" className="h-full w-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-neutral-800 truncate">{selectedNode.data.postCaption || "Post Selected"}</p>
+                              <p className="text-[10px] text-neutral-400 truncate">ID: {selectedNode.data.postId}</p>
+                            </div>
+                            <button 
+                              onClick={() => setIsPostSelectionOpen(true)}
+                              className="text-[10px] font-bold text-blue-600 hover:underline"
+                            >
+                              Change
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setIsPostSelectionOpen(true)}
+                            className="w-full py-4 border-2 border-dashed border-neutral-100 rounded-2xl text-neutral-400 text-xs font-bold hover:bg-amber-50 hover:border-amber-200 transition-all flex flex-col items-center gap-2"
+                          >
+                            <Instagram size={20} />
+                            Select specific post or reel
+                          </button>
+                        )}
+                      </div>
+                    )}
+
                     <div>
-                      <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 block">Trigger Keywords (Max 10)</label>
                       <div className="space-y-2">
                         {selectedNode.data.keywords?.map((kw: string, idx: number) => (
                           <div key={idx} className="flex gap-2">
@@ -973,11 +1062,14 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
            </button>
            <button 
              onClick={() => saveFlow('active')}
-             disabled={publishing}
-             className="flex-[2] flex items-center justify-center gap-2 bg-neutral-900 text-white rounded-xl text-xs font-black uppercase shadow-xl hover:bg-black transition-all disabled:opacity-50"
+             disabled={publishing || saveStatus === 'saving'}
+             className={cn(
+               "flex-[2] flex items-center justify-center gap-2 text-white rounded-xl text-xs font-black uppercase shadow-xl transition-all disabled:opacity-50",
+               saveStatus === 'saved' && publishing === false ? "bg-emerald-600" : "bg-neutral-900 hover:bg-black"
+             )}
            >
               {publishing ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} fill="white" />}
-              Publish
+              {saveStatus === 'saved' && publishing === false ? 'Published ✨' : 'Publish'}
            </button>
         </div>
       </div>
@@ -985,7 +1077,122 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
       {/* Main Flow Canvas */}
       <div className="flex-1 bg-[#F8FAFC]">
         <div className="h-full w-full">
-          <ReactFlow
+          {/* Header Info */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none">
+        <div className="bg-white/80 backdrop-blur-md px-6 py-2.5 rounded-full border border-neutral-200/50 shadow-2xl shadow-blue-500/10 flex items-center gap-4">
+          <div className="flex items-center gap-3">
+             <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+             <input 
+               type="text" 
+               value={flowName}
+               onChange={(e) => setFlowName(e.target.value)}
+               className="bg-transparent font-black text-neutral-900 border-none outline-none text-sm w-48 pointer-events-auto"
+             />
+          </div>
+          <div className="h-4 w-[1px] bg-neutral-200" />
+          <div className="flex items-center gap-2 text-[10px] font-bold">
+            {saveStatus === 'saving' && <span className="text-blue-500 flex items-center gap-1"><Loader2 size={10} className="animate-spin" /> Auto-saving...</span>}
+            {saveStatus === 'saved' && <span className="text-emerald-500 flex items-center gap-1"><CheckCircle2 size={10} /> All changes saved</span>}
+            {saveStatus === 'error' && <span className="text-red-500">Error saving</span>}
+            {saveStatus === 'idle' && lastSaved && <span className="text-neutral-400">Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons Panel */}
+      <div className="absolute bottom-6 right-6 z-50 flex gap-3 pointer-events-auto">
+        <button 
+          onClick={() => saveFlow('draft')}
+          disabled={saving || saveStatus === 'saving'}
+          className={cn(
+            "bg-white px-5 py-3 rounded-2xl text-xs font-bold text-neutral-500 border border-neutral-200 shadow-lg hover:bg-neutral-50 transition-all disabled:opacity-50",
+            status === 'draft' && "bg-neutral-50"
+          )}
+        >
+          {status === 'draft' ? (lastSaved ? 'Draft Saved' : 'Keep as Draft') : 'Switch to Draft'}
+        </button>
+        
+        <button 
+          onClick={() => saveFlow()}
+          disabled={saving || saveStatus === 'saving'}
+          className="bg-white px-8 py-3 rounded-2xl text-sm font-bold text-neutral-900 border border-neutral-900/10 shadow-xl hover:bg-neutral-50 transition-all disabled:opacity-50 flex items-center gap-2"
+        >
+          {saving ? <Loader2 size={16} className="animate-spin text-blue-600" /> : <Save size={16} className="text-blue-600" />}
+          Save
+        </button>
+
+        <button 
+          onClick={() => saveFlow('active')}
+          disabled={publishing || saveStatus === 'saving'}
+          className={cn(
+            "px-8 py-3 rounded-2xl text-sm font-bold shadow-xl transition-all disabled:opacity-50 flex items-center gap-2",
+            status === 'active' 
+              ? "bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600" 
+              : "bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700"
+          )}
+        >
+          {publishing ? <Loader2 size={16} className="animate-spin" /> : status === 'active' ? <CheckCircle2 size={16} /> : <Play size={14} className="fill-white" />}
+          {status === 'active' ? 'Published' : 'Publish'}
+        </button>
+      </div>
+
+      {/* Post Selection Modal */}
+      <AnimatePresence>
+        {isPostSelectionOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-neutral-900/40 backdrop-blur-sm">
+            <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+              <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="text-lg font-black text-neutral-900">Select Post or Reel</h3>
+                <button onClick={() => setIsPostSelectionOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto space-y-4">
+                {loadingPosts ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4 text-neutral-400">
+                    <Loader2 size={32} className="animate-spin" />
+                    <p className="text-xs font-bold uppercase tracking-widest">Fetching your posts...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {mockPosts.map((post) => (
+                      <button 
+                        key={post.id}
+                        onClick={() => {
+                          updateNodeData({ 
+                            postId: post.id, 
+                            postThumbnail: post.thumbnail, 
+                            postCaption: post.caption 
+                          });
+                          setIsPostSelectionOpen(false);
+                        }}
+                        className="flex items-center gap-4 p-3 rounded-2xl border border-neutral-100 hover:border-blue-500 hover:bg-blue-50/30 transition-all text-left"
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-neutral-100 overflow-hidden shrink-0 border border-neutral-100 shadow-sm">
+                          <img src={post.thumbnail} alt="" className="h-full w-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-neutral-800 line-clamp-2 leading-relaxed">{post.caption}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-black uppercase text-neutral-400 tracking-wider px-1.5 py-0.5 bg-neutral-50 rounded border border-neutral-100">{post.type}</span>
+                            <span className="text-[10px] text-neutral-300">ID: {post.id}</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={18} className="text-neutral-300" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="p-6 bg-neutral-50 border-t border-neutral-100">
+                 <p className="text-[10px] text-center text-neutral-400 font-bold uppercase tracking-widest">Connect Instagram in settings to see all your posts</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <ReactFlow
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -1033,13 +1240,19 @@ export default function FlowBuilder({ flowId: initialFlowId, templateId, prompt,
             </Panel>
 
             <Panel position="top-right" className="flex items-center gap-3 m-4">
+               {lastSaved && (
+                 <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-neutral-200 text-[10px] font-bold text-neutral-400 flex items-center gap-2">
+                    <div className={cn("h-1.5 w-1.5 rounded-full", saveStatus === 'saving' ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
+                    Last saved: {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                 </div>
+               )}
                <button 
                  onClick={() => saveFlow('draft')}
-                 disabled={saving}
+                 disabled={saving || saveStatus === 'saving'}
                  className="px-6 py-2.5 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[10px] font-black uppercase shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
                >
                  {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
-                 Save Draft
+                 {saveStatus === 'saved' && !saving ? 'Saved ✅' : 'Save Draft'}
                </button>
             </Panel>
           </ReactFlow>
