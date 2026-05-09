@@ -100,6 +100,13 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
   const deleteAutomation = async (id: string) => {
     if (!activeWorkspace) return;
     if (!confirm('Are you sure you want to delete this automation?')) return;
+    
+    // If it's a virtual template, just remove from state
+    if (id.startsWith('template-')) {
+      setAutomations(prev => prev.filter(a => a.id !== id));
+      return;
+    }
+
     try {
       await deleteDoc(doc(db, 'workspaces', activeWorkspace.id, 'flows', id));
       setAutomations(prev => prev.filter(a => a.id !== id));

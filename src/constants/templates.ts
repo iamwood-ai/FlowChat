@@ -53,7 +53,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Respond to all your DMs', 
     desc: 'Never miss a message. AI-powered auto-responses for every incoming DM.', 
     category: 'Recommended', 
-    platform: 'Instagram', 
+    platform: 'Facebook', 
     color: 'bg-emerald-50 border-emerald-100 text-emerald-600', 
     count: 'Utility',
     icon: MessageSquare 
@@ -63,7 +63,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Recognize questions in DM with AI', 
     desc: 'Use AI to identify common questions and answer them automatically or flag for support.', 
     category: 'Recommended', 
-    platform: 'Instagram', 
+    platform: 'WhatsApp', 
     color: 'bg-violet-50 border-violet-100 text-violet-600', 
     count: 'AI Powered',
     icon: Sparkles 
@@ -107,7 +107,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Automate conversations with AI', 
     desc: 'Use Gemini to handle complex customer queries and maintain natural conversations.', 
     category: 'Engage your audience', 
-    platform: 'Instagram', 
+    platform: 'TikTok', 
     color: 'bg-fuchsia-50 border-fuchsia-100 text-fuchsia-600', 
     count: 'New',
     icon: Sparkles 
@@ -179,7 +179,7 @@ export const ALL_TEMPLATES: Template[] = [
     title: 'Grow your YouTube', 
     desc: 'Drive social traffic to your latest YouTube videos via automated DMs.', 
     category: 'Drive traffic', 
-    platform: 'Facebook', 
+    platform: 'TikTok', 
     color: 'bg-red-50 border-red-100 text-red-600', 
     count: 'Videos',
     icon: Youtube 

@@ -80,11 +80,11 @@ interface MessageData {
 const MessageNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
       selected ? "border-blue-500 ring-4 ring-blue-500/10" : "border-neutral-200"
     )}>
       <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-2 w-2 bg-white border-2 border-blue-400 rounded-full" />
-      <div className="bg-blue-600 px-4 py-2 flex items-center justify-between">
+      <div className="bg-blue-600 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <MessageSquare size={14} className="fill-white/20" />
           <span className="text-[11px] font-black uppercase tracking-wider">Message</span>
@@ -134,11 +134,11 @@ const MessageNode = ({ data, selected }: any) => {
 const TriggerNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
       selected ? "border-amber-500 ring-4 ring-amber-500/10" : "border-neutral-200"
     )}>
       <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-2 w-2 bg-white border-2 border-amber-400 rounded-full" />
-      <div className="bg-amber-500 px-4 py-2 flex items-center justify-between">
+      <div className="bg-amber-500 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-white">
           <Zap size={14} fill="currentColor" />
           <span className="text-[11px] font-black uppercase tracking-wider">Trigger</span>
@@ -182,11 +182,11 @@ const TriggerNode = ({ data, selected }: any) => {
 const DelayNode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "min-w-[180px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
       selected ? "border-purple-500 ring-4 ring-purple-500/10" : "border-neutral-200"
     )}>
       <NodeResizer minWidth={180} minHeight={100} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-2 w-2 bg-white border-2 border-purple-400 rounded-full" />
-      <div className="bg-purple-600 px-4 py-2 flex items-center gap-2 text-white">
+      <div className="bg-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Clock size={14} />
         <span className="text-[11px] font-black uppercase tracking-wider">Delay</span>
       </div>
@@ -205,11 +205,11 @@ const DelayNode = ({ data, selected }: any) => {
 const AINode = ({ data, selected }: any) => {
   return (
     <div className={cn(
-      "min-w-[210px] h-full shadow-xl rounded-2xl border bg-white overflow-hidden transition-all duration-300",
+      "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col",
       selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10" : "border-neutral-200"
     )}>
       <NodeResizer minWidth={210} minHeight={120} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-2 w-2 bg-white border-2 border-fuchsia-400 rounded-full" />
-      <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-4 py-2 flex items-center gap-2 text-white">
+      <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-4 py-2 flex items-center gap-2 text-white shrink-0">
         <Zap size={14} fill="white" />
         <span className="text-[11px] font-black uppercase tracking-wider">AI Intent</span>
       </div>
@@ -245,6 +245,7 @@ const initialNodes: Node[] = [
       trigger: 'On Comment: "INFO"' 
     },
     position: { x: 400, y: 50 },
+    style: { width: 250, height: 180 }
   },
   {
     id: '2',
@@ -258,6 +259,7 @@ const initialNodes: Node[] = [
       ]
     },
     position: { x: 400, y: 300 },
+    style: { width: 280, height: 220 }
   },
 ];
 
@@ -306,10 +308,10 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'grow-email-list':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['EMAIL'], trigger: 'Keyword: EMAIL' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I'd love to send you the guide! What's your best email address?", buttons: [] }, position: { x: 400, y: 250 } },
-            { id: 'd1', type: 'delayNode', data: { duration: '5 min' }, position: { x: 400, y: 450 } },
-            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Just checking in, did you get a chance to type your email?", buttons: [] }, position: { x: 400, y: 600 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['EMAIL'], trigger: 'Keyword: EMAIL' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I'd love to send you the guide! What's your best email address?", buttons: [] }, position: { x: 400, y: 250 }, style: { width: 280, height: 180 } },
+            { id: 'd1', type: 'delayNode', data: { duration: '5 min' }, position: { x: 400, y: 450 }, style: { width: 200, height: 120 } },
+            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Just checking in, did you get a chance to type your email?", buttons: [] }, position: { x: 400, y: 600 }, style: { width: 280, height: 180 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'm1', animated: true },
@@ -320,33 +322,33 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'auto-dm-comments':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK'], trigger: 'Comment: LINK' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Here is the exclusive link you requested! Enjoy 20% off today.", buttons: [{ label: 'Get Link', type: 'external_link', link: 'https://example.com' }] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK'], trigger: 'Comment: LINK' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Here is the exclusive link you requested! Enjoy 20% off today.", buttons: [{ label: 'Get Link', type: 'external_link', link: 'https://example.com' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'sell-reel-comments':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['SHOP', 'BUY'], trigger: 'Comment: SHOP' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Ready to shop? Here's the direct link to the product in the Reel!", buttons: [{ label: 'Shop Now', type: 'external_link', link: 'https://yourstore.com' }] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['SHOP', 'BUY'], trigger: 'Comment: SHOP' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Ready to shop? Here's the direct link to the product in the Reel!", buttons: [{ label: 'Shop Now', type: 'external_link', link: 'https://yourstore.com' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'get-collabs-stories':
         return {
           nodes: [
-             { id: 't1', type: 'triggerNode', data: { type: 'story_reply', postType: 'any', trigger: 'Story Reply' }, position: { x: 400, y: 50 } },
-             { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "Thanks for the reply! Are you a creator? We are looking for ambassadors.", buttons: [{ label: 'I am a creator!', type: 'next_step' }] }, position: { x: 400, y: 250 } }
+             { id: 't1', type: 'triggerNode', data: { type: 'story_reply', postType: 'any', trigger: 'Story Reply' }, position: { x: 400, y: 50 }, style: { width: 250, height: 150 } },
+             { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "Thanks for the reply! Are you a creator? We are looking for ambassadors.", buttons: [{ label: 'I am a creator!', type: 'next_step' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'run-giveaway':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['WIN'], trigger: 'Keyword: WIN' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "You're almost entered! First, are you following us? It's a requirement to win!", buttons: [{ label: 'Done!', type: 'next_step' }] }, position: { x: 400, y: 250 } },
-            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Great! You're now officially entered into the giveaway. We'll announce the winner on Friday!", buttons: [] }, position: { x: 400, y: 450 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['WIN'], trigger: 'Keyword: WIN' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "You're almost entered! First, are you following us? It's a requirement to win!", buttons: [{ label: 'Done!', type: 'next_step' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } },
+            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Great! You're now officially entered into the giveaway. We'll announce the winner on Friday!", buttons: [] }, position: { x: 400, y: 480 }, style: { width: 280, height: 180 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'm1', animated: true },
@@ -356,25 +358,25 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'generate-leads-stories':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'story_reply', postType: 'any', trigger: 'Story Interaction' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I see you're interested! Drop your email and I'll send over our pricing guide.", buttons: [] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'story_reply', postType: 'any', trigger: 'Story Interaction' }, position: { x: 400, y: 50 }, style: { width: 250, height: 150 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I see you're interested! Drop your email and I'll send over our pricing guide.", buttons: [] }, position: { x: 400, y: 250 }, style: { width: 280, height: 180 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'affiliate-links':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK', 'WHERE'], trigger: 'Keyword: LINK' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Found it! Here is the link to the item you liked:", buttons: [{ label: 'View Product', type: 'external_link', link: 'https://amzn.to/example' }] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK', 'WHERE'], trigger: 'Keyword: LINK' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Found it! Here is the link to the item you liked:", buttons: [{ label: 'View Product', type: 'external_link', link: 'https://amzn.to/example' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'grow-followers-comments':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['FOLLOW'], trigger: 'Keyword: FOLLOW' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "Thanks for the comment! Make sure you're following for the full breakdown.", buttons: [{ label: 'I Follow', type: 'next_step' }] }, position: { x: 400, y: 250 } },
-            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Awesome! Here is the breakdown I promised.", buttons: [] }, position: { x: 400, y: 450 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['FOLLOW'], trigger: 'Keyword: FOLLOW' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "Thanks for the comment! Make sure you're following for the full breakdown.", buttons: [{ label: 'I Follow', type: 'next_step' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } },
+            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Awesome! Here is the breakdown I promised.", buttons: [] }, position: { x: 400, y: 480 }, style: { width: 280, height: 180 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'm1', animated: true },
@@ -384,17 +386,17 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'respond-dms':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Any DM' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Thanks for reaching out! A member of our team will get back to you soon. In the meantime, how can I help?", buttons: [] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Any DM' }, position: { x: 400, y: 50 }, style: { width: 250, height: 120 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Thanks for reaching out! A member of our team will get back to you soon. In the meantime, how can I help?", buttons: [] }, position: { x: 400, y: 250 }, style: { width: 280, height: 180 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
       case 'automate-ai':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Customer Query' }, position: { x: 400, y: 50 } },
-            { id: 'ai1', type: 'aiNode', data: { prompt: 'You are a helpful customer support agent for our brand. Answer common questions about shipping, returns, and product availability based on our website info.' }, position: { x: 400, y: 250 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "I've analyzed your request. Here's what I found...", buttons: [] }, position: { x: 400, y: 450 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Customer Query' }, position: { x: 400, y: 50 }, style: { width: 250, height: 120 } },
+            { id: 'ai1', type: 'aiNode', data: { prompt: 'You are a helpful customer support agent for our brand. Answer common questions about shipping, returns, and product availability based on our website info.' }, position: { x: 400, y: 250 }, style: { width: 280, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "I've analyzed your request. Here's what I found...", buttons: [] }, position: { x: 400, y: 450 }, style: { width: 280, height: 180 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'ai1' },
@@ -404,9 +406,9 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'dm-course-closer':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['COURSE', 'LEARN'], trigger: 'Keyword: COURSE' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Excited to see you want to level up! To see if you're a good fit, what's your current monthly revenue?", buttons: [{ label: '$0 - $1k', type: 'next_step' }, { label: '$1k - $5k', type: 'next_step' }, { label: '$5k+', type: 'next_step' }] }, position: { x: 400, y: 250 } },
-            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Got it! Based on that, you should check out our Advanced Masterclass.", buttons: [{ label: 'View Course', type: 'external_link', link: 'https://yourcourse.com' }] }, position: { x: 400, y: 500 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['COURSE', 'LEARN'], trigger: 'Keyword: COURSE' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Excited to see you want to level up! To see if you're a good fit, what's your current monthly revenue?", buttons: [{ label: '$0 - $1k', type: 'next_step' }, { label: '$1k - $5k', type: 'next_step' }, { label: '$5k+', type: 'next_step' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 300 } },
+            { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Got it! Based on that, you should check out our Advanced Masterclass.", buttons: [{ label: 'View Course', type: 'external_link', link: 'https://yourcourse.com' }] }, position: { x: 400, y: 580 }, style: { width: 280, height: 220 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'm1', animated: true },
@@ -416,9 +418,9 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'follow-freebie':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['GIFT', 'FREE'], trigger: 'Keyword: GIFT' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "I'd love to send you the freebie! Just hit the button below once you're following us.", buttons: [{ label: 'I am following!', type: 'next_step' }] }, position: { x: 400, y: 250 } },
-            { id: 'm2', type: 'messageNode', data: { type: 'link_delivery', label: "Success! Here is your download link:", buttons: [{ label: 'Download Now', type: 'external_link', link: 'https://drive.google.com/...' }] }, position: { x: 400, y: 500 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['GIFT', 'FREE'], trigger: 'Keyword: GIFT' }, position: { x: 400, y: 50 }, style: { width: 250, height: 180 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'follow_check', label: "I'd love to send you the freebie! Just hit the button below once you're following us.", buttons: [{ label: 'I am following!', type: 'next_step' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } },
+            { id: 'm2', type: 'messageNode', data: { type: 'link_delivery', label: "Success! Here is your download link:", buttons: [{ label: 'Download Now', type: 'external_link', link: 'https://drive.google.com/...' }] }, position: { x: 400, y: 500 }, style: { width: 280, height: 180 } }
           ],
           edges: [
             { id: 'e1', source: 't1', target: 'm1', animated: true },
@@ -428,8 +430,8 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       case 'insta-to-whatsapp':
         return {
           nodes: [
-            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Sales Inquiry' }, position: { x: 400, y: 50 } },
-            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Let's chat more personally on WhatsApp so I can send you all the voice notes and details!", buttons: [{ label: 'Chat on WhatsApp', type: 'external_link', link: 'https://wa.me/yournumber' }] }, position: { x: 400, y: 250 } }
+            { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Sales Inquiry' }, position: { x: 400, y: 50 }, style: { width: 250, height: 120 } },
+            { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Let's chat more personally on WhatsApp so I can send you all the voice notes and details!", buttons: [{ label: 'Chat on WhatsApp', type: 'external_link', link: 'https://wa.me/yournumber' }] }, position: { x: 400, y: 250 }, style: { width: 280, height: 220 } }
           ],
           edges: [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
         };
@@ -564,11 +566,19 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
   const addNode = (type: string, initialData: any = {}) => {
     const id = Date.now().toString();
     const lastNode = nodes[nodes.length - 1];
+    
+    // Default dimensions based on type
+    const style = 
+      type === 'triggerNode' ? { width: 250, height: 180 } :
+      type === 'delayNode' ? { width: 200, height: 120 } :
+      { width: 280, height: 200 };
+
     const newNode = {
       id,
       type,
-      position: { x: lastNode?.position.x || 400, y: (lastNode?.position.y || 0) + 200 },
+      position: { x: lastNode?.position.x || 400, y: (lastNode?.position.y || 0) + 220 },
       data: initialData,
+      style
     };
     setNodes((nds) => nds.concat(newNode));
   };
