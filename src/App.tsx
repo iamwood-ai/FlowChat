@@ -79,142 +79,137 @@ function MainApp() {
 
   return (
     <div className="flex h-[100dvh] bg-[#F8F9FA] font-sans text-[#1A1A1A] overflow-hidden">
-      {/* Sidebar - Desktop: Sticky, Mobile: Overlay */}
-      <AnimatePresence>
-        {(isSidebarOpen || window.innerWidth >= 1024) && (
-          <motion.aside 
-            initial={window.innerWidth < 1024 ? { x: -300 } : false}
-            animate={{ x: 0, width: isSidebarOpen ? 280 : 80 }}
-            exit={{ x: -300 }}
-            className={cn(
-              "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-neutral-200 bg-white transition-all lg:relative",
-              !isSidebarOpen && "lg:w-20"
-            )}
-          >
-            {/* Branding & Profile Switcher */}
-            <div className="p-4">
-              <div className="relative">
-                <button 
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-2xl border border-neutral-100 p-2.5 transition-all hover:bg-neutral-50",
-                    !isSidebarOpen && "lg:justify-center"
-                  )}
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-100">
-                    <Zap size={20} fill="currentColor" />
-                  </div>
-                  {(isSidebarOpen || window.innerWidth < 1024) && (
-                    <div className="flex-1 overflow-hidden text-left">
-                      <p className="truncate text-sm font-bold text-neutral-900">
-                        {activeWorkspace?.name || "Select Profile"}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                        Active Profile
-                      </p>
-                    </div>
-                  )}
-                  {isSidebarOpen && <ChevronRight size={14} className={cn("text-neutral-400 transition-transform", isProfileMenuOpen && "rotate-90")} />}
-                </button>
-
-                {/* Profile Dropdown */}
-                <AnimatePresence>
-                  {isProfileMenuOpen && (isSidebarOpen || window.innerWidth < 1024) && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute left-0 top-full z-50 mt-2 w-full rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl"
-                    >
-                      <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">Switch Profile</p>
-                      <div className="max-h-48 overflow-y-auto">
-                        {workspaces.map(ws => (
-                          <button
-                            key={ws.id}
-                            onClick={() => { switchWorkspace(ws.id); setIsProfileMenuOpen(false); }}
-                            className={cn(
-                              "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                              activeWorkspace?.id === ws.id ? "bg-blue-50 text-blue-700" : "text-neutral-600 hover:bg-neutral-50"
-                            )}
-                          >
-                            <div className="h-2 w-2 rounded-full bg-blue-500" />
-                            {ws.name}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="my-2 h-[1px] bg-neutral-100" />
-                      <button 
-                        onClick={handleAddWorkspace}
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-blue-600 hover:bg-blue-50"
-                      >
-                        <Plus size={16} />
-                        Add New Profile
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-            <nav className="flex-1 space-y-1 p-3 text-[14px]">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeView === item.id;
-                
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => { setActiveView(item.id as View); if(window.innerWidth < 1024) setIsSidebarOpen(false); }}
-                    className={cn(
-                      "group flex w-full items-center rounded-xl px-3 py-2.5 transition-all duration-200",
-                      isActive 
-                        ? "bg-blue-50 text-blue-700 shadow-sm" 
-                        : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
-                    )}
-                  >
-                    <Icon className={cn("shrink-0", isActive ? "text-blue-600" : "text-neutral-400 group-hover:text-neutral-600")} size={20} />
-                    {(isSidebarOpen || window.innerWidth < 1024) && (
-                      <span className="ml-3 font-semibold">{item.label}</span>
-                    )}
-                    {isActive && (isSidebarOpen || window.innerWidth < 1024) && (
-                      <motion.div 
-                        layoutId="active-indicator"
-                        className="ml-auto"
-                      >
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-sm shadow-blue-200" />
-                      </motion.div>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-
-            <div className="p-4 space-y-2">
+      {/* Sidebar - Desktop Only */}
+      {window.innerWidth >= 1024 && (
+        <aside 
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-neutral-200 bg-white transition-all lg:relative",
+            isSidebarOpen ? "w-[280px]" : "w-[80px]"
+          )}
+        >
+          {/* Branding & Profile Switcher */}
+          <div className="p-4">
+            <div className="relative">
               <button 
-                onClick={logout}
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 className={cn(
-                  "flex w-full items-center rounded-xl px-3 py-2.5 text-neutral-500 hover:bg-red-50 hover:text-red-600 transition-colors",
-                  !(isSidebarOpen || window.innerWidth < 1024) && "lg:justify-center"
+                  "flex w-full items-center gap-3 rounded-2xl border border-neutral-100 p-2.5 transition-all hover:bg-neutral-50",
+                  !isSidebarOpen && "justify-center"
                 )}
               >
-                <LogOut size={20} />
-                {(isSidebarOpen || window.innerWidth < 1024) && <span className="ml-3 font-semibold">Sign Out</span>}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-100">
+                  <Zap size={20} fill="currentColor" />
+                </div>
+                {isSidebarOpen && (
+                  <div className="flex-1 overflow-hidden text-left">
+                    <p className="truncate text-sm font-bold text-neutral-900">
+                      {activeWorkspace?.name || "Select Profile"}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                      Active Profile
+                    </p>
+                  </div>
+                )}
+                {isSidebarOpen && <ChevronRight size={14} className={cn("text-neutral-400 transition-transform", isProfileMenuOpen && "rotate-90")} />}
               </button>
 
-              <button 
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="hidden lg:flex h-10 w-full items-center justify-center rounded-xl bg-neutral-50 text-neutral-400 hover:bg-neutral-100"
-              >
-                <Menu size={20} />
-              </button>
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {isProfileMenuOpen && isSidebarOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 top-full z-50 mt-2 w-full rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl"
+                  >
+                    <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">Switch Profile</p>
+                    <div className="max-h-48 overflow-y-auto">
+                      {workspaces.map(ws => (
+                        <button
+                          key={ws.id}
+                          onClick={() => { switchWorkspace(ws.id); setIsProfileMenuOpen(false); }}
+                          className={cn(
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                            activeWorkspace?.id === ws.id ? "bg-blue-50 text-blue-700" : "text-neutral-600 hover:bg-neutral-50"
+                          )}
+                        >
+                          <div className="h-2 w-2 rounded-full bg-blue-500" />
+                          {ws.name}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="my-2 h-[1px] bg-neutral-100" />
+                    <button 
+                      onClick={handleAddWorkspace}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-blue-600 hover:bg-blue-50"
+                    >
+                      <Plus size={16} />
+                      Add New Profile
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+          </div>
 
-      {/* Mobile Sidebar Backdrop */}
+          <nav className="flex-1 space-y-1 p-3 text-[14px]">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveView(item.id as View); }}
+                  className={cn(
+                    "group flex w-full items-center rounded-xl px-3 py-2.5 transition-all duration-200",
+                    isActive 
+                      ? "bg-blue-50 text-blue-700 shadow-sm" 
+                      : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
+                  )}
+                >
+                  <Icon className={cn("shrink-0", isActive ? "text-blue-600" : "text-neutral-400 group-hover:text-neutral-600")} size={20} />
+                  {isSidebarOpen && (
+                    <span className="ml-3 font-semibold">{item.label}</span>
+                  )}
+                  {isActive && isSidebarOpen && (
+                    <motion.div 
+                      layoutId="active-indicator"
+                      className="ml-auto"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-sm shadow-blue-200" />
+                    </motion.div>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="p-4 space-y-2">
+            <button 
+              onClick={logout}
+              className={cn(
+                "flex w-full items-center rounded-xl px-3 py-2.5 text-neutral-500 hover:bg-red-50 hover:text-red-600 transition-colors",
+                !isSidebarOpen && "justify-center"
+              )}
+            >
+              <LogOut size={20} />
+              {isSidebarOpen && <span className="ml-3 font-semibold">Sign Out</span>}
+            </button>
+
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="h-10 w-full items-center justify-center rounded-xl bg-neutral-50 text-neutral-400 hover:bg-neutral-100 flex"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
+        </aside>
+      )}
+
+      {/* Mobile Sidebar Backdrop - Removed since sidebar is desktop only */}
       <AnimatePresence>
-        {isSidebarOpen && window.innerWidth < 1024 && (
+        {false && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

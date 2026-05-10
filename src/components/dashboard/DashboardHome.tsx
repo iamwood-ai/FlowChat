@@ -66,27 +66,26 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
     <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
       <div className="p-3 sm:p-8 space-y-4 sm:space-y-8 max-w-[1400px] mx-auto pb-32">
       {/* Welcome Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
-          <p className="text-neutral-500 mt-1 text-xs sm:text-sm">Here's what's happening with your multi-channel automations today.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-2 lg:flex lg:items-center gap-2 w-full lg:w-auto">
           <button 
             onClick={() => onNavigate('flows')}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-blue-600 text-white rounded-xl text-[10px] sm:text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
           >
-            <Plus size={16} />
+            <Plus size={14} className="sm:w-4 sm:h-4" />
             Create New Flow
           </button>
           <button 
             onClick={() => setIsCustomizing(!isCustomizing)}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-              isCustomizing ? "bg-blue-600 text-white" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+              "flex-1 lg:flex-none px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center whitespace-nowrap",
+              isCustomizing ? "bg-blue-600 text-white border-blue-600" : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:bg-neutral-100"
             )}
           >
-            {isCustomizing ? "Done Customizing" : "Edit Layout"}
+            {isCustomizing ? "Done" : "Edit Layout"}
           </button>
         </div>
       </div>
@@ -148,13 +147,13 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
       {visibleSections.library && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
-            <div>
-              <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight italic">Automations Library</h3>
-              <p className="text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium italic">One-click deployment for your business.</p>
+            <div className="flex flex-col order-1 sm:order-none">
+              <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight">Automations Library</h3>
+              <p className="hidden sm:block text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your business.</p>
             </div>
             <button 
               onClick={() => setIsTemplatesModalOpen(true)}
-              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
+              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit order-2 sm:order-none mr-auto sm:mr-0"
             >
               View All
             </button>
@@ -263,7 +262,10 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                       <channel.icon size={18} />
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-xs font-bold text-neutral-800">{channel.name}</p>
+                      <p className="text-xs font-bold text-neutral-800">
+                        <span className="sm:hidden">{channel.name === 'Messenger' ? 'FB' : channel.name === 'Instagram' ? 'IG' : channel.name}</span>
+                        <span className="hidden sm:inline">{channel.name}</span>
+                      </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <div className={cn("h-1.5 w-1.5 rounded-full", channel.status === 'Active' ? "bg-emerald-500" : "bg-neutral-300")} />
                         <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">{channel.status}</p>
