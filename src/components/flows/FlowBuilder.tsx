@@ -812,7 +812,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         </ReactFlow>
 
         {/* ── Floating Zoom Controls — fixed bottom-left ── */}
-        <div className="absolute bottom-20 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
+        <div className="absolute bottom-14 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
           <button onClick={() => zoomIn({ duration: 300 })}
             className="h-9 w-9 bg-white border border-neutral-200 rounded-xl shadow-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
             title="Zoom In">
@@ -864,7 +864,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         <button
           onClick={() => setIsPanelOpen(p => !p)}
           className={cn(
-            "absolute bottom-20 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
+            "absolute bottom-14 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
             isPanelOpen ? "bg-white text-neutral-600 border border-neutral-200 shadow-2xl" : "bg-blue-600 text-white"
           )}
           title={isPanelOpen ? "Close Panel" : "Open Panel"}>
