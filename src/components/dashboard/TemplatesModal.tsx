@@ -5,6 +5,7 @@ import {
   Plus, 
   ChevronRight, 
   ArrowLeft,
+  Filter,
   Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -21,6 +22,7 @@ interface TemplatesModalProps {
 export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew }: TemplatesModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   const categories = ['All', 'Recommended', 'Grow your followers', 'Engage your audience', 'Drive traffic'];
 
@@ -35,7 +37,7 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 md:p-10">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -65,17 +67,62 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
               <p className="text-neutral-500 text-sm">Choose a template to jumpstart your growth or create from scratch.</p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1 sm:w-80">
+            <div className="flex items-center gap-2 flex-1 sm:flex-none">
+              <div className="relative flex-1 sm:w-64 md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
                 <input 
                   type="text"
-                  placeholder="Search templates..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
                 />
               </div>
+              
+              {/* Mobile Filter Button */}
+              <div className="relative lg:hidden">
+                <button 
+                  onClick={() => setShowMobileFilter(!showMobileFilter)}
+                  className={cn(
+                    "p-3 rounded-2xl border transition-all",
+                    showMobileFilter 
+                      ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200" 
+                      : "bg-neutral-50 border-neutral-200 text-neutral-500"
+                  )}
+                >
+                  <Filter size={18} />
+                </button>
+                
+                <AnimatePresence>
+                  {showMobileFilter && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2 z-[60]"
+                    >
+                      {categories.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            setShowMobileFilter(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all",
+                            selectedCategory === cat 
+                              ? "bg-blue-50 text-blue-700" 
+                              : "text-neutral-600 hover:bg-neutral-50"
+                          )}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <button 
                 onClick={onClose}
                 className="hidden sm:flex p-2 hover:bg-neutral-100 rounded-xl text-neutral-400 transition-colors"
@@ -86,13 +133,16 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
           </div>
 
           <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
-            {/* Sidebar Categories */}
-            <div className="w-full lg:w-64 p-6 border-b lg:border-b-0 lg:border-r border-neutral-100 bg-neutral-50/30 overflow-x-auto lg:overflow-y-auto">
+            {/* Sidebar Categories - Hidden on mobile/tablet because we have the filter button now */}
+            <div className="hidden lg:block w-64 p-6 border-r border-neutral-100 bg-neutral-50/30 overflow-y-auto">
               <div className="flex lg:flex-col gap-2">
                 {categories.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setShowMobileFilter(false);
+                    }}
                     className={cn(
                       "whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-bold transition-all text-left",
                       selectedCategory === cat 
@@ -123,8 +173,8 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
             </div>
 
             {/* Templates Grid */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 scrollbar-hide">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 scrollbar-hide">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {/* Create New Mobile Card */}
                 <div 
                   onClick={onCreateNew}
@@ -189,11 +239,6 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
                 )}
               </div>
             </div>
-          </div>
-          
-          {/* Footer mobile only indicator */}
-          <div className="p-4 bg-neutral-50 border-t border-neutral-100 lg:hidden text-center">
-             <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Swipe for more categories</p>
           </div>
         </motion.div>
       </div>

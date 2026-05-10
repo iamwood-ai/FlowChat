@@ -237,7 +237,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     <div className="p-3 sm:p-8 max-w-[1400px] mx-auto space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Automations</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Automate</h1>
           <p className="text-neutral-500 text-[11px] sm:text-sm mt-0.5 sm:mt-1">Manage all your active and draft automation flows.</p>
         </div>
         <button 
@@ -304,9 +304,10 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
               <motion.div
                 key={automation.id}
                 layout
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
                 className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl border border-neutral-200 bg-white p-3.5 sm:p-5 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5 transition-all"
               >
                 <div className="flex items-center gap-3 sm:gap-4">

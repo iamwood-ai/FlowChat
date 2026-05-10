@@ -53,7 +53,7 @@ function MainApp() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'flows', label: 'Automations', icon: GitBranch },
+    { id: 'flows', label: 'Automate', icon: GitBranch },
     { id: 'audience', label: 'Audience', icon: Users },
     { id: 'analytics', label: 'Insights', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -262,7 +262,7 @@ function MainApp() {
                     "text-[10px] font-black uppercase tracking-wider",
                     isActive ? "text-blue-600" : "text-neutral-400"
                   )}>
-                    {item.id === 'flows' ? 'Automations' : item.id === 'analytics' ? 'Insights' : item.label}
+                    {item.id === 'flows' ? 'Automate' : item.id === 'analytics' ? 'Insights' : item.label}
                   </span>
                 </button>
               );
