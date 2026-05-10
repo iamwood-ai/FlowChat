@@ -129,8 +129,8 @@ const TriggerNode = ({ data, selected }: any) => (
         <p className="text-[9px] text-neutral-400 font-black uppercase tracking-widest mb-0.5">
           On {data.type === 'comment' ? 'Comment' : 'Interaction'}
         </p>
-        <p className="text-xs font-bold text-amber-900">
-          {data.postType === 'specific' ? 'Specific Post' : data.postType === 'next' ? 'Next Post' : 'Any Post'}
+        <p className="text-xs font-bold text-amber-900 leading-tight">
+          {data.postType === 'specific' ? 'Specific Post or Reel' : data.postType === 'next' ? 'The Next Post or Reel' : 'Any Post or Reel'}
         </p>
       </div>
       {data.keywords?.length > 0 && (
@@ -402,11 +402,21 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
   const addNode = (type: string, data: any = {}) => {
     const id = Date.now().toString();
     const last = nodes[nodes.length - 1];
-    const style = type === 'triggerNode' ? { width: 180, height: 130 } : type === 'delayNode' ? { width: 150, height: 100 } : { width: 200, height: 160 };
+    
+    // Auto-sizing logic: don't force height so content renders fully
+    const style = type === 'triggerNode' ? { width: 180 } : type === 'delayNode' ? { width: 150 } : { width: 220 };
+    
     const x = last ? last.position.x : 300;
-    const y = last ? last.position.y + (typeof last.style?.height === 'number' ? last.style.height : 150) + 80 : 100;
+    const y = last ? last.position.y + 200 : 100;
     setNodes(nds => [...nds, { id, type, position: { x, y }, data, style }]);
     if (window.innerWidth < 1024) setIsPanelOpen(false);
+    
+    // Focus on new node
+    setTimeout(() => {
+      setSelectedNodeId(id);
+      setActiveTab('properties');
+      setIsPanelOpen(true);
+    }, 100);
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -525,12 +535,12 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
                     <label className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-2 block">Post Targeting</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { id: 'any', label: 'Any' },
-                        { id: 'specific', label: 'Specific' },
-                        { id: 'next', label: 'Next' }
+                        { id: 'any', label: 'Any Post/Reel' },
+                        { id: 'specific', label: 'Specific Post/Reel' },
+                        { id: 'next', label: 'The Next Post/Reel' }
                       ].map(pt => (
                         <button key={pt.id} onClick={() => updateNodeData({ postType: pt.id })}
-                          className={cn("py-2.5 rounded-xl border text-[10px] font-bold uppercase transition-all",
+                          className={cn("py-2.5 rounded-xl border text-[9px] px-1 font-black uppercase transition-all flex items-center justify-center text-center leading-none h-10",
                             selectedNode.data.postType === pt.id ? "bg-amber-500 border-amber-600 text-white" : "bg-white border-neutral-200 text-neutral-400")}>
                           {pt.label}
                         </button>

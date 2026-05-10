@@ -122,6 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Ignore user cancellation
       } else if (error.code === 'auth/unauthorized-domain' || error.message.includes('auth/unauthorized-domain')) {
         alert("This domain (flow-chat-kappa.vercel.app) is not authorized in your Firebase project. To fix this:\n\n1. Go to Firebase Console\n2. Authentication > Settings > Authorized domains\n3. Add 'flow-chat-kappa.vercel.app'\n4. Refresh and try again.");
+      } else if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed')) {
+        alert("Network request failed. This often happens if:\n\n1. You are using an ad-blocker or VPN that blocks Google Identity services.\n2. Your internet connection is unstable.\n3. The browser is blocking the popup interaction.\n\nPlease try disabling ad-blockers and try again.");
       } else {
         alert(`Authentication failed: ${error.message}. If you are on a deployed site, make sure the domain is authorized in Firebase Console.`);
       }
