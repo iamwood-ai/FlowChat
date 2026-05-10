@@ -812,7 +812,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         </ReactFlow>
 
         {/* ── Floating Zoom Controls — fixed bottom-left ── */}
-        <div className="absolute bottom-14 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
+        <div className="absolute bottom-4 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
           <button onClick={() => zoomIn({ duration: 300 })}
             className="h-9 w-9 bg-white border border-neutral-200 rounded-xl shadow-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
             title="Zoom In">
@@ -830,33 +830,39 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           </button>
         </div>
 
-        {/* ── Edge Delete Overlay Mobile ── */}
+        {/* ── Edge Delete Pop-up — Centered for any device ── */}
         <AnimatePresence>
           {selectedEdgeId && (
-            <Panel position="bottom-center" className="mb-24 sm:mb-10 pointer-events-none">
+            <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="pointer-events-auto bg-neutral-900 text-white px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-md"
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="pointer-events-auto bg-white border border-neutral-200 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-6 rounded-3xl flex flex-col items-center gap-4 max-w-[280px] text-center"
               >
-                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Connection Selected</p>
-                <div className="w-[1px] h-4 bg-white/20" />
-                <button 
-                  onClick={deleteSelectedEdge}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-xl text-[10px] font-black uppercase transition-all"
-                >
-                  <Trash2 size={14} />
-                  Delete Line
-                </button>
-                <button 
-                  onClick={() => setSelectedEdgeId(null)}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X size={14} />
-                </button>
+                <div className="h-14 w-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center shadow-inner">
+                  <Trash2 size={24} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-neutral-900 uppercase tracking-tight">Delete Connection?</h3>
+                  <p className="text-[10px] text-neutral-400 font-medium mt-1 uppercase tracking-widest">This will remove the link between these steps.</p>
+                </div>
+                <div className="flex gap-2 w-full mt-2">
+                  <button 
+                    onClick={() => setSelectedEdgeId(null)}
+                    className="flex-1 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-xl text-[10px] font-black uppercase transition-all"
+                  >
+                    Keep
+                  </button>
+                  <button 
+                    onClick={deleteSelectedEdge}
+                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-black uppercase transition-all shadow-lg"
+                  >
+                    Delete
+                  </button>
+                </div>
               </motion.div>
-            </Panel>
+            </div>
           )}
         </AnimatePresence>
 
@@ -864,7 +870,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         <button
           onClick={() => setIsPanelOpen(p => !p)}
           className={cn(
-            "absolute bottom-14 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
+            "absolute bottom-4 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
             isPanelOpen ? "bg-white text-neutral-600 border border-neutral-200 shadow-2xl" : "bg-blue-600 text-white"
           )}
           title={isPanelOpen ? "Close Panel" : "Open Panel"}>
