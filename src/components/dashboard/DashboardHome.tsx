@@ -114,7 +114,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
 
       {/* Stats Grid */}
       {visibleSections.stats && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -145,7 +145,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-3">
-        {/* Left Column: Channels and AI Generator */}
+        {/* Left Column: AI Generator and Library (reordered) */}
         <div className="lg:col-span-1 space-y-4 sm:space-y-6">
           {/* AI Generator */}
           {visibleSections.ai && (
@@ -202,6 +202,46 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
             </div>
           )}
 
+          {/* Library moved here for mobile priority */}
+          {visibleSections.library && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
+                <div>
+                  <h3 className="font-bold text-neutral-900 text-sm">Automations Library</h3>
+                  <p className="text-[10px] text-neutral-400 mt-1 font-medium">One-click deployment.</p>
+                </div>
+                <button 
+                  onClick={() => setIsTemplatesModalOpen(true)}
+                  className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
+                >
+                  View All
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-3 sm:gap-4">
+                {ALL_TEMPLATES.slice(0, 6).map((flow) => (
+                  <div 
+                    key={flow.id} 
+                    onClick={() => onNavigate('flows', { templateId: flow.id })}
+                    className={cn("p-3 sm:p-5 rounded-xl border transition-all hover:shadow-lg cursor-pointer group flex flex-col justify-between min-h-[140px] sm:min-h-[160px] relative overflow-hidden", flow.color)}
+                  >
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                         <span className="text-[8px] font-black text-neutral-600 uppercase tracking-widest bg-white/50 px-1.5 py-0.5 rounded border border-white/20 truncate max-w-[60px]">{flow.platform}</span>
+                        <div className="bg-blue-600 text-white rounded-lg p-1 shadow-lg shadow-blue-200 opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
+                          <Plus size={12} />
+                        </div>
+                      </div>
+                      <h4 className="font-black text-neutral-900 text-[11px] sm:text-sm leading-tight group-hover:text-blue-700 transition-colors line-clamp-2">{flow.title}</h4>
+                    </div>
+                    <div className="mt-3 flex items-center gap-1.5 pt-2 border-t border-neutral-100/50">
+                       <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count} uses</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {visibleSections.channels && (
             <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -237,56 +277,6 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
         </div>
 
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          {visibleSections.library && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
-                <div>
-                  <h3 className="font-bold text-neutral-900">Ready Automations Library</h3>
-                  <p className="text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your profiles.</p>
-                </div>
-                <button 
-                  onClick={() => setIsTemplatesModalOpen(true)}
-                  className="text-blue-600 text-[11px] font-bold uppercase tracking-widest hover:underline px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
-                >
-                  Explore All Templates
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                {ALL_TEMPLATES.slice(0, 3).map((flow) => (
-                  <div 
-                    key={flow.id} 
-                    onClick={() => onNavigate('flows', { templateId: flow.id })}
-                    className={cn("p-4 sm:p-6 rounded-2xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer group flex flex-col justify-between min-h-[180px] sm:min-h-[220px] relative overflow-hidden", flow.color)}
-                  >
-                    <div className="absolute top-0 right-0 p-4 opacity-5 flex items-center gap-1">
-                      <Sparkles size={40} />
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="px-2 py-1 bg-white/50 backdrop-blur-sm rounded-md border border-white/20">
-                          <span className="text-[9px] font-black text-neutral-600 uppercase tracking-widest">{flow.platform}</span>
-                        </div>
-                        <div className="bg-blue-600 text-white rounded-lg p-1.5 shadow-lg shadow-blue-200 opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
-                          <Plus size={14} />
-                        </div>
-                      </div>
-                      <h4 className="font-black text-neutral-900 text-lg leading-tight group-hover:text-blue-700 transition-colors">{flow.title}</h4>
-                      <p className="text-xs text-neutral-500 mt-3 leading-relaxed font-medium line-clamp-3">{flow.desc}</p>
-                    </div>
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-neutral-100/50">
-                      <div className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-white flex items-center justify-center border border-neutral-100 overflow-hidden">
-                          <img src={userProfile?.photoURL || user?.photoURL} alt="" className="w-full h-full object-cover" />
-                        </div>
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count} uses</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {visibleSections.crm && (
             <div className="rounded-xl bg-neutral-900 p-4 sm:p-6 shadow-lg shadow-neutral-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-center sm:text-left">
