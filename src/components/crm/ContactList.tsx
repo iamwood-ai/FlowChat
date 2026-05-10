@@ -118,15 +118,25 @@ export default function ContactList() {
       alert("Maximum of 10 folders allowed.");
       return;
     }
-    const name = prompt("Enter folder name:");
-    if (name && !folders.includes(name)) {
-      setFolders([...folders, name]);
+    const name = prompt("Enter folder name (max 15 chars):");
+    if (name) {
+      if (name.length > 15) {
+        alert("Folder name must be 15 characters or less.");
+        return;
+      }
+      if (!folders.includes(name)) {
+        setFolders([...folders, name]);
+      }
     }
   };
 
   const renameFolder = (oldName: string) => {
-    const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
+    const newName = prompt(`Rename folder "${oldName}" to (max 15 chars):`, oldName);
     if (newName && newName !== oldName) {
+      if (newName.length > 15) {
+        alert("Folder name must be 15 characters or less.");
+        return;
+      }
       setFolders(folders.map(f => f === oldName ? newName : f));
       setContacts(contacts.map(c => c.folder === oldName ? { ...c, folder: newName } : c));
       if (selectedFolder === oldName) setSelectedFolder(newName);
@@ -220,16 +230,18 @@ export default function ContactList() {
         </div>
         <div className="flex gap-2 w-full sm:w-auto items-center">
           {/* Folder Filter Button for Mobile/Tablet */}
-          <div className="relative lg:hidden flex-1 min-w-0">
+          <div className="relative lg:hidden flex-[2] min-w-0">
             <button 
               onClick={() => setIsFolderMenuOpen(!isFolderMenuOpen)}
               className={cn(
-                "w-full flex items-center justify-center gap-2 rounded-xl border px-2 h-11 text-xs font-bold transition-all shadow-sm",
+                "w-full flex items-center justify-between gap-2 rounded-xl border px-3 h-11 text-xs font-bold transition-all shadow-sm",
                 selectedFolder ? "bg-blue-600 text-white border-blue-600 shadow-blue-100" : "bg-white border-neutral-200 text-neutral-600"
               )}
             >
-              <FolderOpen size={18} className="shrink-0" />
-              <span className="truncate">{selectedFolder || 'All'}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <FolderOpen size={18} className="shrink-0" />
+                <span className="truncate">{selectedFolder || 'All Contacts'}</span>
+              </div>
               <ChevronDown size={14} className={cn("transition-transform shrink-0", isFolderMenuOpen && "rotate-180")} />
             </button>
             
@@ -286,19 +298,19 @@ export default function ContactList() {
 
           <button 
             onClick={handleExportCSV}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 h-11 text-xs font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm min-w-[100px]"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 sm:px-4 h-11 text-xs font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm min-w-[44px] sm:min-w-[100px]"
+            title="Export CSV"
           >
             <Download size={16} className="shrink-0" />
             <span className="hidden sm:inline">Export</span>
-            <span className="sm:hidden">Export</span>
           </button>
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 h-11 text-xs font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all min-w-[100px]"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 sm:px-4 h-11 text-xs font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all min-w-[44px] sm:min-w-[100px]"
+            title="Import CSV"
           >
             <UserPlus size={16} className="shrink-0" />
             <span className="hidden sm:inline">Import</span>
-            <span className="sm:hidden">Import</span>
           </button>
         </div>
       </div>
@@ -519,8 +531,7 @@ export default function ContactList() {
               <thead>
                 <tr className="bg-neutral-50/50 border-b border-neutral-200">
                   <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Contact</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden lg:table-cell">Source</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden sm:table-cell">Status</th>
+                  <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Status</th>
                   <th className="px-4 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Tags</th>
                   <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400 text-right">Actions</th>
                 </tr>
@@ -553,42 +564,19 @@ export default function ContactList() {
                         <div className="min-w-0">
                           <p className="text-[11px] sm:text-sm font-black text-neutral-900 truncate">{contact.name}</p>
                           <p className="hidden sm:block text-[11px] text-neutral-400 font-bold mt-0.5 truncate">{contact.email}</p>
-                          <div className="sm:hidden flex items-center gap-1 mt-0.5 flex-wrap">
-                            <span className={cn(
-                              "text-[7px] font-black uppercase tracking-widest px-1 rounded border",
-                              contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-neutral-100 text-neutral-400 border-neutral-200"
-                            )}>
-                              {contact.status}
+                          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                            <span className="sm:hidden text-[7px] font-black uppercase tracking-widest px-1 rounded border bg-blue-50 text-blue-600 border-blue-100">
+                                {contact.source}
                             </span>
-                            <span className="text-[7px] font-bold text-neutral-400 uppercase tracking-widest px-1 border border-neutral-100 rounded">{contact.source}</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 hidden lg:table-cell">
-                      {/* ... unchanged source content ... */}
-                      <div className="flex items-center gap-2">
-                        {contact.source === 'Instagram' ? (
-                          <div className="bg-pink-50 text-pink-500 p-1.5 rounded-lg border border-pink-100">
-                            <Instagram size={14} />
-                          </div>
-                        ) : contact.source === 'Messenger' ? (
-                          <div className="bg-blue-50 text-blue-500 p-1.5 rounded-lg border border-blue-100">
-                            <Facebook size={14} />
-                          </div>
-                        ) : (
-                          <div className="bg-neutral-50 text-neutral-400 p-1.5 rounded-lg border border-neutral-100">
-                            <Mail size={14} />
-                          </div>
-                        )}
-                        <span className="text-xs font-bold text-neutral-600">{contact.source}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 hidden sm:table-cell text-center">
+                    <td className="px-4 sm:px-6 py-4 text-center sm:text-left">
                       <button 
                         onClick={(e) => { e.stopPropagation(); toggleStatus(contact.id); }}
                         className={cn(
-                          "inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                          "inline-flex rounded-lg px-2 sm:px-2.5 py-1 text-[8px] sm:text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
                           contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-neutral-50 text-neutral-400 border border-neutral-100"
                         )}
                       >
@@ -597,21 +585,21 @@ export default function ContactList() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-1 items-center min-w-[60px]">
-                        {contact.tags.map(tag => (
-                          <span key={tag} className="flex items-center gap-0.5 bg-neutral-100 text-neutral-500 text-[8px] sm:text-[9px] px-1 sm:px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200 group/tag">
+                        {contact.tags.slice(0, 1).map(tag => (
+                          <span key={tag} className="flex items-center gap-0.5 bg-neutral-100 text-neutral-500 text-[7px] sm:text-[9px] px-1 sm:px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200 group/tag truncate max-w-[50px] sm:max-w-none">
                             {tag}
-                            <button onClick={(e) => { e.stopPropagation(); removeTag(contact.id, tag); }} className="hover:text-red-500 shrink-0">
-                              <X size={8} />
-                            </button>
                           </span>
                         ))}
+                        {contact.tags.length > 1 && (
+                            <span className="text-[7px] font-bold text-neutral-400">+{contact.tags.length - 1}</span>
+                        )}
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             const t = prompt("Enter tag:");
                             if(t) addTag(contact.id, t);
                           }}
-                          className="p-1 rounded-md border border-dashed border-neutral-200 text-neutral-400 hover:text-blue-500 hover:border-blue-200 transition-all shrink-0"
+                          className="p-1 rounded-md border border-dashed border-neutral-200 text-neutral-400 hover:text-blue-500 hover:border-blue-200 transition-all shrink-0 sm:block hidden"
                         >
                           <Plus size={10} />
                         </button>

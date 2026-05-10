@@ -159,7 +159,7 @@ export default function AnalyticsView() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-full mt-2 w-full sm:w-48 bg-white rounded-2xl border border-neutral-200 shadow-2xl z-50 p-2"
+                  className="absolute right-0 top-full mt-2 w-40 sm:w-48 bg-white rounded-2xl border border-neutral-200 shadow-2xl z-50 p-2 shadow-blue-100/30"
                 >
                   {ranges.map((range) => (
                     <button 
