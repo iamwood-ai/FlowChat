@@ -226,6 +226,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [activeTab, setActiveTab] = useState<'nodes' | 'templates' | 'properties'>('nodes');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -361,10 +362,25 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
   const onEdgeReconnect = useCallback((old: any, next: any) => setEdges(els => reconnectEdge(old, next, els)), []);
   const onNodeClick = useCallback((_: any, node: Node) => { 
     setSelectedNodeId(node.id); 
+    setSelectedEdgeId(null);
     setActiveTab('properties'); 
     setIsPanelOpen(true);
   }, []);
-  const onPaneClick = useCallback(() => { setSelectedNodeId(null); if (activeTab === 'properties') setActiveTab('nodes'); }, [activeTab]);
+  const onEdgeClick = useCallback((_: any, edge: Edge) => {
+    setSelectedEdgeId(edge.id);
+    setSelectedNodeId(null);
+  }, []);
+  const onPaneClick = useCallback(() => { 
+    setSelectedNodeId(null); 
+    setSelectedEdgeId(null);
+    if (activeTab === 'properties') setActiveTab('nodes'); 
+  }, [activeTab]);
+
+  const deleteSelectedEdge = () => {
+    if (!selectedEdgeId) return;
+    setEdges(eds => eds.filter(e => e.id !== selectedEdgeId));
+    setSelectedEdgeId(null);
+  };
 
   const updateNodeData = (newData: any) => {
     if (!selectedNodeId) return;
@@ -752,7 +768,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
           onConnect={onConnect} onEdgeReconnect={onEdgeReconnect}
           isValidConnection={isValidConnection}
-          onNodeClick={onNodeClick} onPaneClick={onPaneClick}
+          onNodeClick={onNodeClick} onEdgeClick={onEdgeClick} onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           fitView snapToGrid snapGrid={[20, 20]}
           reconnectMode="around"
@@ -792,7 +808,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         </ReactFlow>
 
         {/* ── Floating Zoom Controls — fixed bottom-left ── */}
-        <div className="absolute bottom-32 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
+        <div className="absolute bottom-24 sm:bottom-6 left-4 z-50 flex flex-col gap-1.5 transition-all">
           <button onClick={() => zoomIn({ duration: 300 })}
             className="h-9 w-9 bg-white border border-neutral-200 rounded-xl shadow-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
             title="Zoom In">
@@ -810,11 +826,41 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           </button>
         </div>
 
+        {/* ── Edge Delete Overlay Mobile ── */}
+        <AnimatePresence>
+          {selectedEdgeId && (
+            <Panel position="bottom-center" className="mb-24 sm:mb-10 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="pointer-events-auto bg-neutral-900 text-white px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-md"
+              >
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Connection Selected</p>
+                <div className="w-[1px] h-4 bg-white/20" />
+                <button 
+                  onClick={deleteSelectedEdge}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-xl text-[10px] font-black uppercase transition-all"
+                >
+                  <Trash2 size={14} />
+                  Delete Line
+                </button>
+                <button 
+                  onClick={() => setSelectedEdgeId(null)}
+                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </motion.div>
+            </Panel>
+          )}
+        </AnimatePresence>
+
         {/* ── Config Panel Toggle ── */}
         <button
           onClick={() => setIsPanelOpen(p => !p)}
           className={cn(
-            "absolute bottom-32 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
+            "absolute bottom-24 sm:bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all active:scale-95",
             isPanelOpen ? "bg-white text-neutral-600 border border-neutral-200 shadow-2xl" : "bg-blue-600 text-white"
           )}
           title={isPanelOpen ? "Close Panel" : "Open Panel"}>

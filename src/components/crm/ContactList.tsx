@@ -184,40 +184,44 @@ export default function ContactList() {
 
         {/* Main Table Area */}
         <div className="flex-1 space-y-4 min-w-0">
-          <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-2xl border border-neutral-200 shadow-sm">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white p-2 sm:p-3 rounded-2xl border border-neutral-200 shadow-sm">
+            <div className="relative flex-1 min-w-[140px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={16} />
               <input 
                 type="text" 
-                placeholder="Search name, email, or tag..."
-                className="w-full rounded-xl border-none bg-neutral-50 py-2.5 pl-10 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="Search..."
+                className="w-full rounded-xl border-none bg-neutral-50 py-2 sm:py-2.5 pl-9 pr-4 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button 
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={cn(
-                "flex items-center gap-2 rounded-xl border px-5 py-2.5 text-xs sm:text-sm font-black transition-all shadow-sm",
-                isFilterOpen ? "border-blue-200 bg-blue-50 text-blue-600" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
-              )}
-            >
-              <Filter size={18} />
-              Filters
-            </button>
-            <button 
-              onClick={() => {
-                setIsSelectionMode(!isSelectionMode);
-                if (isSelectionMode) setSelectedIds([]);
-              }}
-              className={cn(
-                "flex items-center gap-2 rounded-xl border px-5 py-2.5 text-xs sm:text-sm font-black transition-all shadow-sm",
-                isSelectionMode ? "border-blue-600 bg-blue-600 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
-              )}
-            >
-              <CheckCircle2 size={18} />
-              {isSelectionMode ? "Cancel Select" : "Select"}
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-xl border h-9 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
+                  isFilterOpen ? "border-blue-200 bg-blue-50 text-blue-600" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                )}
+                title="Filters"
+              >
+                <Filter size={18} />
+                <span className="hidden sm:inline">Filters</span>
+              </button>
+              <button 
+                onClick={() => {
+                  setIsSelectionMode(!isSelectionMode);
+                  if (isSelectionMode) setSelectedIds([]);
+                }}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-xl border h-9 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
+                  isSelectionMode ? "border-blue-600 bg-blue-600 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                )}
+                title="Select"
+              >
+                <CheckCircle2 size={18} />
+                <span className="hidden sm:inline">{isSelectionMode ? "Cancel" : "Select"}</span>
+              </button>
+            </div>
           </div>
 
           <AnimatePresence>
