@@ -228,13 +228,13 @@ function MainApp() {
       {/* Main Content */}
       <main className="relative flex-1 overflow-hidden flex flex-col w-full">
         <div className="flex-1 flex flex-col bg-[#F8F9FA] overflow-hidden">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.div
               key={activeView}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
               className="h-full w-full"
             >
               {renderContent()}

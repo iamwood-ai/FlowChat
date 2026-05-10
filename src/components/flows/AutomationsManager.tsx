@@ -43,14 +43,14 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
 
   return (
     <div className="h-full">
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {view === 'list' && (
           <motion.div
             key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
             className="h-full overflow-auto"
           >
             <AutomationsList onEdit={handleEdit} onAnalytics={handleAnalytics} onCreateNew={handleCreateNew} />
@@ -59,10 +59,10 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
         {view === 'builder' && (
           <motion.div
             key="builder"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
             className="h-full bg-[#F8F9FA]"
           >
             <FlowBuilder 
@@ -76,10 +76,10 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
         {view === 'analytics' && (
           <motion.div
             key="analytics"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.1 }}
             className="h-full overflow-auto"
           >
             <AutomationAnalytics flow={selectedFlow} onBack={handleBack} />

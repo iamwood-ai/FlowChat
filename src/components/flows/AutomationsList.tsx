@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
-import { collection, query, where, getDocs, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
@@ -47,7 +47,7 @@ interface AutomationsListProps {
 export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: AutomationsListProps) {
   const { activeWorkspace } = useAuth();
   const [automations, setAutomations] = useState<Automation[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
@@ -55,39 +55,37 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
   useEffect(() => {
     if (!activeWorkspace) return;
     
-    const fetchAutomations = async () => {
-      try {
-        const q = query(collection(db, 'workspaces', activeWorkspace.id, 'flows'));
-        const snapshot = await getDocs(q);
-        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Automation));
-        
+    setLoading(true);
+    const q = query(collection(db, 'workspaces', activeWorkspace.id, 'flows'));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Automation));
+      
+      if (docs.length === 0) {
         // Add 3 ready-to-use templates if the list is empty
-        if (docs.length === 0) {
-          // Use specific indices to ensure variety
-          const indices = [0, 5, 8]; 
-          const defaultTemplates: Automation[] = indices.map(idx => {
-            const t = ALL_TEMPLATES[idx] || ALL_TEMPLATES[0];
-            return {
-              id: `template-${t.id}-${Date.now()}-${idx}`, // More unique ID
-              name: t.title,
-              status: 'draft',
-              createdAt: { seconds: Date.now() / 1000 },
-              platform: t.platform,
-              triggerType: t.platform === 'Instagram' ? 'Comment' : 'Messenger'
-            };
-          });
-          setAutomations(defaultTemplates);
-        } else {
-          setAutomations(docs);
-        }
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, `workspaces/${activeWorkspace.id}/flows`);
-      } finally {
-        setLoading(false);
+        const indices = [0, 5, 8]; 
+        const defaultTemplates: Automation[] = indices.map(idx => {
+          const t = ALL_TEMPLATES[idx] || ALL_TEMPLATES[0];
+          return {
+            id: `template-${t.id}-${Date.now()}-${idx}`,
+            name: t.title,
+            status: 'draft',
+            createdAt: { seconds: Date.now() / 1000 },
+            platform: t.platform,
+            triggerType: t.platform === 'Instagram' ? 'Comment' : 'Messenger'
+          };
+        });
+        setAutomations(defaultTemplates);
+      } else {
+        setAutomations(docs);
       }
-    };
+      setLoading(false);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, `workspaces/${activeWorkspace.id}/flows`);
+      setLoading(false);
+    });
 
-    fetchAutomations();
+    return () => unsubscribe();
   }, [activeWorkspace]);
 
   const toggleStatus = async (id: string, currentStatus: string) => {
@@ -102,10 +100,32 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     }
   };
 
-  const deleteAutomation = async (id: string) => {
-    if (!activeWorkspace) return;
-    if (!confirm('Are you sure you want to delete this automation?')) return;
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string, timer: any } | null>(null);
+
+  const confirmDelete = (id: string) => {
+    if (deleteConfirmation?.id === id) {
+      // Second click: perform actual deletion
+      performDeletion(id);
+      return;
+    }
+
+    // First click: show confirmation
+    if (deleteConfirmation?.timer) clearTimeout(deleteConfirmation.timer);
     
+    const timer = setTimeout(() => {
+      setDeleteConfirmation(null);
+    }, 3000);
+
+    setDeleteConfirmation({ id, timer });
+  };
+
+  const performDeletion = async (id: string) => {
+    if (!activeWorkspace) return;
+    
+    // Clear confirmation state
+    if (deleteConfirmation?.timer) clearTimeout(deleteConfirmation.timer);
+    setDeleteConfirmation(null);
+
     // If it's a virtual template, just remove from state
     if (id.startsWith('template-')) {
       setAutomations(prev => prev.filter(a => a.id !== id));
@@ -118,6 +138,11 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `workspaces/${activeWorkspace.id}/flows/${id}`);
     }
+  };
+
+  const cancelDelete = () => {
+    if (deleteConfirmation?.timer) clearTimeout(deleteConfirmation.timer);
+    setDeleteConfirmation(null);
   };
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -352,13 +377,45 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
                   >
                     <Edit2 size={18} />
                   </button>
-                  <button 
-                    onClick={() => deleteAutomation(automation.id)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-neutral-400 hover:bg-red-50 hover:text-red-600 transition-all"
-                    title="Delete"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => confirmDelete(automation.id)}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-xl transition-all",
+                        deleteConfirmation?.id === automation.id ? "bg-red-600 text-white animate-pulse" : "text-neutral-400 hover:bg-red-50 hover:text-red-600"
+                      )}
+                      title="Delete"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+
+                    <AnimatePresence>
+                      {deleteConfirmation?.id === automation.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                          className="absolute bottom-full right-0 mb-2 w-48 bg-neutral-900 text-white rounded-2xl shadow-2xl p-2 z-[100]"
+                        >
+                          <p className="text-[10px] font-black uppercase text-center py-1 opacity-60">Delete this flow?</p>
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
+                              className="flex-1 py-2 bg-neutral-800 rounded-xl text-[10px] font-black uppercase hover:bg-neutral-700 transition-colors"
+                            >
+                              Undo
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); performDeletion(automation.id); }}
+                              className="flex-1 py-2 bg-red-600 rounded-xl text-[10px] font-black uppercase hover:bg-red-700 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </motion.div>
             ))}

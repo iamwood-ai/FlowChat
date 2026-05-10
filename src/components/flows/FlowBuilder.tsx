@@ -130,7 +130,7 @@ const TriggerNode = ({ data, selected }: any) => (
           On {data.type === 'comment' ? 'Comment' : 'Interaction'}
         </p>
         <p className="text-xs font-bold text-amber-900 leading-tight">
-          {data.postType === 'specific' ? 'Specific Post or Reel' : data.postType === 'next' ? 'The Next Post or Reel' : 'Any Post or Reel'}
+          {data.postType === 'specific' ? 'SPECIFIC' : data.postType === 'next' ? 'NEXT' : 'ANY'}
         </p>
       </div>
       {data.keywords?.length > 0 && (
@@ -535,9 +535,9 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
                     <label className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-2 block">Post Targeting</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { id: 'any', label: 'Any Post/Reel' },
-                        { id: 'specific', label: 'Specific Post/Reel' },
-                        { id: 'next', label: 'The Next Post/Reel' }
+                        { id: 'any', label: 'ANY' },
+                        { id: 'specific', label: 'SPECIFIC' },
+                        { id: 'next', label: 'NEXT' }
                       ].map(pt => (
                         <button key={pt.id} onClick={() => updateNodeData({ postType: pt.id })}
                           className={cn("py-2.5 rounded-xl border text-[9px] px-1 font-black uppercase transition-all flex items-center justify-center text-center leading-none h-10",
