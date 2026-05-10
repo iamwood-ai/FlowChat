@@ -347,7 +347,11 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
 
   const isValidConnection = useCallback((c: Connection) => c.source !== c.target, []);
   const onEdgeReconnect = useCallback((old: any, next: any) => setEdges(els => reconnectEdge(old, next, els)), []);
-  const onNodeClick = useCallback((_: any, node: Node) => { setSelectedNodeId(node.id); setActiveTab('properties'); }, []);
+  const onNodeClick = useCallback((_: any, node: Node) => { 
+    setSelectedNodeId(node.id); 
+    setActiveTab('properties'); 
+    setIsPanelOpen(true);
+  }, []);
   const onPaneClick = useCallback(() => { setSelectedNodeId(null); if (activeTab === 'properties') setActiveTab('nodes'); }, [activeTab]);
 
   const updateNodeData = (newData: any) => {
@@ -724,21 +728,19 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
             </Panel>
           )}
 
-          {/* ── Top Bar ── centered rename input */}
-          <Panel position="top-center" className="m-3">
-            <div className="h-10 bg-white/80 backdrop-blur-sm border border-neutral-200 shadow-lg rounded-2xl flex items-center px-4 min-w-[180px] sm:min-w-[240px]">
+          {/* ── Top Bar ── merged back and rename input */}
+          <Panel position="top-left" className="m-3 flex items-center gap-2">
+            <button onClick={onBack} 
+              className="h-10 w-10 bg-white border border-neutral-200 shadow-lg rounded-2xl flex items-center justify-center text-neutral-500 hover:text-neutral-800 transition-colors shrink-0">
+              <ChevronLeft size={16} />
+            </button>
+            
+            <div className="h-10 bg-white border border-neutral-200 shadow-lg rounded-2xl flex items-center px-4 min-w-[160px] max-w-[200px] sm:max-w-xs animate-in slide-in-from-left-2 duration-300">
               <input value={flowName} onChange={e => setFlowName(e.target.value)}
                 className="text-[11px] font-black text-neutral-900 bg-transparent outline-none w-full text-center uppercase tracking-widest leading-tight" 
                 placeholder="Automation Name"
               />
             </div>
-          </Panel>
-
-          <Panel position="top-left" className="m-3">
-            <button onClick={onBack} 
-              className="h-10 w-10 bg-white/80 backdrop-blur-sm border border-neutral-200 shadow-lg rounded-2xl flex items-center justify-center text-neutral-500 hover:text-neutral-800 transition-colors">
-              <ChevronLeft size={16} />
-            </button>
           </Panel>
 
           <Panel position="top-right" className="m-3 flex items-center gap-2">
@@ -757,8 +759,8 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           </Panel>
         </ReactFlow>
 
-        {/* ── Floating Zoom Controls — bottom-left, small, all 3 visible ── */}
-        <div className="absolute bottom-32 sm:bottom-20 left-4 z-50 flex flex-col gap-1.5">
+        {/* ── Floating Zoom Controls — fixed bottom-left ── */}
+        <div className="absolute bottom-32 sm:bottom-20 left-4 z-50 flex flex-col gap-1.5 transition-all">
           <button onClick={() => zoomIn({ duration: 300 })}
             className="h-9 w-9 bg-white border border-neutral-200 rounded-xl shadow-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
             title="Zoom In">

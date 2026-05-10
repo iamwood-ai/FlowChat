@@ -120,6 +120,31 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     }
   };
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
+  const handleStartRename = (e: React.MouseEvent, automation: Automation) => {
+    e.stopPropagation();
+    setEditingId(automation.id);
+    setEditingName(automation.name);
+  };
+
+  const handleSaveRename = async (automation: Automation) => {
+    if (!activeWorkspace || !editingName.trim() || editingName === automation.name) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      const flowRef = doc(db, 'workspaces', activeWorkspace.id, 'flows', automation.id);
+      await updateDoc(flowRef, { name: editingName.trim(), updatedAt: serverTimestamp() });
+      setAutomations(prev => prev.map(a => a.id === automation.id ? { ...a, name: editingName.trim() } : a));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `workspaces/${activeWorkspace.id}/flows/${automation.id}`);
+    } finally {
+      setEditingId(null);
+    }
+  };
+
   const filteredAutomations = automations.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === 'all' || a.status === filter;
@@ -267,7 +292,26 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
                     <Zap size={24} fill={automation.status === 'active' ? "currentColor" : "none"} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-neutral-900">{automation.name}</h3>
+                    {editingId === automation.id ? (
+                      <input 
+                        autoFocus
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onBlur={() => handleSaveRename(automation)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveRename(automation);
+                          if (e.key === 'Escape') setEditingId(null);
+                        }}
+                        className="font-bold text-neutral-900 bg-neutral-50 px-2 py-0.5 rounded border border-blue-200 outline-none w-full max-w-[200px]"
+                      />
+                    ) : (
+                      <h3 
+                        className="font-bold text-neutral-900 hover:text-blue-600 cursor-pointer transition-colors"
+                        onClick={(e) => handleStartRename(e, automation)}
+                      >
+                        {automation.name}
+                      </h3>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
                       <span className={cn(
                         "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",

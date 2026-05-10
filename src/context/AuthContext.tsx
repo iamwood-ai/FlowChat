@@ -114,8 +114,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Auth error:", error);
+      if (error.code === 'auth/popup-blocked') {
+        alert("Sign-in popup was blocked by your browser. Please allow popups for this site or try again.");
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // Ignore user cancellation
+      } else {
+        alert(`Authentication failed: ${error.message}. If you are on a deployed site, make sure the domain is authorized in Firebase Console.`);
+      }
     }
   };
 
