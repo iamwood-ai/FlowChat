@@ -235,22 +235,23 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
 
   return (
     <div className="p-3 sm:p-8 max-w-[1400px] mx-auto space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Automate</h1>
-          <p className="text-neutral-500 text-[11px] sm:text-sm mt-0.5 sm:mt-1">Manage all your active and draft automation flows.</p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 truncate">Automate</h1>
+          <p className="text-neutral-500 text-[11px] sm:text-sm mt-0.5 mt-1 font-medium truncate">Manage your active and draft automation flows.</p>
         </div>
         <button 
           onClick={() => setShowTemplatePicker(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+          className="flex h-11 w-11 sm:h-auto sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 shrink-0"
+          title="New Automation"
         >
-          <Plus size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />
-          New Automation
+          <Plus size={20} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />
+          <span className="hidden sm:inline">New Automation</span>
         </button>
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
+      <div className="flex flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 sm:w-[18px] sm:h-[18px]" size={16} />
           <input 
@@ -258,24 +259,52 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-blue-500 bg-white transition-all text-xs sm:text-sm"
+            className="w-full pl-9 sm:pl-10 pr-4 py-2.5 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-blue-500 bg-white transition-all text-xs sm:text-sm h-11"
           />
         </div>
-        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
-          {['all', 'active', 'paused', 'draft'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={cn(
-                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
-                filter === status 
-                  ? "bg-neutral-900 text-white shadow-lg" 
-                  : "bg-white border border-neutral-200 text-neutral-500 hover:bg-neutral-50"
-              )}
+        
+        <div className="relative flex items-center gap-2">
+          {/* Mobile Filter Icon */}
+          <div className="sm:hidden relative group">
+            <button 
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 shadow-sm"
+              title="Filter"
             >
-              {status}
+              <Filter size={18} />
             </button>
-          ))}
+            <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl border border-neutral-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-1">
+               {['all', 'active', 'paused', 'draft'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={cn(
+                    "w-full text-left px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                    filter === status ? "bg-blue-50 text-blue-600" : "text-neutral-500 hover:bg-neutral-50"
+                  )}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tablet/Desktop Filters */}
+          <div className="hidden sm:flex gap-2">
+            {['all', 'active', 'paused', 'draft'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border h-11 flex items-center",
+                  filter === status 
+                    ? "bg-neutral-900 border-neutral-900 text-white shadow-lg" 
+                    : "bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50"
+                )}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

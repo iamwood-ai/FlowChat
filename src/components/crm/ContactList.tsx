@@ -218,9 +218,9 @@ export default function ContactList() {
           <h1 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight text-left">Audience</h1>
           <p className="text-neutral-500 text-xs sm:text-sm mt-1 font-medium text-left">Explore and manage your profile database.</p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
+        <div className="flex gap-2 w-full sm:w-auto items-center">
           {/* Folder Filter Button for Mobile/Tablet */}
-          <div className="relative lg:hidden flex-1 min-w-[100px]">
+          <div className="relative lg:hidden flex-1 min-w-0">
             <button 
               onClick={() => setIsFolderMenuOpen(!isFolderMenuOpen)}
               className={cn(
@@ -228,20 +228,20 @@ export default function ContactList() {
                 selectedFolder ? "bg-blue-600 text-white border-blue-600 shadow-blue-100" : "bg-white border-neutral-200 text-neutral-600"
               )}
             >
-              <FolderOpen size={18} />
+              <FolderOpen size={18} className="shrink-0" />
               <span className="truncate">{selectedFolder || 'All'}</span>
-              <ChevronDown size={14} className={cn("transition-transform", isFolderMenuOpen && "rotate-180")} />
+              <ChevronDown size={14} className={cn("transition-transform shrink-0", isFolderMenuOpen && "rotate-180")} />
             </button>
             
             <AnimatePresence>
               {isFolderMenuOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsFolderMenuOpen(false)} />
+                  <div className="fixed inset-0 z-[100]" onClick={() => setIsFolderMenuOpen(false)} />
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute left-0 top-full mt-2 w-56 bg-white rounded-2xl border border-neutral-200 shadow-2xl z-50 p-2 shadow-blue-100/50"
+                    className="absolute left-0 top-full mt-2 w-56 bg-white rounded-2xl border border-neutral-200 shadow-2xl z-[110] p-2 shadow-blue-100/50"
                   >
                     <button 
                       onClick={() => { setSelectedFolder(null); setIsFolderMenuOpen(false); }}
@@ -286,17 +286,19 @@ export default function ContactList() {
 
           <button 
             onClick={handleExportCSV}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 h-11 text-xs sm:text-sm font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm min-w-[100px]"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 h-11 text-xs font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm min-w-[100px]"
           >
-            <Download size={16} />
-            Export
+            <Download size={16} className="shrink-0" />
+            <span className="hidden sm:inline">Export</span>
+            <span className="sm:hidden">Export</span>
           </button>
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 h-11 text-xs sm:text-sm font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all min-w-[100px]"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 h-11 text-xs font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all min-w-[100px]"
           >
-            <UserPlus size={16} />
-            Import
+            <UserPlus size={16} className="shrink-0" />
+            <span className="hidden sm:inline">Import</span>
+            <span className="sm:hidden">Import</span>
           </button>
         </div>
       </div>
@@ -513,13 +515,13 @@ export default function ContactList() {
           </AnimatePresence>
 
           <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-x-auto scrollbar-hide">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[320px] sm:min-w-[800px]">
               <thead>
                 <tr className="bg-neutral-50/50 border-b border-neutral-200">
                   <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Contact</th>
                   <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden lg:table-cell">Source</th>
                   <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden sm:table-cell">Status</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden md:table-cell">Tags</th>
+                  <th className="px-4 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Tags</th>
                   <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400 text-right">Actions</th>
                 </tr>
               </thead>
@@ -534,41 +536,37 @@ export default function ContactList() {
                       selectedIds.includes(contact.id) && "bg-blue-50/30"
                     )}
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <div className={cn(
-                          "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-lg transition-all relative overflow-hidden",
+                          "h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-black text-[10px] sm:text-xs shadow-lg transition-all relative overflow-hidden",
                           selectedIds.includes(contact.id) 
                             ? "bg-blue-600 shadow-blue-200" 
                             : "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-100"
                         )}>
                           {isSelectionMode && selectedIds.includes(contact.id) ? (
-                            <CheckCircle2 size={18} className="text-white" />
+                            <CheckCircle2 size={14} className="text-white" />
                           ) : (
                             contact.name.split(' ').map(n => n[0]).join('')
                           )}
-                          {isSelectionMode && !selectedIds.includes(contact.id) && (
-                            <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="h-4 w-4 border-2 border-white rounded-sm" />
-                            </div>
-                          )}
                         </div>
-                        <div>
-                          <p className="text-xs sm:text-sm font-black text-neutral-900 line-clamp-1">{contact.name}</p>
-                          <p className="hidden sm:block text-[11px] text-neutral-400 font-bold mt-0.5 line-clamp-1">{contact.email}</p>
-                          <div className="sm:hidden flex items-center gap-1.5 mt-1">
+                        <div className="min-w-0">
+                          <p className="text-[11px] sm:text-sm font-black text-neutral-900 truncate">{contact.name}</p>
+                          <p className="hidden sm:block text-[11px] text-neutral-400 font-bold mt-0.5 truncate">{contact.email}</p>
+                          <div className="sm:hidden flex items-center gap-1 mt-0.5 flex-wrap">
                             <span className={cn(
-                              "text-[8px] font-black uppercase tracking-widest px-1 rounded",
-                              contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-600" : "bg-neutral-100 text-neutral-400"
+                              "text-[7px] font-black uppercase tracking-widest px-1 rounded border",
+                              contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-neutral-100 text-neutral-400 border-neutral-200"
                             )}>
                               {contact.status}
                             </span>
-                            <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-widest">{contact.source}</span>
+                            <span className="text-[7px] font-bold text-neutral-400 uppercase tracking-widest px-1 border border-neutral-100 rounded">{contact.source}</span>
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 hidden lg:table-cell">
+                      {/* ... unchanged source content ... */}
                       <div className="flex items-center gap-2">
                         {contact.source === 'Instagram' ? (
                           <div className="bg-pink-50 text-pink-500 p-1.5 rounded-lg border border-pink-100">
@@ -597,12 +595,12 @@ export default function ContactList() {
                         {contact.status}
                       </button>
                     </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
-                      <div className="flex flex-wrap gap-1 items-center">
+                    <td className="px-4 py-4">
+                      <div className="flex flex-wrap gap-1 items-center min-w-[60px]">
                         {contact.tags.map(tag => (
-                          <span key={tag} className="flex items-center gap-1 bg-neutral-100 text-neutral-500 text-[9px] px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200 group/tag">
+                          <span key={tag} className="flex items-center gap-0.5 bg-neutral-100 text-neutral-500 text-[8px] sm:text-[9px] px-1 sm:px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200 group/tag">
                             {tag}
-                            <button onClick={(e) => { e.stopPropagation(); removeTag(contact.id, tag); }} className="hover:text-red-500">
+                            <button onClick={(e) => { e.stopPropagation(); removeTag(contact.id, tag); }} className="hover:text-red-500 shrink-0">
                               <X size={8} />
                             </button>
                           </span>
@@ -613,7 +611,7 @@ export default function ContactList() {
                             const t = prompt("Enter tag:");
                             if(t) addTag(contact.id, t);
                           }}
-                          className="p-1 rounded-md border border-dashed border-neutral-200 text-neutral-400 hover:text-blue-500 hover:border-blue-200 transition-all"
+                          className="p-1 rounded-md border border-dashed border-neutral-200 text-neutral-400 hover:text-blue-500 hover:border-blue-200 transition-all shrink-0"
                         >
                           <Plus size={10} />
                         </button>

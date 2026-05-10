@@ -317,6 +317,29 @@ export default function SettingsView() {
         </div>
       </div>
 
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
+        <h3 className="text-sm sm:text-base font-bold text-neutral-900 mb-3 sm:mb-4">Active Workspace</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-blue-50 bg-blue-50/20 gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
+              <Zap size={18} className="sm:w-5 sm:h-5" />
+            </div>
+            <div className="flex-1">
+              <input 
+                type="text"
+                value={workspaceName}
+                onChange={(e) => setWorkspaceName(e.target.value)}
+                onBlur={handleSaveWorkspaceName}
+                className="bg-transparent font-bold text-xs sm:text-sm text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
+                placeholder="Profile Name"
+              />
+              <p className="text-[9px] text-neutral-500">Business Management Profile</p>
+            </div>
+          </div>
+          <button className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline w-fit">Change</button>
+        </div>
+      </div>
+
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm space-y-6">
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-neutral-900">Danger Zone</h3>
@@ -366,29 +389,6 @@ export default function SettingsView() {
             <UserPlus size={16} />
             Add a new account
           </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
-        <h3 className="text-sm sm:text-base font-bold text-neutral-900 mb-3 sm:mb-4">Active Workspace</h3>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-blue-50 bg-blue-50/20 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
-              <Zap size={18} className="sm:w-5 sm:h-5" />
-            </div>
-            <div className="flex-1">
-              <input 
-                type="text"
-                value={workspaceName}
-                onChange={(e) => setWorkspaceName(e.target.value)}
-                onBlur={handleSaveWorkspaceName}
-                className="bg-transparent font-bold text-xs sm:text-sm text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
-                placeholder="Profile Name"
-              />
-              <p className="text-[9px] text-neutral-500">Business Management Profile</p>
-            </div>
-          </div>
-          <button className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline w-fit">Change</button>
         </div>
       </div>
     </div>

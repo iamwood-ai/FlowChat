@@ -67,29 +67,32 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
     <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
       <div className="p-3 sm:p-8 space-y-4 sm:space-y-8 max-w-[1400px] mx-auto pb-32">
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
+        <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight truncate">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button 
+              onClick={() => onNavigate('flows')}
+              className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs md:text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
+              title="Create New Flow"
+            >
+              <Plus size={18} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Create New Flow</span>
+            </button>
+            <button 
+              onClick={() => setIsCustomizing(!isCustomizing)}
+              className={cn(
+                "flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center px-0 sm:px-4 sm:py-2 rounded-xl text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider transition-all border whitespace-nowrap",
+                isCustomizing ? "bg-blue-600 text-white border-blue-600" : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:bg-neutral-100"
+              )}
+              title="Edit Layout"
+            >
+              <Zap size={18} className={cn("sm:hidden", isCustomizing ? "text-white" : "text-neutral-400")} />
+              <span className="hidden sm:inline">{isCustomizing ? "Done" : "Edit Layout"}</span>
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-2 sm:flex sm:items-center justify-end gap-2 w-full sm:w-auto ml-auto">
-          <button 
-            onClick={() => onNavigate('flows')}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs md:text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
-          >
-            <Plus size={14} className="sm:w-4 sm:h-4" />
-            Create New Flow
-          </button>
-          <button 
-            onClick={() => setIsCustomizing(!isCustomizing)}
-            className={cn(
-              "flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center whitespace-nowrap",
-              isCustomizing ? "bg-blue-600 text-white border-blue-600" : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:bg-neutral-100"
-            )}
-          >
-            {isCustomizing ? "Done" : "Edit Layout"}
-          </button>
-        </div>
-      </div>
 
       {isCustomizing && (
         <motion.div 
@@ -147,14 +150,14 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
       {/* Automations Library - Now as a separate full-width section */}
       {visibleSections.library && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
-            <div className="flex flex-col order-1 sm:order-none">
-              <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight">Automations Library</h3>
-              <p className="text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your business.</p>
+          <div className="flex items-center justify-between gap-4 mb-4 sm:mb-8">
+            <div className="flex flex-col min-w-0">
+              <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight truncate">Automations Library</h3>
+              <p className="text-[10px] sm:text-xs text-neutral-400 mt-0.5 sm:mt-1 font-medium truncate">One-click deployment for your business.</p>
             </div>
             <button 
               onClick={() => setIsTemplatesModalOpen(true)}
-              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit order-2 sm:order-none ml-auto"
+              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors shrink-0 shrink-0"
             >
               View All
             </button>

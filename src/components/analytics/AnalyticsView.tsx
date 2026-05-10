@@ -135,22 +135,20 @@ export default function AnalyticsView() {
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
       <div className="p-4 sm:p-8 space-y-8 max-w-[1400px] mx-auto pb-32">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Campaign Analytics</h1>
-          <p className="text-neutral-500 text-sm mt-1">Deep dive into your automation performance and growth.</p>
+      <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 truncate">Campaign Analytics</h1>
+          <p className="text-neutral-500 text-[11px] sm:text-sm mt-0.5 sm:mt-1 font-medium truncate">Dive into your performance and growth.</p>
         </div>
         
-        <div className="relative w-full sm:w-fit">
+        <div className="relative shrink-0">
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-fit rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-bold text-neutral-700 hover:bg-neutral-50 shadow-sm transition-all"
+            className="flex items-center justify-center gap-2 h-11 w-11 sm:h-auto sm:w-auto sm:px-4 sm:py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-bold text-neutral-700 hover:bg-neutral-50 shadow-sm transition-all"
           >
-            <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-blue-600" />
-              <span className="whitespace-nowrap capitalize">Last {selectedRange}</span>
-            </div>
-            <ChevronDown size={14} className={cn("text-neutral-400 ml-1 transition-transform", isDropdownOpen && "rotate-180")} />
+            <Calendar size={18} className="text-blue-600 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline whitespace-nowrap capitalize">Last {selectedRange}</span>
+            <ChevronDown size={14} className={cn("hidden sm:block text-neutral-400 transition-transform", isDropdownOpen && "rotate-180")} />
           </button>
 
           <AnimatePresence>
