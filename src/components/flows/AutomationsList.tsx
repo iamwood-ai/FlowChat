@@ -252,7 +252,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={16} className="sm:w-[18px] sm:h-[18px]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 sm:w-[18px] sm:h-[18px]" size={16} />
           <input 
             type="text"
             placeholder="Search..."

@@ -144,10 +144,54 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
         </div>
       )}
 
+      {/* Automations Library - Now as a separate full-width section */}
+      {visibleSections.library && (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
+            <div>
+              <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight italic">Automations Library</h3>
+              <p className="text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium italic">One-click deployment for your business.</p>
+            </div>
+            <button 
+              onClick={() => setIsTemplatesModalOpen(true)}
+              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
+            >
+              View All
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+            {ALL_TEMPLATES.slice(0, 8).map((flow, idx) => (
+              <div 
+                key={flow.id} 
+                onClick={() => onNavigate('flows', { templateId: flow.id })}
+                className={cn(
+                  "p-3 sm:p-5 rounded-xl border transition-all hover:shadow-lg cursor-pointer group flex flex-col justify-between min-h-[140px] sm:min-h-[160px] relative overflow-hidden", 
+                  flow.color,
+                  idx >= 6 ? "hidden lg:flex" : "flex" // Show 6 for mobile/tablet, 8 for desktop LG
+                )}
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                     <span className="text-[8px] font-black text-neutral-600 uppercase tracking-widest bg-white/50 px-1.5 py-0.5 rounded border border-white/20 truncate max-w-[60px]">{flow.platform}</span>
+                    <div className="bg-blue-600 text-white rounded-lg p-1 shadow-lg shadow-blue-200 transition-all sm:scale-75 group-hover:scale-100">
+                      <Plus size={12} />
+                    </div>
+                  </div>
+                  <h4 className="font-black text-neutral-900 text-[11px] sm:text-base leading-tight group-hover:text-blue-700 transition-colors line-clamp-2">{flow.title}</h4>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 pt-2 border-t border-neutral-100/50">
+                   <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count} users</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-3">
-        {/* Left Column: AI Generator and Library (reordered) */}
+        {/* Row 2 split in 1/3 and 2/3 on desktop */}
         <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-          {/* AI Generator */}
+          {/* AI Generator - 2nd row, left */}
           {visibleSections.ai && (
             <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:p-6 shadow-sm overflow-hidden relative">
               <div className="absolute -top-12 -right-12 h-24 w-24 rounded-full bg-blue-100 blur-3xl opacity-50" />
@@ -157,9 +201,6 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                 </div>
                 <h3 className="font-bold text-blue-900 text-sm">AI Flow Draftsman</h3>
               </div>
-              <p className="text-[11px] text-blue-700 font-medium mb-4 leading-relaxed opacity-80">
-                Transform any campaign goal into a functional automation flow using Gemini.
-              </p>
               <div className="relative group">
                 <textarea 
                   value={aiPrompt}
@@ -201,49 +242,11 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
               )}
             </div>
           )}
+        </div>
 
-          {/* Library moved here for mobile priority */}
-          {visibleSections.library && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
-                <div>
-                  <h3 className="font-bold text-neutral-900 text-sm">Automations Library</h3>
-                  <p className="text-[10px] text-neutral-400 mt-1 font-medium">One-click deployment.</p>
-                </div>
-                <button 
-                  onClick={() => setIsTemplatesModalOpen(true)}
-                  className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit"
-                >
-                  View All
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-1 gap-3 sm:gap-4">
-                {ALL_TEMPLATES.slice(0, 6).map((flow) => (
-                  <div 
-                    key={flow.id} 
-                    onClick={() => onNavigate('flows', { templateId: flow.id })}
-                    className={cn("p-3 sm:p-5 rounded-xl border transition-all hover:shadow-lg cursor-pointer group flex flex-col justify-between min-h-[140px] sm:min-h-[160px] relative overflow-hidden", flow.color)}
-                  >
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                         <span className="text-[8px] font-black text-neutral-600 uppercase tracking-widest bg-white/50 px-1.5 py-0.5 rounded border border-white/20 truncate max-w-[60px]">{flow.platform}</span>
-                        <div className="bg-blue-600 text-white rounded-lg p-1 shadow-lg shadow-blue-200 opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
-                          <Plus size={12} />
-                        </div>
-                      </div>
-                      <h4 className="font-black text-neutral-900 text-[11px] sm:text-sm leading-tight group-hover:text-blue-700 transition-colors line-clamp-2">{flow.title}</h4>
-                    </div>
-                    <div className="mt-3 flex items-center gap-1.5 pt-2 border-t border-neutral-100/50">
-                       <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">{flow.count} uses</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {visibleSections.channels && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm h-full">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h3 className="font-bold text-neutral-900 text-sm">Active Channels</h3>
                 <button 
@@ -253,7 +256,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                   <Plus size={16} />
                 </button>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {channels.map((channel) => (
                   <div key={channel.name} className="flex items-center gap-4 group">
                     <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-transform group-hover:scale-105", channel.color)}>
@@ -275,26 +278,25 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
             </div>
           )}
         </div>
+      </div>
 
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          {visibleSections.crm && (
-            <div className="rounded-xl bg-neutral-900 p-4 sm:p-6 shadow-lg shadow-neutral-200">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-white/10 text-white backdrop-blur-md">
-                    <Zap size={24} className="sm:w-7 sm:h-7" fill="currentColor" />
-                  </div>
-                  <div>
-                    <p className="text-sm sm:text-lg font-bold text-white">Advanced CRM Sync</p>
-                    <p className="text-[10px] sm:text-sm text-neutral-400">Sync all profile data with HubSpot, or Klaviyo.</p>
-                  </div>
-                </div>
-                <button className="whitespace-nowrap px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95 w-full sm:w-auto">Connect Ecosystem</button>
+      {/* CRM Sync now at the very bottom */}
+      {visibleSections.crm && (
+        <div className="rounded-xl bg-neutral-900 p-4 sm:p-8 shadow-lg shadow-neutral-200">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 text-center md:text-left">
+            <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
+              <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-white/10 text-white backdrop-blur-md">
+                <Zap size={24} className="sm:w-8 sm:h-8" fill="currentColor" />
+              </div>
+              <div>
+                <p className="text-lg sm:text-2xl font-black text-white italic tracking-tight">Advanced CRM Sync</p>
+                <p className="text-xs sm:text-base text-neutral-400 font-medium italic mt-1">Sync all profile data with HubSpot, Shopify, or Klaviyo instantly.</p>
               </div>
             </div>
-          )}
+            <button className="whitespace-nowrap px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl text-xs sm:text-base font-black shadow-lg shadow-blue-900/40 hover:bg-blue-700 transition-all active:scale-95 w-full md:w-auto uppercase tracking-widest">Connect Ecosystem</button>
+          </div>
         </div>
-      </div>
+      )}
 
       <TemplatesModal 
         isOpen={isTemplatesModalOpen}
