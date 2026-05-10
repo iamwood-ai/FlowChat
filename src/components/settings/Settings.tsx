@@ -244,33 +244,33 @@ export default function SettingsView() {
   };
 
   const renderProfile = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <h3 className="text-lg font-bold text-neutral-900 mb-6">Personal Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Display Name</label>
+    <div className="space-y-4">
+      <div className="bg-white rounded-3xl border border-neutral-200 p-5 sm:p-6 shadow-sm">
+        <h3 className="text-base font-bold text-neutral-900 mb-4">Personal Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Display Name</label>
             <input 
               type="text" 
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 transition-all font-medium"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Email Address</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Email Address</label>
             <input 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs font-medium focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="md:col-span-2 space-y-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Profile Photo</label>
-            <div className="flex items-center gap-6">
-              <div className="h-20 w-20 rounded-2xl bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0">
-                {profilePhoto ? <img src={profilePhoto} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-neutral-300"><User size={32} /></div>}
+          <div className="md:col-span-2 space-y-1.5">
+            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Profile Photo</label>
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0">
+                {profilePhoto ? <img src={profilePhoto} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-neutral-300"><User size={24} /></div>}
               </div>
               <div className="flex gap-2">
                 <input 
@@ -282,13 +282,13 @@ export default function SettingsView() {
                 />
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-100 hover:bg-blue-700"
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[11px] font-bold shadow-lg shadow-blue-100 hover:bg-blue-700"
                 >
                   Upload
                 </button>
                 <button 
                   onClick={() => setProfilePhoto('')}
-                  className="px-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-600 hover:bg-neutral-50"
+                  className="px-3 py-1.5 border border-neutral-200 rounded-lg text-[11px] font-bold text-neutral-600 hover:bg-neutral-50"
                 >
                   Remove
                 </button>
@@ -296,23 +296,23 @@ export default function SettingsView() {
             </div>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-neutral-100 flex justify-end">
+        <div className="mt-6 pt-6 border-t border-neutral-100 flex justify-end">
           <button 
             onClick={handleSaveProfile}
             disabled={isSaving}
-            className="bg-neutral-900 text-white px-8 py-3 rounded-2xl font-bold text-sm hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200 disabled:opacity-50"
+            className="bg-neutral-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200 disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <h3 className="text-lg font-bold text-neutral-900 mb-6">Active Workspace</h3>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-blue-50 bg-blue-50/20 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
-              <Zap size={24} />
+      <div className="bg-white rounded-3xl border border-neutral-200 p-5 sm:p-6 shadow-sm">
+        <h3 className="text-base font-bold text-neutral-900 mb-4">Active Workspace</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-blue-50 bg-blue-50/20 gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
+              <Zap size={20} />
             </div>
             <div className="flex-1">
               <input 
@@ -320,79 +320,79 @@ export default function SettingsView() {
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 onBlur={handleSaveWorkspaceName}
-                className="bg-transparent font-bold text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
+                className="bg-transparent font-bold text-sm text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
                 placeholder="Profile Name"
               />
-              <p className="text-xs text-neutral-500">Business Management <span className="hidden sm:inline">Profile</span></p>
+              <p className="text-[10px] text-neutral-500">Business Management Profile</p>
             </div>
           </div>
-          <button className="text-sm font-bold text-blue-600 hover:underline w-fit">Change</button>
+          <button className="text-xs font-bold text-blue-600 hover:underline w-fit">Change</button>
         </div>
       </div>
     </div>
   );
 
   const renderSecurity = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <h3 className="text-lg font-bold text-neutral-900 mb-6">Security Credentials</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-           <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">New Password</label>
+    <div className="space-y-4">
+      <div className="bg-white rounded-3xl border border-neutral-200 p-5 sm:p-6 shadow-sm">
+        <h3 className="text-base font-bold text-neutral-900 mb-4">Security Credentials</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+           <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">New Password</label>
             <input 
               type="password" 
               placeholder="••••••••"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 font-mono"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 font-mono"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Confirm Password</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Confirm Password</label>
             <input 
               type="password" 
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 font-mono"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs focus:ring-2 focus:ring-blue-500 font-mono"
             />
           </div>
         </div>
         <div className="flex justify-end">
            <button 
             onClick={handleUpdateSecurity}
-            className="px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-sm shadow-xl shadow-neutral-200 hover:bg-neutral-800"
+            className="px-5 py-2.5 bg-neutral-900 text-white rounded-xl font-bold text-xs shadow-xl shadow-neutral-200 hover:bg-neutral-800"
            >
-             Update Password
+              Update Password
            </button>
         </div>
-        <div className="my-8 h-[1px] bg-neutral-100" />
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex gap-4">
-              <div className="p-3 bg-blue-50 rounded-xl text-blue-600 h-fit">
-                <Lock size={20} />
+        <div className="my-6 h-[1px] bg-neutral-100" />
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600 h-fit">
+                <Lock size={18} />
               </div>
               <div>
-                <p className="font-bold text-neutral-900">Sign out from other devices</p>
-                <p className="text-xs text-neutral-500 max-w-xs mt-0.5 leading-relaxed">Instantly logout your account from all other browsers and phones.</p>
+                <p className="text-sm font-bold text-neutral-900">Sign out from other devices</p>
+                <p className="text-[11px] text-neutral-500 max-w-xs mt-0.5 leading-relaxed">Logout from all other browsers and phones.</p>
               </div>
             </div>
-            <button className="px-5 py-2.5 border border-neutral-200 rounded-xl text-sm font-bold text-neutral-600 hover:bg-neutral-50 w-fit">Logout Others</button>
+            <button className="px-4 py-2 border border-neutral-200 rounded-lg text-xs font-bold text-neutral-600 hover:bg-neutral-50 w-fit">Logout Others</button>
           </div>
           <div className="h-[1px] bg-neutral-100" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex gap-4">
-              <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 h-fit">
-                <Shield size={20} />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <div className="p-2.5 bg-emerald-50 rounded-lg text-emerald-600 h-fit">
+                <Shield size={18} />
               </div>
               <div>
-                <p className="font-bold text-neutral-900">Two-Factor Authentication</p>
-                <p className="text-xs text-neutral-500 max-w-xs mt-0.5 leading-relaxed">Add an extra layer of security to your account by requiring more than just a password.</p>
+                <p className="text-sm font-bold text-neutral-900">Two-Factor Authentication</p>
+                <p className="text-[11px] text-neutral-500 max-w-xs mt-0.5 leading-relaxed">Add an extra layer of security to your account.</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 w-fit">
-              <span className={cn("text-[10px] font-bold uppercase tracking-widest", is2FAEnabled ? "text-emerald-600" : "text-neutral-400")}>
+            <div className="flex items-center gap-2.5 w-fit">
+              <span className={cn("text-[9px] font-bold uppercase tracking-widest", is2FAEnabled ? "text-emerald-600" : "text-neutral-400")}>
                 {is2FAEnabled ? "Active" : "Inactive"}
               </span>
               <button 
@@ -405,13 +405,13 @@ export default function SettingsView() {
                   }
                 }}
                 className={cn(
-                  "w-12 h-6 rounded-full relative transition-all shadow-inner",
+                  "w-10 h-5 rounded-full relative transition-all shadow-inner",
                   is2FAEnabled ? "bg-emerald-500" : "bg-neutral-200"
                 )}
               >
                 <motion.div 
-                  animate={{ x: is2FAEnabled ? 24 : 0 }}
-                  className="absolute left-1 top-1 h-4 w-4 bg-white rounded-full shadow-sm" 
+                  animate={{ x: is2FAEnabled ? 20 : 0 }}
+                  className="absolute left-0.5 top-0.5 h-4 w-4 bg-white rounded-full shadow-sm" 
                 />
               </button>
             </div>
@@ -419,28 +419,28 @@ export default function SettingsView() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <h3 className="text-lg font-bold text-neutral-900 mb-6 flex items-center justify-between">
+      <div className="bg-white rounded-3xl border border-neutral-200 p-5 sm:p-6 shadow-sm">
+        <h3 className="text-base font-bold text-neutral-900 mb-4 flex items-center justify-between">
           Active Sessions
-          <button className="text-xs font-bold text-red-500 hover:underline px-3 py-1">Logout All Devices</button>
+          <button className="text-[11px] font-bold text-red-500 hover:underline px-2 py-1">Logout All</button>
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[
             { device: 'MacBook Pro 16"', location: 'London, UK', status: 'Current Session', browser: 'Chrome' },
             { device: 'iPhone 15 Pro', location: 'London, UK', status: 'Last seen 2h ago', browser: 'Safari' },
           ].map((session) => (
-            <div key={session.device} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-neutral-100 gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-neutral-50 rounded-xl text-neutral-400">
-                  {session.device.includes('iPhone') ? <Smartphone size={20} /> : <Eye size={20} />}
+            <div key={session.device} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-neutral-100 gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-neutral-50 rounded-lg text-neutral-400">
+                  {session.device.includes('iPhone') ? <Smartphone size={18} /> : <Eye size={18} />}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-neutral-800">{session.device} • {session.browser}</p>
-                  <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">{session.location} • {session.status}</p>
+                  <p className="text-xs font-bold text-neutral-800">{session.device} • {session.browser}</p>
+                  <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">{session.location} • {session.status}</p>
                 </div>
               </div>
-              <button className="p-2 hover:bg-red-50 hover:text-red-500 rounded-lg text-neutral-300 w-fit">
-                <X size={18} />
+              <button className="p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg text-neutral-300 w-fit">
+                <X size={16} />
               </button>
             </div>
           ))}
@@ -450,65 +450,50 @@ export default function SettingsView() {
   );
 
   const renderAutomations = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-neutral-900">Global Automation Config</h3>
+    <div className="space-y-4">
+      <div className="bg-white rounded-3xl border border-neutral-200 p-5 sm:p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-bold text-neutral-900">Global Automation Config</h3>
           <button 
             onClick={handleSaveAutomationConfig}
             disabled={isSaving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95"
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95"
           >
             {isSaving ? "Saving..." : "Save Config"}
           </button>
         </div>
-        <div className="space-y-8">
-          <div className="space-y-4">
+        <div className="space-y-6">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-neutral-900">Smart Reply Delay</p>
-                <p className="text-xs text-neutral-500 mt-0.5">Control how quickly your bot replies to maintain a human-like feel.</p>
+                <p className="text-sm font-bold text-neutral-900">Smart Reply Delay</p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Control bot reply speed.</p>
               </div>
-              <span className="text-sm font-bold text-blue-600">
-                {smartReplyDelay === 61 ? (
-                  <>
-                    <span className="inline sm:hidden">24h</span>
-                    <span className="hidden sm:inline">24 Hours</span>
-                  </>
-                ) : (
-                  <>
-                    {smartReplyDelay}
-                    <span className="inline sm:hidden">s</span>
-                    <span className="hidden sm:inline"> Seconds</span>
-                  </>
-                )}
+              <span className="text-xs font-bold text-blue-600">
+                {smartReplyDelay === 61 ? '24h' : `${smartReplyDelay}s`}
               </span>
             </div>
             <input 
               type="range" 
-              className="w-full accent-blue-600" 
+              className="w-full h-1.5 bg-neutral-100 rounded-lg appearance-none cursor-pointer accent-blue-600" 
               min="0" 
               max="61" 
               value={smartReplyDelay}
               onChange={(e) => setSmartReplyDelay(parseInt(e.target.value))}
             />
-            <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-              <span>Instant</span>
-              <span>Max (24hrs)</span>
-            </div>
           </div>
           
           <div className="h-[1px] bg-neutral-100" />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="font-bold text-neutral-900">Keyword Sensitivity</p>
-              <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed">How strictly keyword matching should be applied (Case sensitive, fuzzy, etc.)</p>
+              <p className="text-sm font-bold text-neutral-900">Keyword Sensitivity</p>
+              <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">How strictly keyword matching is applied.</p>
             </div>
             <select 
               value={keywordSensitivity}
               onChange={(e) => setKeywordSensitivity(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-xl pl-4 pr-12 py-3 text-xs font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-blue-500 w-fit appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_1.25rem_center] bg-[size:1.25em_1.25em] bg-no-repeat transition-all shadow-sm"
+              className="bg-neutral-50 border border-neutral-200 rounded-lg pl-3 pr-10 py-2 text-xs font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-blue-500 w-fit appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.75rem_center] bg-[size:1.1em_1.1em] bg-no-repeat transition-all shadow-sm"
             >
               <option>Strict Match</option>
               <option>Fuzzy Match</option>
@@ -518,17 +503,17 @@ export default function SettingsView() {
 
           <div className="h-[1px] bg-neutral-100" />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex gap-4">
-              <div className="p-3 bg-amber-50 rounded-xl text-amber-600 h-fit">
-                <Sparkles size={20} />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <div className="p-2.5 bg-amber-50 rounded-lg text-amber-600 h-fit">
+                <Sparkles size={18} />
               </div>
               <div>
-                <p className="font-bold text-neutral-900">AI Personality Strength</p>
-                <p className="text-xs text-neutral-500 max-w-sm mt-0.5 leading-relaxed">Higher strength allows Gemini to be more creative and helpful beyond fixed nodes.</p>
+                <p className="text-sm font-bold text-neutral-900">AI Personality Strength</p>
+                <p className="text-[11px] text-neutral-500 max-w-sm mt-0.5 leading-relaxed">Creative Gemini responses beyond fixed nodes.</p>
               </div>
             </div>
-            <button className="px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-bold w-fit">Configure AI</button>
+            <button className="px-4 py-2 bg-neutral-900 text-white rounded-lg text-xs font-bold w-fit">Configure AI</button>
           </div>
         </div>
       </div>
@@ -536,39 +521,39 @@ export default function SettingsView() {
   );
 
   const renderIntegrations = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {platforms.map((platform) => (
-          <div key={platform.id} className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-6">
-              <div className={cn("p-4 rounded-xl", platform.bg)}>
-                <platform.icon className={platform.color} size={28} />
+          <div key={platform.id} className="bg-white rounded-2xl border border-neutral-200 p-4 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex justify-between items-start mb-4">
+              <div className={cn("p-3 rounded-lg", platform.bg)}>
+                <platform.icon className={platform.color} size={24} />
               </div>
               {platform.connected ? (
-                <span className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-emerald-100">
-                  <CheckCircle2 size={12} />
+                <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-100">
+                  <CheckCircle2 size={10} />
                   Active
                 </span>
               ) : (
                 <button 
                   onClick={() => handleConnect(platform.id)}
-                  className="text-xs font-bold uppercase tracking-wider text-blue-600 hover:underline"
+                  className="text-[10px] font-bold uppercase tracking-wider text-blue-600 hover:underline"
                 >
                   Connect
                 </button>
               )}
             </div>
-            <h3 className="text-lg font-bold text-neutral-900 mb-2">{platform.name}</h3>
-            <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
-              Automate responses, manage comments, and build complex flows for {platform.name}.
+            <h3 className="text-sm font-bold text-neutral-900 mb-1">{platform.name}</h3>
+            <p className="text-xs text-neutral-500 mb-4 leading-relaxed line-clamp-2">
+              Automate responses and build complex flows.
             </p>
             <div className="flex gap-2">
-              <button disabled={!platform.connected} className="flex-1 rounded-xl border border-neutral-200 py-2.5 text-sm font-bold text-neutral-600 hover:bg-neutral-50 disabled:opacity-50">
+              <button disabled={!platform.connected} className="flex-1 rounded-lg border border-neutral-200 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-50 disabled:opacity-50">
                 Configure
               </button>
               {platform.connected && (
-                <button className="p-2.5 rounded-xl border border-neutral-200 text-neutral-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all">
-                  <Trash2 size={18} />
+                <button className="p-2 rounded-lg border border-neutral-200 text-neutral-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all">
+                  <Trash2 size={16} />
                 </button>
               )}
             </div>
@@ -576,25 +561,25 @@ export default function SettingsView() {
         ))}
       </div>
 
-      <div className="bg-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+      <div className="bg-blue-600 rounded-3xl p-6 text-white relative overflow-hidden">
         <div className="relative z-10">
-          <h2 className="text-2xl font-bold mb-3">One account, multi-profile</h2>
-          <p className="text-blue-100 max-w-lg mb-6 leading-relaxed">
-            Switch between different business profiles instantly. You can connect all channels under one profile, or manage multiple distinct brands.
+          <h2 className="text-xl font-bold mb-2">Multi-profile account</h2>
+          <p className="text-blue-100 text-xs max-w-md mb-4 leading-relaxed">
+            Switch between different business profiles instantly. Manage multiple distinct brands easily.
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
              <button 
                onClick={handleAddWorkspace}
-               className="flex-1 bg-white text-blue-600 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center"
+               className="flex-1 bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center"
              >
-               Explore <span className="hidden sm:inline">Multi-Profile</span>
+               Add Profile
              </button>
-             <button className="flex-1 bg-blue-500/30 text-white border border-blue-400/30 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-500/50 text-center">
-               View <span className="hidden sm:inline">Documentation</span>
+             <button className="flex-1 bg-blue-500/30 text-white border border-blue-400/30 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/50 text-center">
+               Docs
              </button>
           </div>
         </div>
-        <Globe className="absolute -right-20 -bottom-20 w-80 h-80 text-blue-500/20" />
+        <Globe className="absolute -right-16 -bottom-16 w-64 h-64 text-blue-500/20" />
       </div>
     </div>
   );
@@ -618,29 +603,29 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="p-4 sm:p-8 max-w-[1400px] mx-auto space-y-8 pb-20">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Settings</h1>
-        <p className="text-neutral-500 text-sm sm:text-base">Manage your profile, integrations, and global account settings.</p>
+    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto space-y-6 pb-20">
+      <div className="flex flex-col gap-0.5">
+        <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Settings</h1>
+        <p className="text-neutral-500 text-xs sm:text-sm">Manage profile, integrations, and account settings.</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Tabs */}
-        <div className="w-full lg:w-64 shrink-0 flex sm:flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 scrollbar-hide">
+        <div className="w-full lg:w-56 shrink-0 flex sm:flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-1 scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all whitespace-nowrap",
+                "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all whitespace-nowrap",
                 activeTab === tab.id 
                   ? "bg-white text-blue-600 shadow-sm border border-neutral-200" 
                   : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
               )}
             >
-              <tab.icon size={18} />
+              <tab.icon size={16} />
               {tab.label}
-              {activeTab === tab.id && <ChevronRight size={14} className="ml-auto hidden lg:block" />}
+              {activeTab === tab.id && <ChevronRight size={12} className="ml-auto hidden lg:block" />}
             </button>
           ))}
         </div>

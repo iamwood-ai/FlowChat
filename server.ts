@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
+import { GoogleGenAI } from "@google/genai";
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +14,32 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(express.json());
+
+// AI Route: Generate Content
+app.post("/api/ai/generate", async (req, res) => {
+  const { prompt, systemInstruction } = req.body;
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({ error: "GEMINI_API_KEY is not configured" });
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const result = await ai.models.generateContent({ 
+      model: "gemini-1.5-flash",
+      contents: prompt,
+      config: {
+        systemInstruction: systemInstruction || "You are an expert marketing copywriter for a tool called flowchat. Generate engaging, high-converting copy for chat automations."
+      }
+    });
+    
+    res.json({ text: result.text });
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.status(500).json({ error: "AI Generation failed" });
+  }
+});
 
 // API Route: Get OAuth URL
 app.get("/api/auth/:platform/url", (req, res) => {

@@ -271,10 +271,18 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
   const [publishing, setPublishing] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const { fitView } = useReactFlow();
+  const { fitView, zoomIn, zoomOut } = useReactFlow();
   const [isPanelOpen, setIsPanelOpen] = useState(window.innerWidth >= 1024);
 
   const selectedNode = useMemo(() => nodes.find(n => n.id === selectedNodeId), [nodes, selectedNodeId]);
+
+  const getMiniMapNodeColor = (node: any) => {
+    if (node.type === 'triggerNode') return '#f59e0b';
+    if (node.type === 'messageNode') return '#2563eb';
+    if (node.type === 'delayNode') return '#9333ea';
+    if (node.type === 'aiNode') return '#c026d3';
+    return '#3b82f6';
+  };
 
   // Handle fitView on initial load or template load
   useEffect(() => {
@@ -589,15 +597,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
   };
 
   return (
-    <div className="h-full w-full flex overflow-hidden relative bg-[#F8FAFC]">
-      {/* Sidebar Toggle for Mobile */}
-      <button 
-        onClick={() => setIsPanelOpen(!isPanelOpen)}
-        className="lg:hidden absolute bottom-24 right-6 z-50 h-14 w-14 rounded-full bg-blue-600 text-white shadow-2xl flex items-center justify-center transition-transform active:scale-95"
-      >
-        {isPanelOpen ? <X size={24} /> : <Settings2 size={24} />}
-      </button>
-
+    <div className="h-full w-full flex overflow-hidden relative bg-[#F8F9FA]">
       {/* Settings Side Panel */}
       <div 
         className={cn(
@@ -1170,9 +1170,31 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
       </div>
 
       {/* Main Flow Canvas */}
-      <div className="flex-1 bg-[#F8FAFC] relative">
-        <div className="h-full w-full">
+      <div className="flex-1 bg-[#F8F9FA] relative">
+        <div className="h-full w-full overflow-hidden">
           <style>{`
+            .react-flow__attribution {
+              display: none !important;
+              visibility: hidden !important;
+              height: 0 !important;
+              width: 0 !important;
+              overflow: hidden !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+              position: absolute !important;
+              z-index: -9999 !important;
+            }
+            .react-flow__attribution * {
+              display: none !important;
+            }
+            a[href*="reactflow.dev"],
+            a[href*="xyflow.com"],
+            [class*="attribution"] {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+            }
             .react-flow__edge.selected .react-flow__edge-path {
               stroke: #3b82f6 !important;
               stroke-width: 4px !important;
@@ -1203,6 +1225,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             edgesUpdatable={true}
             edgesFocusable={true}
             connectionRadius={50}
+            proOptions={{ hideAttribution: true }}
             defaultEdgeOptions={{ 
               animated: true, 
               style: { stroke: '#94A3B8', strokeWidth: 2.5 },
@@ -1213,61 +1236,44 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             <Background variant={BackgroundVariant.Lines} color="#e5e7eb" gap={20} size={1} />
             
             {nodes.length === 0 && (
-              <Panel position="center" className="bg-white/90 backdrop-blur-md p-10 rounded-[32px] border border-neutral-100 shadow-2xl flex flex-col items-center text-center gap-6 max-w-sm m-4 animate-in fade-in zoom-in duration-500">
-                <div className="h-20 w-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/20">
-                  <Plus size={40} className="text-white" />
+              <Panel position="center" className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-neutral-100 shadow-2xl flex flex-col items-center text-center gap-4 max-w-[280px] m-4 animate-in fade-in zoom-in duration-500">
+                <div className="h-14 w-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20">
+                  <Plus size={28} className="text-white" />
                 </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-black text-neutral-900 tracking-tight">Empty Canvas</h3>
-                  <p className="text-sm text-neutral-500 leading-relaxed font-medium">Your automation is empty. Start by adding a trigger from the sidebar or using a template.</p>
+                <div className="space-y-1">
+                  <h3 className="text-base font-black text-neutral-900 tracking-tight">Empty Canvas</h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed font-medium">Add a trigger to start.</p>
                 </div>
                 <button 
                   onClick={() => {
                     setIsPanelOpen(true);
                     setActiveTab('nodes');
                   }}
-                  className="px-8 py-4 bg-neutral-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl"
+                  className="w-full py-3 bg-neutral-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all"
                 >
-                  Configure Trigger
+                  Add Trigger
                 </button>
               </Panel>
             )}
-
-            <Controls 
-              position="bottom-left" 
-              showInteractive={false} 
-              className="flex border-neutral-200 shadow-xl rounded-xl !bg-white/80 !backdrop-blur-sm scale-110 sm:scale-100 origin-bottom-left mb-[88px] sm:mb-4 ml-4 sm:ml-4" 
-            />
-            <MiniMap 
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case 'messageNode': return '#2563eb';
-                  case 'triggerNode': return '#f59e0b';
-                  case 'delayNode': return '#9333ea';
-                  default: return '#64748b';
-                }
-              }}
-              maskColor="rgba(248, 250, 252, 0.7)"
-              className="hidden lg:block !bottom-4 !right-4 !bg-white !border-neutral-200 !rounded-xl !shadow-2xl"
-            />
             
-            <Panel position="top-left" className="bg-white/90 backdrop-blur-md px-2 py-0 h-9 sm:h-10 rounded-2xl border border-neutral-200 shadow-xl m-2 sm:m-4 flex items-center gap-1.5 sm:gap-2 max-w-[140px] sm:max-w-none overflow-hidden">
+            <Panel position="top-left" className="bg-white/50 backdrop-blur-sm px-3 py-0 h-10 rounded-2xl border border-neutral-200 shadow-xl m-4 flex items-center gap-2 max-w-[180px] sm:max-w-none">
                <button 
                 onClick={onBack}
-                className="lg:hidden p-1 sm:p-1.5 text-neutral-500 hover:bg-neutral-50 rounded-lg shrink-0"
+                className="p-1.5 text-neutral-500 hover:bg-neutral-50 rounded-lg shrink-0 flex items-center justify-center transition-colors"
+                title="Go Back"
                >
-                 <ChevronRight size={14} className="rotate-180" />
+                 <ChevronRight size={16} className="rotate-180" />
                </button>
-               <div className="h-6 w-6 sm:h-7 sm:w-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 hidden sm:flex">
-                  <Languages size={12} sm:size={14} className="text-white" />
+               <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 hidden sm:flex">
+                  <Languages size={14} className="text-white" />
                </div>
                <div className="min-w-0 flex flex-col justify-center">
                  <input 
                    value={flowName}
                    onChange={(e) => setFlowName(e.target.value)}
-                   className="text-[10px] sm:text-xs font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-full truncate leading-none"
+                   className="text-xs font-black text-neutral-900 bg-transparent outline-none border-none p-0 focus:ring-0 w-full truncate leading-tight"
                  />
-                 <p className="text-[6px] sm:text-[9px] text-neutral-400 font-bold uppercase tracking-widest truncate leading-none mt-0.5">Flow</p>
+                 <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-widest truncate leading-none">Flow</p>
                </div>
             </Panel>
 
@@ -1275,7 +1281,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                <button 
                  onClick={() => saveFlow('draft')}
                  disabled={saving || saveStatus === 'saving'}
-                 className="h-9 sm:h-10 px-3 sm:px-4 bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-xl hover:shadow-2xl transition-all flex items-center gap-1.5"
+                 className="h-9 sm:h-10 w-[75px] sm:w-[100px] bg-white border border-neutral-200 text-neutral-900 rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-1.5"
                >
                  {saving ? <Loader2 className="animate-spin" size={14} /> : (saveStatus === 'saved' ? <CheckCircle2 size={14} className="text-emerald-500" /> : <Save size={14} />)}
                  <span className="hidden sm:inline">{saveStatus === 'saved' && !saving ? 'Saved' : 'Save'}</span>
@@ -1283,7 +1289,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
                <button 
                  onClick={() => saveFlow('active')}
                  disabled={publishing}
-                 className="h-9 sm:h-10 px-3 sm:px-4 bg-blue-600 text-white rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-1.5"
+                 className="h-9 sm:h-10 w-[85px] sm:w-[110px] bg-blue-600 text-white rounded-2xl text-[9px] sm:text-[10px] font-black uppercase shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-1.5"
                >
                  {publishing ? <Loader2 className="animate-spin" size={14} /> : <Play size={14} fill="white" />}
                  <span>Publish</span>
@@ -1291,6 +1297,43 @@ function FlowBuilder({ flowId: initialFlowId, templateId, prompt, onBack }: Flow
             </Panel>
           </ReactFlow>
         </div>
+
+        {/* Floating Zoom Controls (Bottom Left) */}
+        <div className="absolute bottom-6 left-4 z-50 flex flex-col gap-2">
+          <button
+            onClick={() => zoomIn({ duration: 300 })}
+            className="h-11 w-11 bg-white border border-neutral-200 rounded-xl shadow-xl flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
+            title="Zoom In"
+          >
+            <Plus size={20} />
+          </button>
+          <button
+            onClick={() => zoomOut({ duration: 300 })}
+            className="h-11 w-11 bg-white border border-neutral-200 rounded-xl shadow-xl flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all text-xl font-bold leading-none"
+            title="Zoom Out"
+          >
+            −
+          </button>
+          <button
+            onClick={() => fitView({ duration: 600, padding: 0.2 })}
+            className="h-11 w-11 bg-white border border-neutral-200 rounded-xl shadow-xl flex items-center justify-center text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-all"
+            title="Fit View"
+          >
+            <Layers size={18} />
+          </button>
+        </div>
+
+        {/* Config Panel Toggle (Bottom Right) */}
+        <button
+          onClick={() => setIsPanelOpen(!isPanelOpen)}
+          className={cn(
+            "absolute bottom-6 right-4 z-50 h-12 w-12 rounded-2xl shadow-2xl flex items-center justify-center transition-all active:scale-95",
+            isPanelOpen ? "bg-white text-neutral-600 border border-neutral-200" : "bg-blue-600 text-white"
+          )}
+          title={isPanelOpen ? "Close Sidebar" : "Open Sidebar"}
+        >
+          {isPanelOpen ? <X size={22} /> : <Settings2 size={22} />}
+        </button>
       </div>
     </div>
   );

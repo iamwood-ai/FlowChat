@@ -1,0 +1,9 @@
+{
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/auth/:platform/url", "destination": "/api/auth/url" },
+    { "source": "/auth/callback", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

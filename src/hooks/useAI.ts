@@ -13,14 +13,27 @@ export function useAI() {
     setLoading(true);
     setError(null);
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+      // Prefer server-side proxy to keep keys secure and simplify deployment
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, systemInstruction })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.text;
+      }
+
+      // Fallback to client-side SDK if proxy fails (e.g. in dev without server)
+      const result = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
         contents: prompt,
         config: {
           systemInstruction: systemInstruction || "You are an expert marketing copywriter for a tool called flowchat. Generate engaging, high-converting copy for chat automations.",
         },
       });
-      return response.text;
+      return result.text;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown AI error';
       setError(msg);

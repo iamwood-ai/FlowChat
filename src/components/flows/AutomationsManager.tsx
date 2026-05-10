@@ -63,7 +63,7 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="h-full"
+            className="h-full bg-[#F8F9FA]"
           >
             <FlowBuilder 
               flowId={selectedFlow?.id} 

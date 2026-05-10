@@ -1,11 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer, memoryLocalCache } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+// Use initializeFirestore with experimentalForceLongPolling to fix connectivity issues in some environments
+// Forcing long polling is often necessary in sandboxed environments
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  host: 'firestore.googleapis.com',
+  ssl: true,
+}, firebaseConfig.firestoreDatabaseId);
 
 export const googleProvider = new GoogleAuthProvider();
 

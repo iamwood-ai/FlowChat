@@ -36,41 +36,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
-        try {
-          // Fetch user profile from Firestore
-          const userRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserProfile(userData);
+        setLoading(true);
+        const fetchInitialData = async (retries = 0) => {
+          try {
+            // Fetch user profile from Firestore
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+              setUserProfile(userDoc.data());
+            }
 
-            if (userData?.activeWorkspaceId) {
-              // We'll sync active workspace later after fetching workspaces
+            // Fetch workspaces
+            const q = query(collection(db, 'workspaces'), where('ownerId', '==', user.uid));
+            const snapshot = await getDocs(q);
+            const ws: Workspace[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Workspace));
+            setWorkspaces(ws);
+
+            // Set active workspace
+            const activeId = userDoc.data()?.activeWorkspaceId;
+            if (activeId) {
+              const active = ws.find(w => w.id === activeId);
+              setActiveWorkspace(active || ws[0] || null);
+            } else if (ws.length > 0) {
+              setActiveWorkspace(ws[0]);
+            }
+            setLoading(false);
+          } catch (error) {
+            if (retries < 3) {
+              console.warn(`Firestore initial fetch failed. Retrying... (${retries + 1}/3)`);
+              setTimeout(() => fetchInitialData(retries + 1), 2000);
+            } else {
+              handleFirestoreError(error, OperationType.LIST, 'workspaces');
+              setLoading(false);
             }
           }
+        };
 
-          // Fetch workspaces
-          const q = query(collection(db, 'workspaces'), where('ownerId', '==', user.uid));
-          const snapshot = await getDocs(q);
-          const ws: Workspace[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Workspace));
-          setWorkspaces(ws);
-
-          // Fetch user preferences for active workspace
-          if (userProfile?.activeWorkspaceId || userDoc.data()?.activeWorkspaceId) {
-            const activeId = userProfile?.activeWorkspaceId || userDoc.data()?.activeWorkspaceId;
-            const active = ws.find(w => w.id === activeId);
-            setActiveWorkspace(active || ws[0] || null);
-          } else if (ws.length > 0) {
-            setActiveWorkspace(ws[0]);
-          }
-        } catch (error) {
-          handleFirestoreError(error, OperationType.LIST, 'workspaces');
-        }
+        fetchInitialData();
       } else {
         setWorkspaces([]);
         setActiveWorkspace(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return unsubscribe;

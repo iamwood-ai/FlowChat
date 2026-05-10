@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* Hide React Flow / XY Flow Attribution */
+.react-flow__attribution,
+.react-flow__attribution *,
+[class*="react-flow__attribution"],
+a[href*="reactflow.dev"],
+a[href*="xyflow.com"],
+.react-flow__panel.bottom.right {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
