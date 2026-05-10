@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch (error) {
             if (retries < 3) {
               console.warn(`Firestore initial fetch failed. Retrying... (${retries + 1}/3)`);
-              setTimeout(() => fetchInitialData(retries + 1), 2000);
+              setTimeout(() => fetchInitialData(retries + 1), 500); // Reduced from 2000
             } else {
               handleFirestoreError(error, OperationType.LIST, 'workspaces');
               setLoading(false);

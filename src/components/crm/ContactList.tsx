@@ -67,27 +67,29 @@ export default function ContactList() {
     return Array.from(new Set(contacts.map(c => c.source)));
   }, [contacts]);
 
-  const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         contact.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFolder = selectedFolder ? contact.folder === selectedFolder : true;
-    const matchesStatus = statusFilter === 'All' ? true : contact.status === statusFilter;
-    const matchesSource = sourceFilter === 'All' ? true : contact.source === sourceFilter;
-    const matchesTag = tagFilter === 'All' ? true : contact.tags.includes(tagFilter);
-    
-    // Date Filtering
-    let matchesDate = true;
-    const now = new Date();
-    const contactDate = new Date(contact.createdAt);
-    if (dateFilter === '24hrs') matchesDate = now.getTime() - contactDate.getTime() < 86400000;
-    else if (dateFilter === '7 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 7;
-    else if (dateFilter === '30 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 30;
-    else if (dateFilter === '90 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 90;
-    else if (dateFilter === '6 months') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 180;
-    else if (dateFilter === '1 year') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 365;
+  const filteredContacts = useMemo(() => {
+    return contacts.filter(contact => {
+      const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           contact.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFolder = selectedFolder ? contact.folder === selectedFolder : true;
+      const matchesStatus = statusFilter === 'All' ? true : contact.status === statusFilter;
+      const matchesSource = sourceFilter === 'All' ? true : contact.source === sourceFilter;
+      const matchesTag = tagFilter === 'All' ? true : contact.tags.includes(tagFilter);
+      
+      // Date Filtering
+      let matchesDate = true;
+      const now = new Date();
+      const contactDate = new Date(contact.createdAt);
+      if (dateFilter === '24hrs') matchesDate = now.getTime() - contactDate.getTime() < 86400000;
+      else if (dateFilter === '7 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 7;
+      else if (dateFilter === '30 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 30;
+      else if (dateFilter === '90 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 90;
+      else if (dateFilter === '6 months') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 180;
+      else if (dateFilter === '1 year') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 365;
 
-    return matchesSearch && matchesFolder && matchesStatus && matchesSource && matchesTag && matchesDate;
-  });
+      return matchesSearch && matchesFolder && matchesStatus && matchesSource && matchesTag && matchesDate;
+    });
+  }, [contacts, searchTerm, selectedFolder, statusFilter, sourceFilter, tagFilter, dateFilter]);
 
   const toggleStatus = (id: number) => {
     setContacts(contacts.map(c => 

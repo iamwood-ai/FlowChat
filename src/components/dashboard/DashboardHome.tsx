@@ -120,9 +120,9 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
         <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.05, duration: 0.2 }}
               key={stat.label}
               className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm cursor-pointer hover:border-blue-200 transition-all group"
               onClick={() => onNavigate('analytics')}

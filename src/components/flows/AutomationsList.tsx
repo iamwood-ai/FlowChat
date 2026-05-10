@@ -55,7 +55,11 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
   useEffect(() => {
     if (!activeWorkspace) return;
     
-    setLoading(true);
+    // Only set loading if we don't have any automations yet
+    if (automations.length === 0) {
+      setLoading(true);
+    }
+
     const q = query(collection(db, 'workspaces', activeWorkspace.id, 'flows'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -86,7 +90,7 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     });
 
     return () => unsubscribe();
-  }, [activeWorkspace]);
+  }, [activeWorkspace.id]); // Use activeWorkspace.id for more stable trigger
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     if (!activeWorkspace) return;
@@ -170,11 +174,13 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
     }
   };
 
-  const filteredAutomations = automations.filter(a => {
-    const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' || a.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredAutomations = React.useMemo(() => {
+    return automations.filter(a => {
+      const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter = filter === 'all' || a.status === filter;
+      return matchesSearch && matchesFilter;
+    });
+  }, [automations, search, filter]);
 
   const pickerTemplates = [
     { 

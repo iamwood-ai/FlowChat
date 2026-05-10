@@ -50,7 +50,7 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.05 }}
             className="h-full overflow-auto"
           >
             <AutomationsList onEdit={handleEdit} onAnalytics={handleAnalytics} onCreateNew={handleCreateNew} />
@@ -62,7 +62,7 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.05 }}
             className="h-full bg-[#F8F9FA]"
           >
             <FlowBuilder 
@@ -76,10 +76,10 @@ export default function AutomationsManager({ initialParams }: { initialParams?: 
         {view === 'analytics' && (
           <motion.div
             key="analytics"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.05 }}
             className="h-full overflow-auto"
           >
             <AutomationAnalytics flow={selectedFlow} onBack={handleBack} />
