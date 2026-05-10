@@ -227,49 +227,6 @@ function MainApp() {
 
       {/* Main Content */}
       <main className="relative flex-1 overflow-hidden flex flex-col w-full">
-        <AnimatePresence>
-          {activeView !== 'flows' && (
-            <motion.header 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 64, opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 sm:px-8 overflow-hidden z-10"
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                 <button 
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden p-2 -ml-2 text-neutral-500 hover:bg-neutral-50 rounded-lg"
-                 >
-                   <Menu size={20} />
-                 </button>
-                 <h2 className="text-base sm:text-lg font-bold text-neutral-900 capitalize truncate">{activeView}</h2>
-                 <div className="hidden sm:block h-6 w-[1px] bg-neutral-200" />
-                 <p className="hidden sm:block text-xs font-medium text-neutral-400 truncate max-w-[200px]">
-                   {activeWorkspace?.name}
-                 </p>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-4">
-                <div className="hidden sm:flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-[10px] font-bold text-emerald-600 uppercase tracking-widest border border-emerald-100">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live
-                </div>
-                <button 
-                  onClick={() => setActiveView('settings')}
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all cursor-pointer"
-                >
-                   {(userProfile?.photoURL || user?.photoURL) ? (
-                     <img src={userProfile?.photoURL || user?.photoURL} alt="User" className="h-full w-full object-cover" />
-                   ) : (
-                     <div className="h-full w-full flex items-center justify-center text-neutral-400 text-xs font-bold bg-white">
-                       {activeWorkspace?.name?.[0] || userProfile?.displayName?.[0] || user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
-                     </div>
-                   )}
-                </button>
-              </div>
-            </motion.header>
-          )}
-        </AnimatePresence>
-
         <div className="flex-1 overflow-auto bg-[#F8F9FA]">
           <AnimatePresence mode="wait">
             <motion.div
@@ -285,7 +242,33 @@ function MainApp() {
           </AnimatePresence>
         </div>
 
-        {/* Removed Mobile Bottom Navigation for all views as requested */}
+        {/* Mobile Bottom Navigation - Visible ONLY on small mobile screens */}
+        <div className="sm:hidden border-t border-neutral-200 bg-white px-2 py-2 shrink-0 z-50">
+          <div className="flex items-center justify-around">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigate(item.id as View)}
+                  className={cn(
+                    "flex flex-col items-center gap-1 min-w-[64px] py-1 transition-all active:scale-95",
+                    isActive ? "text-blue-600" : "text-neutral-400"
+                  )}
+                >
+                  <Icon size={20} className={cn("transition-colors", isActive && "stroke-[2.5px]")} />
+                  <span className={cn(
+                    "text-[10px] font-black uppercase tracking-wider",
+                    isActive ? "text-blue-600" : "text-neutral-400"
+                  )}>
+                    {item.id === 'flows' ? 'Automations' : item.id === 'analytics' ? 'Insights' : item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </main>
     </div>
   );

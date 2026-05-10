@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
-/* Hide React Flow / XY Flow Attribution */
+/* Hide React Flow / XY Flow Attribution and Bottom Panels */
 .react-flow__attribution,
 .react-flow__attribution *,
 [class*="react-flow__attribution"],
 a[href*="reactflow.dev"],
 a[href*="xyflow.com"],
-.react-flow__panel.bottom.right {
+.react-flow__panel.bottom,
+.react-flow__panel.bottom.right,
+.react-flow__panel.bottom.left {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
