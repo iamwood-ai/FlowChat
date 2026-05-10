@@ -22,7 +22,9 @@ import {
   Send,
   Smartphone,
   Zap,
-  Sparkles
+  Sparkles,
+  LogOut,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
@@ -51,6 +53,14 @@ export default function SettingsView() {
   const [workspaceName, setWorkspaceName] = useState(activeWorkspace?.name || '');
   const [smartReplyDelay, setSmartReplyDelay] = useState(activeWorkspace?.automationConfig?.smartReplyDelay || 5);
   const [keywordSensitivity, setKeywordSensitivity] = useState(activeWorkspace?.automationConfig?.keywordSensitivity || 'Strict Match');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const { logout } = useAuth();
+
+  const handleDeleteAccount = async () => {
+    // In a real app, this would call an API
+    alert("Account deletion requested. This is a demo, so no real actions were taken.");
+    setDeleteConfirmOpen(false);
+  };
 
   // Sync with workspace config
   React.useEffect(() => {
@@ -303,6 +313,58 @@ export default function SettingsView() {
             className="w-full sm:w-auto bg-neutral-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200 disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm space-y-6">
+        <div className="space-y-4">
+          <h3 className="text-sm font-bold text-neutral-900">Danger Zone</h3>
+          <div className="p-4 rounded-xl border border-red-100 bg-red-50/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold text-red-600">Delete my account</p>
+              <p className="text-[11px] text-neutral-500">Once you delete your account, there is no going back. Please be certain.</p>
+            </div>
+            {deleteConfirmOpen ? (
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleDeleteAccount}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-red-200 hover:bg-red-700 active:scale-95 transition-all"
+                >
+                  Confirm Delete
+                </button>
+                <button 
+                  onClick={() => setDeleteConfirmOpen(false)}
+                  className="text-xs font-bold text-neutral-500 hover:underline"
+                >
+                  Undo
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setDeleteConfirmOpen(true)}
+                className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition-all active:scale-95"
+              >
+                Delete account
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row gap-3">
+          <button 
+            onClick={logout}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-neutral-200 text-neutral-600 font-bold text-xs hover:bg-neutral-50 transition-all active:scale-95"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </button>
+          <button 
+            onClick={handleAddWorkspace}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-neutral-200 text-neutral-600 font-bold text-xs hover:bg-neutral-50 transition-all active:scale-95"
+          >
+            <UserPlus size={16} />
+            Add a new account
           </button>
         </div>
       </div>

@@ -174,18 +174,18 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
 
             {/* Templates Grid */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-8 scrollbar-hide">
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {/* Create New Mobile Card */}
                 <div 
                   onClick={onCreateNew}
-                  className="lg:hidden p-6 rounded-3xl border-2 border-dashed border-neutral-100 flex flex-col items-center justify-center text-center gap-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                  className="lg:hidden p-4 rounded-3xl border-2 border-dashed border-neutral-100 flex flex-col items-center justify-center text-center gap-2 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group aspect-square"
                 >
-                  <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Plus size={24} />
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Plus size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-neutral-900">Custom Automation</h4>
-                    <p className="text-xs text-neutral-500 mt-1">Start from zero</p>
+                    <h4 className="font-bold text-neutral-900 text-[11px] sm:text-sm">Custom</h4>
+                    <p className="text-[9px] text-neutral-500 mt-0.5">Start zero</p>
                   </div>
                 </div>
 
@@ -197,32 +197,30 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
                     key={t.id}
                     onClick={() => onSelect(t.id)}
                     className={cn(
-                      "group p-6 rounded-3xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[220px]",
+                      "group p-4 sm:p-6 rounded-3xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[160px] aspect-square lg:aspect-auto lg:min-h-[220px]",
                       t.color
                     )}
                   >
                     <div className="absolute -right-8 -top-8 w-24 h-24 bg-white/20 blur-2xl group-hover:blur-3xl transition-all" />
                     
                     <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
-                          <t.icon size={20} />
+                      <div className="flex justify-between items-start mb-2 sm:mb-4">
+                        <div className="p-2 sm:p-3 bg-white rounded-xl sm:rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                          <t.icon size={16} className="sm:w-5 sm:h-5" />
                         </div>
-                        <div className="flex items-center gap-2">
-                           <span className="text-[10px] font-bold opacity-60 uppercase tracking-widest">{t.platform}</span>
-                        </div>
+                        <span className="text-[8px] sm:text-[10px] font-bold opacity-60 uppercase tracking-widest">{t.platform}</span>
                       </div>
-                      <h4 className="text-base font-bold text-neutral-900 leading-tight mb-2 pr-4">{t.title}</h4>
-                      <p className="text-xs opacity-70 leading-relaxed font-medium line-clamp-3">{t.desc}</p>
+                      <h4 className="text-[11px] sm:text-base font-bold text-neutral-900 leading-tight mb-1 sm:mb-2 pr-2 sm:pr-4 line-clamp-2">{t.title}</h4>
+                      <p className="hidden sm:line-clamp-2 text-xs opacity-70 leading-relaxed font-medium">{t.desc}</p>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between pt-4 border-t border-black/5">
-                      <div className="flex items-center gap-1.5 overflow-hidden">
-                        <Sparkles size={12} className="shrink-0" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider truncate">{t.count}</span>
+                    <div className="mt-2 sm:mt-6 flex items-center justify-between pt-2 sm:pt-4 border-t border-black/5">
+                      <div className="flex items-center gap-1 sm:gap-1.5 overflow-hidden">
+                        <Sparkles size={10} className="shrink-0 sm:w-3 sm:h-3" />
+                        <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider truncate">{t.count}</span>
                       </div>
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm border border-neutral-100 group-hover:bg-neutral-900 group-hover:text-white group-hover:border-neutral-900 transition-all">
-                        <ChevronRight size={16} />
+                      <div className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white shadow-sm border border-neutral-100 group-hover:bg-neutral-900 group-hover:text-white group-hover:border-neutral-900 transition-all">
+                        <ChevronRight size={14} className="sm:w-4 sm:h-4" />
                       </div>
                     </div>
                   </motion.div>

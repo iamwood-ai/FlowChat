@@ -12,7 +12,8 @@ import {
   Loader2,
   Send,
   Music2,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -70,10 +71,10 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Welcome back, {activeWorkspace?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}</h1>
         </div>
-        <div className="grid grid-cols-2 lg:flex lg:items-center gap-2 w-full lg:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:items-center justify-end gap-2 w-full sm:w-auto ml-auto">
           <button 
             onClick={() => onNavigate('flows')}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-blue-600 text-white rounded-xl text-[10px] sm:text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs md:text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
           >
             <Plus size={14} className="sm:w-4 sm:h-4" />
             Create New Flow
@@ -81,7 +82,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           <button 
             onClick={() => setIsCustomizing(!isCustomizing)}
             className={cn(
-              "flex-1 lg:flex-none px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center whitespace-nowrap",
+              "flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center whitespace-nowrap",
               isCustomizing ? "bg-blue-600 text-white border-blue-600" : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:bg-neutral-100"
             )}
           >
@@ -149,11 +150,11 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
             <div className="flex flex-col order-1 sm:order-none">
               <h3 className="font-black text-neutral-900 text-sm sm:text-base tracking-tight">Automations Library</h3>
-              <p className="hidden sm:block text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your business.</p>
+              <p className="text-[10px] sm:text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your business.</p>
             </div>
             <button 
               onClick={() => setIsTemplatesModalOpen(true)}
-              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit order-2 sm:order-none mr-auto sm:mr-0"
+              className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors w-fit order-2 sm:order-none ml-auto"
             >
               View All
             </button>

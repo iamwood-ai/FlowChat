@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   Search, 
   Filter, 
@@ -13,19 +13,27 @@ import {
   X,
   CheckCircle2,
   Trash2,
-  Plus
+  Plus,
+  Edit2,
+  Save,
+  ChevronDown,
+  Calendar,
+  Undo2,
+  Trash,
+  Tag as TagIcon,
+  Globe
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 const initialContacts = [
-  { id: 1, name: 'Alex Johnson', email: 'alex@example.com', source: 'Instagram', status: 'Subscribed', lastActive: '2h ago', tags: ['Lead', 'High Intent'], folder: 'Inquiry' },
-  { id: 2, name: 'Sarah Miller', email: 'sarah.m@gmail.com', source: 'Messenger', status: 'Subscribed', lastActive: '5h ago', tags: ['Customer'], folder: 'Customers' },
-  { id: 3, name: 'James Wilson', email: 'jw@company.co', source: 'Direct', status: 'Unsubscribed', lastActive: '2 days ago', tags: ['Cold'], folder: 'Leads' },
-  { id: 4, name: 'Emma Davis', email: 'emma@davis.io', source: 'Instagram', status: 'Subscribed', lastActive: '15m ago', tags: ['VIP', 'Lead'], folder: 'Customers' },
-  { id: 5, name: 'Michael Brown', email: 'mbrown@tech.net', source: 'Messenger', status: 'Subscribed', lastActive: '12h ago', tags: ['Inquiry'], folder: 'Leads' },
-  { id: 6, name: 'Lisa Anderson', email: 'lisa.a@house.com', source: 'Instagram', status: 'Subscribed', lastActive: '1h ago', tags: ['Lead'], folder: 'Inquiry' },
-  { id: 7, name: 'David Clark', email: 'clark@work.com', source: 'Direct', status: 'Subscribed', lastActive: '4h ago', tags: ['Follow-up'], folder: 'Follow-ups' },
+  { id: 1, name: 'Alex Johnson', email: 'alex@example.com', source: 'Instagram', status: 'Subscribed', lastActive: '2h ago', createdAt: new Date(Date.now() - 3600000 * 2), tags: ['Lead', 'High Intent'], folder: 'Inquiry' },
+  { id: 2, name: 'Sarah Miller', email: 'sarah.m@gmail.com', source: 'Messenger', status: 'Subscribed', lastActive: '5h ago', createdAt: new Date(Date.now() - 3600000 * 5), tags: ['Customer'], folder: 'Customers' },
+  { id: 3, name: 'James Wilson', email: 'jw@company.co', source: 'Direct', status: 'Unsubscribed', lastActive: '2 days ago', createdAt: new Date(Date.now() - 86400000 * 2), tags: ['Cold'], folder: 'Leads' },
+  { id: 4, name: 'Emma Davis', email: 'emma@davis.io', source: 'Instagram', status: 'Subscribed', lastActive: '15m ago', createdAt: new Date(Date.now() - 600000 * 15), tags: ['VIP', 'Lead'], folder: 'Customers' },
+  { id: 5, name: 'Michael Brown', email: 'mbrown@tech.net', source: 'Messenger', status: 'Subscribed', lastActive: '12h ago', createdAt: new Date(Date.now() - 3600000 * 12), tags: ['Inquiry'], folder: 'Leads' },
+  { id: 6, name: 'Lisa Anderson', email: 'lisa.a@house.com', source: 'Instagram', status: 'Subscribed', lastActive: '1h ago', createdAt: new Date(Date.now() - 3600000), tags: ['Lead'], folder: 'Inquiry' },
+  { id: 7, name: 'David Clark', email: 'clark@work.com', source: 'Direct', status: 'Subscribed', lastActive: '4h ago', createdAt: new Date(Date.now() - 3600000 * 4), tags: ['Follow-up'], folder: 'Follow-ups' },
 ];
 
 export default function ContactList() {
@@ -35,16 +43,122 @@ export default function ContactList() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [editingFolder, setEditingFolder] = useState<string | null>(null);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isFolderMenuOpen, setIsFolderMenuOpen] = useState(false);
+  const [folders, setFolders] = useState<string[]>(Array.from(new Set(initialContacts.map(c => c.folder))));
+
+  // Detailed Filters
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [sourceFilter, setSourceFilter] = useState('All');
+  const [tagFilter, setTagFilter] = useState('All');
+  const [dateFilter, setDateFilter] = useState('All time');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const folders = Array.from(new Set(contacts.map(c => c.folder)));
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    contacts.forEach(c => c.tags.forEach(t => tags.add(t)));
+    return Array.from(tags);
+  }, [contacts]);
+
+  const allSources = useMemo(() => {
+    return Array.from(new Set(contacts.map(c => c.source)));
+  }, [contacts]);
 
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          contact.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFolder = selectedFolder ? contact.folder === selectedFolder : true;
-    return matchesSearch && matchesFolder;
+    const matchesStatus = statusFilter === 'All' ? true : contact.status === statusFilter;
+    const matchesSource = sourceFilter === 'All' ? true : contact.source === sourceFilter;
+    const matchesTag = tagFilter === 'All' ? true : contact.tags.includes(tagFilter);
+    
+    // Date Filtering
+    let matchesDate = true;
+    const now = new Date();
+    const contactDate = new Date(contact.createdAt);
+    if (dateFilter === '24hrs') matchesDate = now.getTime() - contactDate.getTime() < 86400000;
+    else if (dateFilter === '7 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 7;
+    else if (dateFilter === '30 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 30;
+    else if (dateFilter === '90 days') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 90;
+    else if (dateFilter === '6 months') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 180;
+    else if (dateFilter === '1 year') matchesDate = now.getTime() - contactDate.getTime() < 86400000 * 365;
+
+    return matchesSearch && matchesFolder && matchesStatus && matchesSource && matchesTag && matchesDate;
   });
+
+  const toggleStatus = (id: number) => {
+    setContacts(contacts.map(c => 
+      c.id === id ? { ...c, status: c.status === 'Subscribed' ? 'Unsubscribed' : 'Subscribed' } : c
+    ));
+  };
+
+  const addTag = (id: number, tag: string) => {
+    if (!tag) return;
+    setContacts(contacts.map(c => 
+      c.id === id && !c.tags.includes(tag) ? { ...c, tags: [...c.tags, tag] } : c
+    ));
+  };
+
+  const removeTag = (id: number, tag: string) => {
+    setContacts(contacts.map(c => 
+      c.id === id ? { ...c, tags: c.tags.filter(t => t !== tag) } : c
+    ));
+  };
+
+  const deleteContact = (id: number) => {
+    setContacts(contacts.filter(c => c.id !== id));
+    setDeleteConfirmId(null);
+  };
+
+  const createFolder = () => {
+    if (folders.length >= 10) {
+      alert("Maximum of 10 folders allowed.");
+      return;
+    }
+    const name = prompt("Enter folder name:");
+    if (name && !folders.includes(name)) {
+      setFolders([...folders, name]);
+    }
+  };
+
+  const renameFolder = (oldName: string) => {
+    const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
+    if (newName && newName !== oldName) {
+      setFolders(folders.map(f => f === oldName ? newName : f));
+      setContacts(contacts.map(c => c.folder === oldName ? { ...c, folder: newName } : c));
+      if (selectedFolder === oldName) setSelectedFolder(newName);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Name', 'Email', 'Source', 'Status', 'Last Active', 'Tags', 'Folder', 'Created At'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredContacts.map(c => [
+        `"${c.name}"`,
+        `"${c.email}"`,
+        `"${c.source}"`,
+        `"${c.status}"`,
+        `"${c.lastActive}"`,
+        `"${c.tags.join('|')}"`,
+        `"${c.folder}"`,
+        `"${new Date(c.createdAt).toLocaleDateString()}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `audience_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredContacts.length) {
@@ -58,32 +172,6 @@ export default function ContactList() {
     setSelectedIds(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
-  };
-
-  const handleExportCSV = () => {
-    const headers = ['Name', 'Email', 'Source', 'Status', 'Last Active', 'Tags', 'Folder'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredContacts.map(c => [
-        `"${c.name}"`,
-        `"${c.email}"`,
-        `"${c.source}"`,
-        `"${c.status}"`,
-        `"${c.lastActive}"`,
-        `"${c.tags.join('|')}"`,
-        `"${c.folder}"`
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `contacts_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleBulkImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +191,7 @@ export default function ContactList() {
           source: columns[2] || 'Import',
           status: columns[3] || 'Subscribed',
           lastActive: 'Just now',
+          createdAt: new Date(),
           tags: (columns[5] || 'Imported').split('|'),
           folder: columns[6] || 'Uncategorized'
         };
@@ -126,20 +215,85 @@ export default function ContactList() {
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">Audience</h1>
-          <p className="text-neutral-500 text-xs sm:text-sm mt-1 font-medium">Manage all your contacts and lead data in one place.</p>
+          <h1 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight text-left">Audience</h1>
+          <p className="text-neutral-500 text-xs sm:text-sm mt-1 font-medium text-left">Explore and manage your profile database.</p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
+          {/* Folder Filter Button for Mobile/Tablet */}
+          <div className="relative lg:hidden flex-1 min-w-[100px]">
+            <button 
+              onClick={() => setIsFolderMenuOpen(!isFolderMenuOpen)}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 rounded-xl border px-2 h-11 text-xs font-bold transition-all shadow-sm",
+                selectedFolder ? "bg-blue-600 text-white border-blue-600 shadow-blue-100" : "bg-white border-neutral-200 text-neutral-600"
+              )}
+            >
+              <FolderOpen size={18} />
+              <span className="truncate">{selectedFolder || 'All'}</span>
+              <ChevronDown size={14} className={cn("transition-transform", isFolderMenuOpen && "rotate-180")} />
+            </button>
+            
+            <AnimatePresence>
+              {isFolderMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsFolderMenuOpen(false)} />
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 top-full mt-2 w-56 bg-white rounded-2xl border border-neutral-200 shadow-2xl z-50 p-2 shadow-blue-100/50"
+                  >
+                    <button 
+                      onClick={() => { setSelectedFolder(null); setIsFolderMenuOpen(false); }}
+                      className={cn(
+                        "w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all mb-1 flex items-center gap-2",
+                        selectedFolder === null ? "bg-blue-50 text-blue-700" : "text-neutral-600 hover:bg-neutral-50"
+                      )}
+                    >
+                      <FolderOpen size={14} />
+                      All Contacts
+                    </button>
+                    {folders.map(f => (
+                      <div key={f} className="flex items-center group">
+                        <button 
+                          onClick={() => { setSelectedFolder(f); setIsFolderMenuOpen(false); }}
+                          className={cn(
+                            "flex-1 text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 truncate",
+                            selectedFolder === f ? "bg-blue-50 text-blue-700" : "text-neutral-600 hover:bg-neutral-50"
+                          )}
+                        >
+                          <FolderOpen size={14} />
+                          {f}
+                        </button>
+                        <button onClick={() => renameFolder(f)} className="p-2 text-neutral-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <Edit2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="my-2 h-[1px] bg-neutral-100" />
+                    <button 
+                      onClick={() => { createFolder(); setIsFolderMenuOpen(false); }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-black text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+                    >
+                      <Plus size={14} />
+                      New Folder
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
           <button 
             onClick={handleExportCSV}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 h-11 text-xs sm:text-sm font-bold text-neutral-700 hover:bg-neutral-50 transition-all shadow-sm min-w-[100px]"
           >
             <Download size={16} />
             Export
           </button>
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 h-11 text-xs sm:text-sm font-bold text-white hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all min-w-[100px]"
           >
             <UserPlus size={16} />
             Import
@@ -148,14 +302,14 @@ export default function ContactList() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-        {/* Folders Navigation - Improved for all screens */}
-        <div className="w-full lg:w-56 shrink-0 space-y-2 lg:space-y-6">
-          <div className="flex lg:flex-col items-center lg:items-start gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
-            <h3 className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-4 px-2 italic">Folders</h3>
+        {/* Folders Navigation - Laptop Only */}
+        <div className="hidden lg:block w-56 shrink-0 space-y-6">
+          <div className="flex flex-col items-start gap-1 pb-0">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-4 px-2">Folders</h3>
             <button 
               onClick={() => setSelectedFolder(null)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0",
+                "w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all",
                 selectedFolder === null ? "bg-blue-600 text-white shadow-md shadow-blue-100" : "bg-white border border-neutral-100 text-neutral-500 hover:bg-neutral-50"
               )}
             >
@@ -163,19 +317,32 @@ export default function ContactList() {
               All Contacts
             </button>
             {folders.map(folder => (
-              <button 
-                key={folder}
-                onClick={() => setSelectedFolder(folder)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0",
-                  selectedFolder === folder ? "bg-blue-600 text-white shadow-md shadow-blue-100" : "bg-white border border-neutral-100 text-neutral-500 hover:bg-neutral-50"
-                )}
-              >
-                <FolderOpen size={16} />
-                {folder}
-              </button>
+              <div key={folder} className="w-full flex items-center group relative">
+                <button 
+                  onClick={() => setSelectedFolder(folder)}
+                  className={cn(
+                    "flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all",
+                    selectedFolder === folder ? "bg-blue-600 text-white shadow-md shadow-blue-100" : "bg-white border border-neutral-100 text-neutral-500 hover:bg-neutral-50"
+                  )}
+                >
+                  <FolderOpen size={16} />
+                  <span className="truncate pr-6">{folder}</span>
+                </button>
+                <button 
+                  onClick={() => renameFolder(folder)}
+                  className={cn(
+                    "absolute right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity",
+                    selectedFolder === folder ? "text-blue-200 hover:text-white" : "text-neutral-400 hover:text-blue-600"
+                  )}
+                >
+                  <Edit2 size={12} />
+                </button>
+              </div>
             ))}
-            <button className="lg:mt-4 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black text-blue-600 hover:bg-blue-50 transition-all whitespace-nowrap">
+            <button 
+              onClick={createFolder}
+              className="w-full mt-4 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-black text-blue-600 hover:bg-blue-50 transition-all"
+            >
               <Plus size={16} />
               New Folder
             </button>
@@ -184,13 +351,13 @@ export default function ContactList() {
 
         {/* Main Table Area */}
         <div className="flex-1 space-y-4 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white p-2 sm:p-3 rounded-2xl border border-neutral-200 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white p-2 sm:p-3 rounded-2xl border border-neutral-200 shadow-sm relative z-30">
             <div className="relative flex-1 min-w-[140px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={16} />
               <input 
                 type="text" 
                 placeholder="Search..."
-                className="w-full rounded-xl border-none bg-neutral-50 py-2 sm:py-2.5 pl-9 pr-4 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full rounded-xl border-none bg-neutral-50 py-2 sm:py-2.5 pl-9 pr-4 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -199,7 +366,7 @@ export default function ContactList() {
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={cn(
-                  "flex items-center justify-center gap-2 rounded-xl border h-9 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
+                  "flex items-center justify-center gap-2 rounded-xl border h-10 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
                   isFilterOpen ? "border-blue-200 bg-blue-50 text-blue-600" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
                 )}
                 title="Filters"
@@ -213,7 +380,7 @@ export default function ContactList() {
                   if (isSelectionMode) setSelectedIds([]);
                 }}
                 className={cn(
-                  "flex items-center justify-center gap-2 rounded-xl border h-9 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
+                  "flex items-center justify-center gap-2 rounded-xl border h-10 sm:h-11 px-3 sm:px-5 text-xs sm:text-sm font-black transition-all shadow-sm shrink-0",
                   isSelectionMode ? "border-blue-600 bg-blue-600 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
                 )}
                 title="Select"
@@ -230,7 +397,7 @@ export default function ContactList() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-50/50 rounded-xl border border-blue-100 mb-2"
+                className="flex items-center gap-2 px-3 py-2 bg-blue-50/50 rounded-xl border border-blue-100 mb-2 relative z-20"
               >
                 <button 
                   onClick={toggleSelectAll}
@@ -251,10 +418,16 @@ export default function ContactList() {
                 {selectedIds.length > 0 && (
                   <div className="ml-auto flex items-center gap-2">
                     <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{selectedIds.length} Selected</span>
-                    <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete Selected">
+                    <button 
+                      onClick={() => { if(window.confirm(`Delete ${selectedIds.length} contacts?`)) setContacts(contacts.filter(c => !selectedIds.includes(c.id))); }}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete Selected"
+                    >
                       <Trash2 size={16} />
                     </button>
-                    <button className="p-2 text-neutral-500 hover:bg-neutral-50 rounded-lg transition-all" title="Export Selected">
+                    <button 
+                      onClick={handleExportCSV}
+                      className="p-2 text-neutral-500 hover:bg-neutral-50 rounded-lg transition-all" title="Export Selected"
+                    >
                       <Download size={16} />
                     </button>
                   </div>
@@ -269,33 +442,69 @@ export default function ContactList() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
+                className="overflow-hidden relative z-10"
               >
-                <div className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-inner grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-neutral-200 shadow-inner grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Status</label>
-                    <select className="w-full bg-neutral-50 border-neutral-200 rounded-lg text-sm p-2 outline-none focus:ring-2 focus:ring-blue-500">
-                      <option>All Statuses</option>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <CheckCircle2 size={10} />
+                      Status
+                    </label>
+                    <select 
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                      <option>All</option>
                       <option>Subscribed</option>
                       <option>Unsubscribed</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Source</label>
-                    <select className="w-full bg-neutral-50 border-neutral-200 rounded-lg text-sm p-2 outline-none focus:ring-2 focus:ring-blue-500">
-                      <option>All Sources</option>
-                      <option>Instagram</option>
-                      <option>Messenger</option>
-                      <option>Direct</option>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Globe size={10} />
+                      Source
+                    </label>
+                    <select 
+                      value={sourceFilter}
+                      onChange={(e) => setSourceFilter(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                      <option>All</option>
+                      {allSources.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Tag</label>
-                    <select className="w-full bg-neutral-50 border-neutral-200 rounded-lg text-sm p-2 outline-none focus:ring-2 focus:ring-blue-500">
-                      <option>All Tags</option>
-                      <option>Lead</option>
-                      <option>Customer</option>
-                      <option>VIP</option>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <TagIcon size={10} />
+                      Tag
+                    </label>
+                    <select 
+                      value={tagFilter}
+                      onChange={(e) => setTagFilter(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                      <option>All</option>
+                      {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Calendar size={10} />
+                      Date Range
+                    </label>
+                    <select 
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                      <option>All time</option>
+                      <option value="24hrs">Last 24 Hours</option>
+                      <option value="7 days">Last 7 Days</option>
+                      <option value="30 days">Last 30 Days</option>
+                      <option value="90 days">Last 90 Days</option>
+                      <option value="6 months">Last 6 Months</option>
+                      <option value="1 year">Last 1 Year</option>
                     </select>
                   </div>
                 </div>
@@ -304,14 +513,14 @@ export default function ContactList() {
           </AnimatePresence>
 
           <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-x-auto scrollbar-hide">
-            <table className="w-full text-left border-collapse min-w-[700px]">
+            <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-neutral-50/50 border-b border-neutral-200">
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400">Contact</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden sm:table-cell">Source</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400">Status</th>
+                  <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400">Contact</th>
+                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden lg:table-cell">Source</th>
+                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden sm:table-cell">Status</th>
                   <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 hidden md:table-cell">Tags</th>
-                  <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-neutral-400 text-right">Actions</th>
+                  <th className="px-4 sm:px-6 py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-neutral-400 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -345,12 +554,21 @@ export default function ContactList() {
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-black text-neutral-900">{contact.name}</p>
-                          <p className="text-[11px] text-neutral-400 font-bold mt-0.5">{contact.email}</p>
+                          <p className="text-xs sm:text-sm font-black text-neutral-900 line-clamp-1">{contact.name}</p>
+                          <p className="hidden sm:block text-[11px] text-neutral-400 font-bold mt-0.5 line-clamp-1">{contact.email}</p>
+                          <div className="sm:hidden flex items-center gap-1.5 mt-1">
+                            <span className={cn(
+                              "text-[8px] font-black uppercase tracking-widest px-1 rounded",
+                              contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-600" : "bg-neutral-100 text-neutral-400"
+                            )}>
+                              {contact.status}
+                            </span>
+                            <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-widest">{contact.source}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 hidden sm:table-cell">
+                    <td className="px-6 py-4 hidden lg:table-cell">
                       <div className="flex items-center gap-2">
                         {contact.source === 'Instagram' ? (
                           <div className="bg-pink-50 text-pink-500 p-1.5 rounded-lg border border-pink-100">
@@ -368,31 +586,75 @@ export default function ContactList() {
                         <span className="text-xs font-bold text-neutral-600">{contact.source}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={cn(
-                        "inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest",
-                        contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-neutral-50 text-neutral-400 border border-neutral-100"
-                      )}>
+                    <td className="px-6 py-4 hidden sm:table-cell text-center">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); toggleStatus(contact.id); }}
+                        className={cn(
+                          "inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                          contact.status === 'Subscribed' ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-neutral-50 text-neutral-400 border border-neutral-100"
+                        )}
+                      >
                         {contact.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4 hidden md:table-cell">
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 items-center">
                         {contact.tags.map(tag => (
-                          <span key={tag} className="bg-neutral-100 text-neutral-500 text-[9px] px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200">
+                          <span key={tag} className="flex items-center gap-1 bg-neutral-100 text-neutral-500 text-[9px] px-2 py-0.5 rounded-md uppercase font-black tracking-wider border border-neutral-200 group/tag">
                             {tag}
+                            <button onClick={(e) => { e.stopPropagation(); removeTag(contact.id, tag); }} className="hover:text-red-500">
+                              <X size={8} />
+                            </button>
                           </span>
                         ))}
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const t = prompt("Enter tag:");
+                            if(t) addTag(contact.id, t);
+                          }}
+                          className="p-1 rounded-md border border-dashed border-neutral-200 text-neutral-400 hover:text-blue-500 hover:border-blue-200 transition-all"
+                        >
+                          <Plus size={10} />
+                        </button>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        <button className="p-2 rounded-xl text-neutral-400 hover:bg-white hover:text-blue-600 hover:shadow-sm hover:border hover:border-neutral-200 transition-all">
-                          <CheckCircle2 size={18} />
-                        </button>
-                        <button className="p-2 rounded-xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all">
-                          <Trash2 size={18} />
-                        </button>
+                    <td className="px-4 sm:px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-1 relative">
+                        {deleteConfirmId === contact.id ? (
+                          <div className="flex items-center gap-1 bg-white border border-red-100 rounded-xl p-1 shadow-lg shadow-red-50 animate-in fade-in slide-in-from-right-2 duration-200 z-50">
+                            <button 
+                              onClick={() => deleteContact(contact.id)}
+                              className="px-2 sm:px-3 py-1.5 rounded-lg bg-red-600 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap"
+                            >
+                              <Trash size={12} />
+                              Delete
+                            </button>
+                            <button 
+                              onClick={() => setDeleteConfirmId(null)}
+                              className="px-1.5 py-1 rounded-lg text-neutral-400 hover:bg-neutral-50 font-bold text-[9px] sm:text-[10px] uppercase"
+                            >
+                              Undo
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button 
+                              onClick={() => toggleStatus(contact.id)}
+                              className="p-1.5 sm:p-2 rounded-xl text-neutral-400 hover:bg-white hover:text-blue-600 hover:shadow-sm hover:border hover:border-neutral-200 transition-all"
+                              title="Toggle Status"
+                            >
+                              <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            </button>
+                            <button 
+                              onClick={() => setDeleteConfirmId(contact.id)}
+                              className="p-1.5 sm:p-2 rounded-xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                              title="Delete Contact"
+                            >
+                              <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -404,7 +666,7 @@ export default function ContactList() {
                 <div className="h-16 w-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="text-neutral-300" size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900">No contacts found</h3>
+                <h3 className="text-lg font-bold text-neutral-900 line-clamp-1">No contacts found</h3>
                 <p className="text-neutral-500 text-sm">Try adjusting your search or filters.</p>
               </div>
             )}
