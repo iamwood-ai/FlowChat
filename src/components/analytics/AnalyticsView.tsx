@@ -78,23 +78,23 @@ export default function AnalyticsView() {
       </div>
 
       {/* Top Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {[
-          { label: 'Total Impressions', value: '1,248,390', change: '+14.2%', icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Messages Read', value: '84.5%', change: '+2.1%', icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Click Through', value: '18.4%', change: '+5.4%', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'New Subscribers', value: '2,482', change: '+8.7%', icon: Users, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Impressions', fullLabel: 'Total Impressions', value: '1,248K', change: '+14%', icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Read', fullLabel: 'Messages Read', value: '84.5%', change: '+2%', icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Clicks', fullLabel: 'Click Through', value: '18.4%', change: '+5%', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
+          { label: 'Subscribers', fullLabel: 'New Subscribers', value: '2,482', change: '+8%', icon: Users, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-lg", stat.bg)}>
-                <stat.icon className={stat.color} size={20} />
+          <div key={stat.fullLabel} className="bg-white p-3 sm:p-6 rounded-2xl border border-neutral-200 shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className={cn("p-1.5 sm:p-2 rounded-lg shrink-0", stat.bg)}>
+                <stat.icon className={cn(stat.color, "sm:w-5 sm:h-5")} size={16} />
               </div>
-              <span className="text-sm font-semibold text-neutral-400 uppercase tracking-wider">{stat.label}</span>
+              <span className="text-[9px] sm:text-xs font-semibold text-neutral-400 uppercase tracking-wider truncate">{stat.label}</span>
             </div>
-            <div className="mt-4 flex items-end justify-between">
-              <h3 className="text-2xl font-bold text-neutral-900">{stat.value}</h3>
-              <span className="text-xs font-bold text-emerald-600 mb-1">{stat.change}</span>
+            <div className="mt-2 sm:mt-4 flex items-baseline sm:items-end justify-between gap-1">
+              <h3 className="text-base sm:text-2xl font-black text-neutral-900 truncate">{stat.value}</h3>
+              <span className="text-[8px] sm:text-xs font-bold text-emerald-600 shrink-0">{stat.change}</span>
             </div>
           </div>
         ))}

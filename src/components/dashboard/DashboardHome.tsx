@@ -64,7 +64,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
-      <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-[1400px] mx-auto pb-32">
+      <div className="p-3 sm:p-8 space-y-4 sm:space-y-8 max-w-[1400px] mx-auto pb-32">
       {/* Welcome Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
@@ -114,14 +114,14 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
 
       {/* Stats Grid */}
       {visibleSections.stats && (
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               key={stat.label}
-              className="rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6 shadow-sm cursor-pointer hover:border-blue-200 transition-all group"
+              className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm cursor-pointer hover:border-blue-200 transition-all group"
               onClick={() => onNavigate('analytics')}
             >
               <div className="flex items-center justify-between">
@@ -144,12 +144,12 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-3">
         {/* Left Column: Channels and AI Generator */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-4 sm:space-y-6">
           {/* AI Generator */}
           {visibleSections.ai && (
-            <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-6 shadow-sm overflow-hidden relative">
+            <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:p-6 shadow-sm overflow-hidden relative">
               <div className="absolute -top-12 -right-12 h-24 w-24 rounded-full bg-blue-100 blur-3xl opacity-50" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-200">
@@ -203,8 +203,8 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           )}
 
           {visibleSections.channels && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h3 className="font-bold text-neutral-900 text-sm">Active Channels</h3>
                 <button 
                   onClick={() => onNavigate('settings')}
@@ -236,11 +236,10 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           )}
         </div>
 
-        {/* Right Column: Recommendations */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {visibleSections.library && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
                 <div>
                   <h3 className="font-bold text-neutral-900">Ready Automations Library</h3>
                   <p className="text-xs text-neutral-400 mt-1 font-medium">One-click deployment for your profiles.</p>
@@ -252,12 +251,12 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                   Explore All Templates
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {ALL_TEMPLATES.slice(0, 3).map((flow) => (
                   <div 
                     key={flow.id} 
                     onClick={() => onNavigate('flows', { templateId: flow.id })}
-                    className={cn("p-6 rounded-2xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer group flex flex-col justify-between min-h-[220px] relative overflow-hidden", flow.color)}
+                    className={cn("p-4 sm:p-6 rounded-2xl border transition-all hover:shadow-2xl hover:translate-y-[-4px] cursor-pointer group flex flex-col justify-between min-h-[180px] sm:min-h-[220px] relative overflow-hidden", flow.color)}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 flex items-center gap-1">
                       <Sparkles size={40} />
@@ -289,18 +288,18 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           )}
 
           {visibleSections.crm && (
-            <div className="rounded-xl bg-neutral-900 p-6 shadow-lg shadow-neutral-200">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur-md">
-                    <Zap size={28} fill="currentColor" />
+            <div className="rounded-xl bg-neutral-900 p-4 sm:p-6 shadow-lg shadow-neutral-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-white/10 text-white backdrop-blur-md">
+                    <Zap size={24} className="sm:w-7 sm:h-7" fill="currentColor" />
                   </div>
                   <div>
-                    <p className="text-base sm:text-lg font-bold text-white">Advanced CRM Sync</p>
-                    <p className="text-xs sm:text-sm text-neutral-400">Sync all profile data with HubSpot, or Klaviyo.</p>
+                    <p className="text-sm sm:text-lg font-bold text-white">Advanced CRM Sync</p>
+                    <p className="text-[10px] sm:text-sm text-neutral-400">Sync all profile data with HubSpot, or Klaviyo.</p>
                   </div>
                 </div>
-                <button className="whitespace-nowrap px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95 w-full sm:w-auto">Connect Ecosystem</button>
+                <button className="whitespace-nowrap px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95 w-full sm:w-auto">Connect Ecosystem</button>
               </div>
             </div>
           )}
