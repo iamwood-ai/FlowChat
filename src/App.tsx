@@ -78,7 +78,7 @@ function MainApp() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8F9FA] font-sans text-[#1A1A1A] overflow-hidden">
+    <div className="flex h-[100dvh] bg-[#F8F9FA] font-sans text-[#1A1A1A] overflow-hidden">
       {/* Sidebar - Desktop: Sticky, Mobile: Overlay */}
       <AnimatePresence>
         {(isSidebarOpen || window.innerWidth >= 1024) && (
@@ -226,7 +226,7 @@ function MainApp() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="relative flex-1 overflow-hidden flex flex-col w-full">
+      <main className="relative flex-1 overflow-hidden flex flex-col w-full h-full">
         <div className="flex-1 flex flex-col bg-[#F8F9FA] overflow-hidden">
           <AnimatePresence>
             <motion.div
@@ -243,7 +243,7 @@ function MainApp() {
         </div>
 
         {/* Mobile Bottom Navigation - Visible ONLY on small mobile screens */}
-        <div className="sm:hidden border-t border-neutral-200 bg-white px-2 py-2 shrink-0 z-50">
+        <div className="sm:hidden border-t border-neutral-200 bg-white px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shrink-0 z-50 shadow-[0_-4px_12px_-4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const Icon = item.icon;

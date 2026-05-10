@@ -603,7 +603,8 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto space-y-6 pb-20">
+    <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+      <div className="p-4 sm:p-6 max-w-[1400px] mx-auto space-y-6 pb-32">
       <div className="flex flex-col gap-0.5">
         <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Settings</h1>
         <p className="text-neutral-500 text-xs sm:text-sm">Manage profile, integrations, and account settings.</p>
@@ -963,6 +964,7 @@ export default function SettingsView() {
           </div>
         )}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

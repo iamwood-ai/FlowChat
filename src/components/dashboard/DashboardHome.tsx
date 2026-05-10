@@ -63,7 +63,8 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
   };
 
   return (
-    <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-[1400px] mx-auto">
+    <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+      <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-[1400px] mx-auto pb-32">
       {/* Welcome Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
@@ -318,6 +319,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           onNavigate('flows');
         }}
       />
+    </div>
     </div>
   );
 }

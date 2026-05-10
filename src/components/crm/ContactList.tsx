@@ -114,7 +114,8 @@ export default function ContactList() {
   };
 
   return (
-    <div className="p-4 sm:p-8 space-y-6 max-w-[1400px] mx-auto">
+    <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+      <div className="p-4 sm:p-8 space-y-6 max-w-[1400px] mx-auto pb-32">
       <input 
         type="file" 
         accept=".csv" 
@@ -406,6 +407,7 @@ export default function ContactList() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

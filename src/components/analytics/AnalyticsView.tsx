@@ -43,7 +43,8 @@ const growthData = [
 
 export default function AnalyticsView() {
   return (
-    <div className="p-8 space-y-8 max-w-[1400px] mx-auto">
+    <div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth">
+      <div className="p-4 sm:p-8 space-y-8 max-w-[1400px] mx-auto pb-32">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Campaign Analytics</h1>
@@ -171,6 +172,7 @@ export default function AnalyticsView() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
