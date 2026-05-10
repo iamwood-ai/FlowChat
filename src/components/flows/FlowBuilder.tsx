@@ -18,7 +18,7 @@ import {
   BackgroundVariant
 } from '@xyflow/react';
 
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import '@xyflow/react/dist/style.css';
 
 import {
@@ -193,6 +193,17 @@ const AINode = ({ data, selected }: any) => (
   </div>
 );
 
+const MOCK_POSTS = [
+  { id: 'p1', thumbnail: 'https://images.unsplash.com/photo-1621609764095-b32bbe35cf3a?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '14 hours ago', caption: "Comment 'REMEDIES' to get the list!" },
+  { id: 'p2', thumbnail: 'https://images.unsplash.com/photo-1633533402095-2313d4218a4d?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '17 hours ago', caption: "New collection dropping tonight. Comment 'START'." },
+  { id: 'p3', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '20 hours ago', caption: "The best ingredients for health. Tag a friend!" },
+  { id: 'p4', thumbnail: 'https://images.unsplash.com/photo-1611262588019-db6cc2032da3?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '2 days ago', caption: "Comment REMEDY below for our free guide." },
+  { id: 'p5', thumbnail: 'https://images.unsplash.com/photo-1611162617263-4ec3060a058e?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '3 days ago', caption: "Weekly wrap up! Who's ready for Monday?" },
+  { id: 'p6', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '4 days ago', caption: "Business tips for creators. DM for more." },
+  { id: 'p7', thumbnail: 'https://images.unsplash.com/photo-1611162616475-46b635cbca35?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '1 week ago', caption: "Join our masterclass!" },
+  { id: 'p8', thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=400&h=533&auto=format&fit=crop', timestamp: '1 week ago', caption: "Weekend vibes." },
+];
+
 const nodeTypes = { messageNode: MessageNode, triggerNode: TriggerNode, delayNode: DelayNode, aiNode: AINode };
 
 // ─── Container ────────────────────────────────────────────────────────────────
@@ -219,6 +230,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
   const [publishing, setPublishing] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [isPanelOpen, setIsPanelOpen] = useState(window.innerWidth >= 1024);
+  const [showPostModal, setShowPostModal] = useState(false);
   const { fitView, zoomIn, zoomOut } = useReactFlow();
 
   const [isMobile, setIsMobile] = useState(
@@ -454,11 +466,12 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
                 <p className="text-[9px] font-black text-neutral-300 uppercase tracking-widest mb-3 text-center">Triggers</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: 'Keyword', icon: Zap },
-                    { label: 'Comment', icon: MessageSquare },
+                    { label: 'DM', icon: MessageSquare, type: 'dm' },
+                    { label: 'Story Reply', icon: Zap, type: 'story_reply' },
+                    { label: 'Comments', icon: MessageSquare, type: 'comment' },
                   ].map(t => (
                     <button key={t.label}
-                      onClick={() => addNode('triggerNode', { type: 'comment', postType: 'any', keywords: ['START'], trigger: `${t.label} Trigger` })}
+                      onClick={() => addNode('triggerNode', { type: t.type, postType: 'any', keywords: ['START'], trigger: `${t.label} Trigger` })}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white border border-neutral-200 hover:border-amber-400 hover:shadow-lg transition-all">
                       <div className="p-2 bg-amber-50 text-amber-500 rounded-lg"><t.icon size={18} /></div>
                       <span className="text-[10px] font-black uppercase text-neutral-600">{t.label}</span>
@@ -511,15 +524,46 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
                   <div>
                     <label className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-2 block">Post Targeting</label>
                     <div className="grid grid-cols-3 gap-2">
-                      {['any', 'specific', 'next'].map(pt => (
-                        <button key={pt} onClick={() => updateNodeData({ postType: pt })}
+                      {[
+                        { id: 'any', label: 'Any' },
+                        { id: 'specific', label: 'Specific' },
+                        { id: 'next', label: 'Next' }
+                      ].map(pt => (
+                        <button key={pt.id} onClick={() => updateNodeData({ postType: pt.id })}
                           className={cn("py-2.5 rounded-xl border text-[10px] font-bold uppercase transition-all",
-                            selectedNode.data.postType === pt ? "bg-amber-500 border-amber-600 text-white" : "bg-white border-neutral-200 text-neutral-400")}>
-                          {pt}
+                            selectedNode.data.postType === pt.id ? "bg-amber-500 border-amber-600 text-white" : "bg-white border-neutral-200 text-neutral-400")}>
+                          {pt.label}
                         </button>
                       ))}
                     </div>
                   </div>
+
+                  {selectedNode.data.postType === 'specific' && (
+                    <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Select Post</label>
+                        <button onClick={() => setShowPostModal(true)} className="text-[10px] font-black text-blue-600 uppercase hover:underline">Show All</button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2">
+                        {MOCK_POSTS.slice(0, 4).map(post => (
+                          <button key={post.id} 
+                            onClick={() => updateNodeData({ selectedPostId: post.id })}
+                            className={cn(
+                              "aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all relative group",
+                              selectedNode.data.selectedPostId === post.id ? "border-blue-500 ring-2 ring-blue-500/10 scale-105" : "border-transparent opacity-60 hover:opacity-100"
+                            )}
+                          >
+                            <img src={post.thumbnail} className="w-full h-full object-cover" alt="" />
+                            {selectedNode.data.selectedPostId === post.id && (
+                              <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                                <div className="h-4 w-4 bg-blue-500 rounded-full border-2 border-white" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-2 block">Keywords (Max 10)</label>
@@ -711,18 +755,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
         >
           <Background variant={BackgroundVariant.Lines} color="#e5e7eb" gap={20} size={1} />
 
-          {/* Empty state */}
-          {nodes.length === 0 && (
-            <Panel position="center" className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-neutral-100 shadow-2xl flex flex-col items-center text-center gap-4 max-w-[260px]">
-              <div className="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Plus size={24} className="text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-neutral-900">Empty Canvas</h3>
-                <p className="text-xs text-neutral-500 mt-1 uppercase tracking-widest leading-relaxed">Add a trigger step to begin your automation flow.</p>
-              </div>
-            </Panel>
-          )}
+          {/* Empty state — REMOVED AS REQUESTED */}
 
         {/* ── Top Bar ── only back button */}
           <Panel position="top-left" className="m-3">
@@ -767,7 +800,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           </button>
         </div>
 
-        {/* ── Config Panel Toggle — bottom-right, above zoom level ── */}
+        {/* ── Config Panel Toggle ── */}
         <button
           onClick={() => setIsPanelOpen(p => !p)}
           className={cn(
@@ -777,6 +810,76 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
           title={isPanelOpen ? "Close Panel" : "Open Panel"}>
           {isPanelOpen ? <X size={20} /> : <Settings2 size={20} />}
         </button>
+
+        {/* ── Post Selector Modal ── */}
+        <AnimatePresence>
+          {showPostModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPostModal(false)}
+                className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" 
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+              >
+                <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-neutral-900">Pick any post or reel to automate</h2>
+                    <p className="text-xs text-neutral-400 mt-1 uppercase tracking-widest">Last 90 Days</p>
+                  </div>
+                  <button onClick={() => setShowPostModal(false)} className="h-10 w-10 bg-neutral-50 rounded-xl flex items-center justify-center text-neutral-400 hover:text-neutral-900 transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+                
+                <div className="p-6 overflow-y-auto">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-4">
+                    {MOCK_POSTS.concat(MOCK_POSTS).map((post, idx) => (
+                      <button 
+                        key={`${post.id}-${idx}`}
+                        onClick={() => {
+                          updateNodeData({ selectedPostId: post.id });
+                          setShowPostModal(false);
+                        }}
+                        className={cn(
+                          "group text-left space-y-2 relative transition-all active:scale-95",
+                          selectedNode?.data.selectedPostId === post.id ? "scale-[0.98]" : ""
+                        )}
+                      >
+                        <div className={cn(
+                          "aspect-[3/4] rounded-2xl overflow-hidden relative border-4 transition-all",
+                          selectedNode?.data.selectedPostId === post.id ? "border-blue-500" : "border-transparent group-hover:border-neutral-200"
+                        )}>
+                          <img src={post.thumbnail} className="w-full h-full object-cover" alt="" />
+                          <div className="absolute top-2 right-2 h-6 w-6 bg-black/40 backdrop-blur-md rounded-lg flex items-center justify-center">
+                            <Layers size={12} className="text-white" />
+                          </div>
+                          {selectedNode?.data.selectedPostId === post.id && (
+                            <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+                              <div className="h-8 w-8 bg-blue-500 rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                                <CheckCircle2 size={16} className="text-white" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="px-1">
+                          <p className="text-[11px] font-bold text-neutral-800 line-clamp-1">{post.caption}</p>
+                          <p className="text-[9px] text-neutral-400 font-medium">{post.timestamp}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

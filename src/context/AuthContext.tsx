@@ -120,6 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         alert("Sign-in popup was blocked by your browser. Please allow popups for this site or try again.");
       } else if (error.code === 'auth/cancelled-popup-request') {
         // Ignore user cancellation
+      } else if (error.code === 'auth/unauthorized-domain' || error.message.includes('auth/unauthorized-domain')) {
+        alert("This domain (flow-chat-kappa.vercel.app) is not authorized in your Firebase project. To fix this:\n\n1. Go to Firebase Console\n2. Authentication > Settings > Authorized domains\n3. Add 'flow-chat-kappa.vercel.app'\n4. Refresh and try again.");
       } else {
         alert(`Authentication failed: ${error.message}. If you are on a deployed site, make sure the domain is authorized in Firebase Console.`);
       }
