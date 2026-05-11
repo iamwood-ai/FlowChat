@@ -21,6 +21,7 @@ import { useAI } from '../../hooks/useAI';
 import { useAuth } from '../../context/AuthContext';
 import { ALL_TEMPLATES } from '../../constants/templates';
 import TemplatesModal from './TemplatesModal';
+import EcosystemSyncModal from './EcosystemSyncModal';
 
 const stats = [
   { label: 'Total Contacts', value: '12,482', change: '+12%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -44,6 +45,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isEcosystemModalOpen, setIsEcosystemModalOpen] = useState(false);
   const [visibleSections, setVisibleSections] = useState({
     stats: true,
     ai: true,
@@ -300,7 +302,7 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
               </div>
             </div>
             <button 
-              onClick={() => onNavigate('settings')}
+              onClick={() => setIsEcosystemModalOpen(true)}
               className="whitespace-nowrap px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl text-xs sm:text-base font-black shadow-lg shadow-blue-900/40 hover:bg-blue-700 transition-all active:scale-95 w-full md:w-auto uppercase tracking-widest"
             >
               Connect Ecosystem
@@ -320,6 +322,10 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
           setIsTemplatesModalOpen(false);
           onNavigate('flows');
         }}
+      />
+      <EcosystemSyncModal 
+        isOpen={isEcosystemModalOpen}
+        onClose={() => setIsEcosystemModalOpen(false)}
       />
     </div>
     </div>

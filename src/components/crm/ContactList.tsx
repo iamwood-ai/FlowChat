@@ -565,9 +565,8 @@ export default function ContactList() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-[11px] sm:text-sm font-black text-neutral-900 truncate">{contact.name}</p>
-                          <p className="hidden sm:block text-[11px] text-neutral-400 font-bold mt-0.5 truncate">{contact.email}</p>
-                          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                            <span className="sm:hidden text-[7px] font-black uppercase tracking-widest px-1 rounded border bg-blue-50 text-blue-600 border-blue-100">
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100 inline-block">
                                 {contact.source}
                             </span>
                           </div>

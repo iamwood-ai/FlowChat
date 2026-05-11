@@ -168,11 +168,11 @@ export default function SettingsView() {
   };
 
   const handleAddWorkspace = async () => {
-    if (workspaces.length >= 10) {
-      alert("You have already reached the maximum limit of 10 profiles.");
+    if (workspaces.length >= 5) {
+      alert("You have already reached the maximum limit of 5 accounts.");
       return;
     }
-    const name = prompt("Enter profile name (e.g. My Agency, Personal Brand):");
+    const name = prompt("Enter account name (e.g. My Agency, Personal Brand):");
     if (name) {
       await createWorkspace(name);
     }
@@ -782,15 +782,28 @@ export default function SettingsView() {
         <div className="relative z-10">
           <h2 className="text-xl font-bold mb-2">Multi-profile account</h2>
           <p className="text-blue-100 text-xs max-w-md mb-4 leading-relaxed">
-            Switch between different business profiles instantly. Manage multiple distinct brands easily.
+            {workspaces.length > 1 
+              ? `You currently have ${workspaces.length} active accounts. Switch between them instantly to manage different brands.`
+              : 'Switch between different business profiles instantly. Manage multiple distinct brands easily.'}
           </p>
           <div className="flex gap-2">
-             <button 
-               onClick={handleAddWorkspace}
-               className="flex-1 bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center"
-             >
-               Add Profile
-             </button>
+             {workspaces.length > 1 ? (
+               <button 
+                 onClick={() => setIsWorkspaceSwitchModalOpen(true)}
+                 className="flex-1 bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center flex items-center justify-center gap-2"
+               >
+                 <Share2 size={14} />
+                 Switch Account
+               </button>
+             ) : (
+               <button 
+                 onClick={handleAddWorkspace}
+                 className="flex-1 bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center flex items-center justify-center gap-2"
+               >
+                 <UserPlus size={14} />
+                 Add Profile
+               </button>
+             )}
              <button 
                onClick={() => window.open('https://docs.flowchat.app', '_blank')}
                className="flex-1 bg-blue-500/30 text-white border border-blue-400/30 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/50 text-center"
@@ -1198,7 +1211,7 @@ export default function SettingsView() {
                     className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
                 >
                     <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Workspace</h4>
+                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Account</h4>
                         <button onClick={() => setIsWorkspaceSwitchModalOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
                             <X size={20} />
                         </button>
@@ -1242,10 +1255,11 @@ export default function SettingsView() {
                                 setIsWorkspaceSwitchModalOpen(false);
                                 handleAddWorkspace();
                             }}
-                            className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-xs font-black text-neutral-400 uppercase tracking-widest hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                            disabled={workspaces.length >= 5}
+                            className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-xs font-black text-neutral-400 uppercase tracking-widest hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <Plus size={16} />
-                            Add Profile
+                            Add New Account
                         </button>
                     </div>
                 </motion.div>
