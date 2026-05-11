@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, googleProvider, signInWithPopup, signOut, onAuthStateChanged, handleFirestoreError, OperationType } from '../lib/firebase';
-import { User } from 'firebase/auth';
+import { User, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface Workspace {
@@ -15,6 +15,8 @@ interface AuthContextType {
   activeWorkspace: Workspace | null;
   workspaces: Workspace[];
   signIn: () => Promise<void>;
+  signInEmail: (email: string, pass: string) => Promise<void>;
+  signUpEmail: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   switchWorkspace: (id: string) => void;
   createWorkspace: (name: string) => Promise<Workspace | null>;
@@ -87,46 +89,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      
-      // Initialize user in firestore if not exists
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-      
-      if (!userDoc.exists()) {
-        try {
-          await setDoc(userRef, {
-            userId: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            createdAt: serverTimestamp()
-          });
-          
-          // Create initial default workspace
-          const wsData = {
-            name: `${user.displayName}'s Profile`,
-            ownerId: user.uid,
-            createdAt: serverTimestamp()
-          };
-          const wsRef = await addDoc(collection(db, 'workspaces'), wsData);
-          await setDoc(userRef, { activeWorkspaceId: wsRef.id }, { merge: true });
-        } catch (error) {
-          handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
-        }
-      }
+      await initializeUser(user);
     } catch (error: any) {
-      console.error("Auth error:", error);
-      if (error.code === 'auth/popup-blocked') {
-        alert("Sign-in popup was blocked by your browser. Please allow popups for this site or try again.");
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        // Ignore user cancellation
-      } else if (error.code === 'auth/unauthorized-domain' || error.message.includes('auth/unauthorized-domain')) {
-        alert("This domain (flow-chat-kappa.vercel.app) is not authorized in your Firebase project. To fix this:\n\n1. Go to Firebase Console\n2. Authentication > Settings > Authorized domains\n3. Add 'flow-chat-kappa.vercel.app'\n4. Refresh and try again.");
-      } else if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed')) {
-        alert("Network request failed. This often happens if:\n\n1. You are using an ad-blocker or VPN that blocks Google Identity services.\n2. Your internet connection is unstable.\n3. The browser is blocking the popup interaction.\n\nPlease try disabling ad-blockers and try again.");
-      } else {
-        alert(`Authentication failed: ${error.message}. If you are on a deployed site, make sure the domain is authorized in Firebase Console.`);
+      handleAuthError(error);
+    }
+  };
+
+  const signInEmail = async (email: string, pass: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      handleAuthError(error);
+    }
+  };
+
+  const signUpEmail = async (email: string, pass: string, name: string) => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, pass);
+      const user = result.user;
+      await updateProfile(user, { displayName: name });
+      await initializeUser(user, name);
+    } catch (error: any) {
+      handleAuthError(error);
+    }
+  };
+
+  const initializeUser = async (user: User, customName?: string) => {
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      try {
+        const displayName = customName || user.displayName || 'New User';
+        await setDoc(userRef, {
+          userId: user.uid,
+          email: user.email,
+          displayName: displayName,
+          photoURL: user.photoURL,
+          createdAt: serverTimestamp()
+        });
+        
+        // Create initial default workspace
+        const wsData = {
+          name: `${displayName}'s Profile`,
+          ownerId: user.uid,
+          createdAt: serverTimestamp(),
+          automationConfig: {
+            smartReplyDelay: 5,
+            keywordSensitivity: 'Strict Match',
+            aiPersonality: 'Normal'
+          }
+        };
+        const wsRef = await addDoc(collection(db, 'workspaces'), wsData);
+        await setDoc(userRef, { activeWorkspaceId: wsRef.id }, { merge: true });
+      } catch (error) {
+        handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
       }
+    }
+  };
+
+  const handleAuthError = (error: any) => {
+    console.error("Auth error:", error);
+    if (error.code === 'auth/popup-blocked') {
+      alert("Sign-in popup was blocked by your browser.");
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      // Ignore
+    } else if (error.code === 'auth/email-already-in-use') {
+      alert("This email is already in use. Please try logging in instead.");
+    } else if (error.code === 'auth/weak-password') {
+      alert("Password is too weak. Please use at least 6 characters.");
+    } else if (error.code === 'auth/invalid-email') {
+      alert("Invalid email address.");
+    } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      alert("Invalid email or password.");
+    } else {
+      alert(`Authentication failed: ${error.message}`);
     }
   };
 
@@ -238,6 +275,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       activeWorkspace, 
       workspaces, 
       signIn, 
+      signInEmail,
+      signUpEmail,
       logout, 
       switchWorkspace,
       createWorkspace,

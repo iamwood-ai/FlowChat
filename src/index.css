@@ -52,3 +52,40 @@ a[href*="xyflow.com"],
     font-size: 16px !important;
   }
 }
+
+/* Custom Range Slider Styling */
+.range-thumb-custom {
+  @apply appearance-none;
+}
+
+.range-thumb-custom::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--thumb-color, #2563eb);
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
+}
+
+.range-thumb-custom::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--thumb-color, #2563eb);
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
+}
+
+.range-thumb-custom::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.range-thumb-custom::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}

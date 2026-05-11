@@ -299,7 +299,12 @@ export default function DashboardHome({ onNavigate }: { onNavigate: (view: 'dash
                 <p className="text-xs sm:text-base text-neutral-400 font-medium italic mt-1">Sync all profile data with HubSpot, Shopify, or Klaviyo instantly.</p>
               </div>
             </div>
-            <button className="whitespace-nowrap px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl text-xs sm:text-base font-black shadow-lg shadow-blue-900/40 hover:bg-blue-700 transition-all active:scale-95 w-full md:w-auto uppercase tracking-widest">Connect Ecosystem</button>
+            <button 
+              onClick={() => onNavigate('settings')}
+              className="whitespace-nowrap px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl text-xs sm:text-base font-black shadow-lg shadow-blue-900/40 hover:bg-blue-700 transition-all active:scale-95 w-full md:w-auto uppercase tracking-widest"
+            >
+              Connect Ecosystem
+            </button>
           </div>
         </div>
       )}

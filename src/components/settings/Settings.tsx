@@ -57,7 +57,17 @@ export default function SettingsView() {
   const [smartReplyDelay, setSmartReplyDelay] = useState(activeWorkspace?.automationConfig?.smartReplyDelay || 5);
   const [keywordSensitivity, setKeywordSensitivity] = useState(activeWorkspace?.automationConfig?.keywordSensitivity || 'Strict Match');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const { logout } = useAuth();
+  const [isWorkspaceSwitchModalOpen, setIsWorkspaceSwitchModalOpen] = useState(false);
+  const [integrationToDelete, setIntegrationToDelete] = useState<any>(null);
+  const [platforms, setPlatforms] = useState([
+    { id: 'fb', name: 'Facebook Messenger', icon: Facebook, color: 'text-blue-600', bg: 'bg-blue-50', connected: true },
+    { id: 'ig', name: 'Instagram DM', icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50', connected: true },
+    { id: 'tt', name: 'TikTok Messaging', icon: Music2, color: 'text-neutral-900', bg: 'bg-neutral-100', connected: false },
+    { id: 'wa', name: 'WhatsApp', icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50', connected: false },
+    { id: 'sms', name: 'SMS', icon: Smartphone, color: 'text-neutral-600', bg: 'bg-neutral-100', connected: false },
+    { id: 'tg', name: 'Telegram', icon: Send, color: 'text-sky-500', bg: 'bg-sky-50', connected: false },
+  ]);
+  const { logout, switchWorkspace } = useAuth();
 
   const handleDeleteAccount = async () => {
     // In a real app, this would call an API
@@ -211,16 +221,13 @@ export default function SettingsView() {
     alert("Security settings updated!");
   };
 
-  const platforms = [
-    { id: 'fb', name: 'Facebook Messenger', icon: Facebook, color: 'text-blue-600', bg: 'bg-blue-50', connected: true },
-    { id: 'ig', name: 'Instagram DM', icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50', connected: true },
-    { id: 'tt', name: 'TikTok Messaging', icon: Music2, color: 'text-neutral-900', bg: 'bg-neutral-100', connected: false },
-    { id: 'wa', name: 'WhatsApp', icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50', connected: false },
-    { id: 'sms', name: 'SMS', icon: Smartphone, color: 'text-neutral-600', bg: 'bg-neutral-100', connected: false },
-    { id: 'tg', name: 'Telegram', icon: Send, color: 'text-sky-500', bg: 'bg-sky-50', connected: false },
-  ];
-
   const handleConnect = async (platformId: string) => {
+    // Check if it's already connected to prevent duplicates in demo logic
+    if (platforms.find(p => p.id === platformId)?.connected) {
+      alert(`${platformId.toUpperCase()} is already connected.`);
+      return;
+    }
+
     try {
       const platformMap: Record<string, string> = {
         fb: 'facebook',
@@ -244,6 +251,7 @@ export default function SettingsView() {
       const handleMessage = (event: MessageEvent) => {
         if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
           // Success! In a real app we'd refresh connections here.
+          setPlatforms(prev => prev.map(p => p.id === platformId ? { ...p, connected: true } : p));
           alert('Successfully connected!');
           window.removeEventListener('message', handleMessage);
         }
@@ -339,7 +347,12 @@ export default function SettingsView() {
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h3 className="text-sm sm:text-base font-bold text-neutral-900">Active Workspace</h3>
-          <button className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline">Change</button>
+          <button 
+            onClick={() => setIsWorkspaceSwitchModalOpen(true)}
+            className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline"
+          >
+            Change
+          </button>
         </div>
         <div className="p-3 rounded-xl border border-blue-50 bg-blue-50/20">
           <div className="flex items-center gap-3">
@@ -552,30 +565,34 @@ export default function SettingsView() {
                 <p className="text-sm font-bold text-neutral-900">Smart Reply Delay</p>
                 <p className="text-[11px] text-neutral-500 mt-0.5">Control bot reply speed.</p>
               </div>
-              <div 
-                className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-black transition-all duration-500 border",
-                    smartReplyDelay === 0 
-                        ? "bg-white text-neutral-400 border-neutral-100" 
-                        : "text-white border-transparent"
-                )}
-                style={{ 
-                    backgroundColor: smartReplyDelay > 0 
-                        ? `rgba(37, 99, 235, ${Math.min(0.2 + (smartReplyDelay / 61) * 0.8, 1)})` 
-                        : 'white' 
-                }}
-              >
+              <div className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black border border-blue-100">
                 {smartReplyDelay === 61 ? '24h' : `${smartReplyDelay}s`}
               </div>
             </div>
-            <input 
-              type="range" 
-              className="w-full h-1.5 bg-neutral-100 rounded-lg appearance-none cursor-pointer accent-blue-600" 
-              min="0" 
-              max="61" 
-              value={smartReplyDelay}
-              onChange={(e) => setSmartReplyDelay(parseInt(e.target.value))}
-            />
+            <div className="relative group px-1 pt-2">
+                <input 
+                  type="range" 
+                  className={cn(
+                    "w-full h-1.5 rounded-lg appearance-none cursor-pointer range-thumb-custom bg-neutral-100",
+                    smartReplyDelay > 0 ? "accent-blue-600" : "accent-neutral-300"
+                  )} 
+                  min="0" 
+                  max="61" 
+                  value={smartReplyDelay}
+                  onChange={(e) => setSmartReplyDelay(parseInt(e.target.value))}
+                  style={{
+                    // Dynamic track gradient to show progress
+                    background: smartReplyDelay === 0 
+                      ? '#f5f5f5' 
+                      : `linear-gradient(to right, #2563eb 0%, #2563eb ${(smartReplyDelay / 61) * 100}%, #f5f5f5 ${(smartReplyDelay / 61) * 100}%, #f5f5f5 100%)`,
+                    // Dynamic thumb color using CSS variable for the custom range style
+                    // @ts-ignore
+                    '--thumb-color': smartReplyDelay === 0 
+                        ? '#ffffff' 
+                        : `rgb(37, 99, 235)`
+                  } as any}
+                />
+            </div>
           </div>
           
           <div className="h-[1px] bg-neutral-100" />
@@ -706,7 +723,10 @@ export default function SettingsView() {
                 Config
               </button>
               {platform.connected && (
-                <button className="p-1.5 sm:p-2 rounded-lg border border-neutral-200 text-neutral-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all">
+                <button 
+                  onClick={() => setIntegrationToDelete(platform)}
+                  className="p-1.5 sm:p-2 rounded-lg border border-neutral-200 text-neutral-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all"
+                >
                   <Trash2 size={14} className="sm:w-4 sm:h-4" />
                 </button>
               )}
@@ -714,6 +734,49 @@ export default function SettingsView() {
           </div>
         ))}
       </div>
+
+      <AnimatePresence>
+        {integrationToDelete && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-sm">
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-6"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 mb-4 animate-bounce">
+                  <Trash2 size={32} />
+                </div>
+                <h4 className="text-xl font-black text-neutral-900">Remove Integration?</h4>
+                <p className="text-xs text-neutral-500 mt-2">
+                  This will disconnect <strong>{integrationToDelete.name}</strong>. You can re-connect it at any time.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={() => {
+                    // Logic to remove integration
+                    setPlatforms(prev => prev.map(p => p.id === integrationToDelete.id ? { ...p, connected: false } : p));
+                    alert(`${integrationToDelete.name} disconnected.`);
+                    setIntegrationToDelete(null);
+                  }}
+                  className="w-full py-4 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+                >
+                  Delete Integration
+                </button>
+                <button 
+                  onClick={() => setIntegrationToDelete(null)}
+                  className="w-full py-4 bg-neutral-100 text-neutral-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-neutral-200 transition-all"
+                >
+                  Undo
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="bg-blue-600 rounded-3xl p-6 text-white relative overflow-hidden">
         <div className="relative z-10">
@@ -728,7 +791,10 @@ export default function SettingsView() {
              >
                Add Profile
              </button>
-             <button className="flex-1 bg-blue-500/30 text-white border border-blue-400/30 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/50 text-center">
+             <button 
+               onClick={() => window.open('https://docs.flowchat.app', '_blank')}
+               className="flex-1 bg-blue-500/30 text-white border border-blue-400/30 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/50 text-center"
+             >
                Docs
              </button>
           </div>
@@ -1095,7 +1161,10 @@ export default function SettingsView() {
 
                 <div className="flex flex-col gap-3">
                   <button 
-                    onClick={() => setIsConnectModalOpen(false)}
+                    onClick={() => {
+                      setPlatforms(prev => prev.map(p => p.id === selectedPlatform.id ? { ...p, connected: true } : p));
+                      setIsConnectModalOpen(false);
+                    }}
                     className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
                   >
                     Allow & Connect
@@ -1116,6 +1185,71 @@ export default function SettingsView() {
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isWorkspaceSwitchModalOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-sm">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
+                >
+                    <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Workspace</h4>
+                        <button onClick={() => setIsWorkspaceSwitchModalOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
+                            <X size={20} />
+                        </button>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                        {workspaces.map(ws => (
+                            <button 
+                                key={ws.id}
+                                onClick={() => {
+                                    switchWorkspace(ws.id);
+                                    setIsWorkspaceSwitchModalOpen(false);
+                                }}
+                                className={cn(
+                                    "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group",
+                                    activeWorkspace?.id === ws.id 
+                                        ? "bg-blue-600 border-blue-700 text-white shadow-lg shadow-blue-100" 
+                                        : "bg-white border-neutral-100 hover:border-neutral-200 text-neutral-900"
+                                )}
+                            >
+                                <div className={cn(
+                                    "h-10 w-10 rounded-xl flex items-center justify-center shadow-inner transition-colors",
+                                    activeWorkspace?.id === ws.id ? "bg-blue-500" : "bg-neutral-100 text-neutral-400 group-hover:bg-neutral-200"
+                                )}>
+                                    <Zap size={20} className={activeWorkspace?.id === ws.id ? "text-white" : ""} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold truncate">{ws.name}</p>
+                                    <p className={cn("text-[10px] font-medium opacity-60", activeWorkspace?.id === ws.id ? "text-white" : "text-neutral-500")}>
+                                        {activeWorkspace?.id === ws.id ? 'Currently Active' : 'Business Profile'}
+                                    </p>
+                                </div>
+                                {activeWorkspace?.id === ws.id && <CheckCircle2 size={18} className="text-white" />}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="p-4 border-t border-neutral-100">
+                        <button 
+                            onClick={() => {
+                                setIsWorkspaceSwitchModalOpen(false);
+                                handleAddWorkspace();
+                            }}
+                            className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-xs font-black text-neutral-400 uppercase tracking-widest hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                        >
+                            <Plus size={16} />
+                            Add Profile
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
         )}
       </AnimatePresence>
     </div>
