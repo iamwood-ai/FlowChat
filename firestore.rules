@@ -68,6 +68,11 @@ service cloud.firestore {
         && incoming().userId == existing().userId; // Immutable ID
     }
 
+    // --- Connection Test Path ---
+    match /test/connection {
+      allow get: if true; // Allow testing connectivity
+    }
+
     // 2. Workspaces
     match /workspaces/{workspaceId} {
       // List/Query: Must be owner

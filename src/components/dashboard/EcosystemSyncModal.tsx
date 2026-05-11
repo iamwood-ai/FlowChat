@@ -22,8 +22,8 @@ const ecosystems = [
     name: 'HubSpot',
     description: 'Sync contacts, deals, and activities automatically.',
     icon: 'HS',
-    logo: 'https://www.vectorlogo.zone/logos/hubspot/hubspot-icon.svg',
-    color: 'bg-white border-neutral-100',
+    logo: 'https://cdn.simpleicons.org/hubspot/FF7A59',
+    color: 'bg-[#FF7A59]/10 border-[#FF7A59]/20',
     connected: false
   },
   {
@@ -31,8 +31,8 @@ const ecosystems = [
     name: 'Shopify',
     description: 'Sync customer orders, carts, and segments.',
     icon: 'S',
-    logo: 'https://cdn.worldvectorlogo.com/logos/shopify.svg',
-    color: 'bg-white border-neutral-100',
+    logo: 'https://cdn.simpleicons.org/shopify/95BF47',
+    color: 'bg-[#95BF47]/10 border-[#95BF47]/20',
     connected: false
   },
   {
@@ -40,8 +40,8 @@ const ecosystems = [
     name: 'Klaviyo',
     description: 'Sync email lists, segments, and campaigns.',
     icon: 'K',
-    logo: 'https://www.vectorlogo.zone/logos/klaviyo/klaviyo-icon.svg',
-    color: 'bg-white border-neutral-100',
+    logo: 'https://cdn.simpleicons.org/klaviyo/000000',
+    color: 'bg-neutral-50 border-neutral-100',
     connected: false
   },
   {
@@ -49,8 +49,8 @@ const ecosystems = [
     name: 'Mailchimp',
     description: 'Automate marketing and sync audience data.',
     icon: 'MC',
-    logo: 'https://www.vectorlogo.zone/logos/mailchimp/mailchimp-freddie-icon.svg',
-    color: 'bg-white border-neutral-100',
+    logo: 'https://cdn.simpleicons.org/mailchimp/000000',
+    color: 'bg-neutral-100 border-[#FFE01B]/20',
     connected: false
   }
 ];
@@ -116,11 +116,17 @@ export default function EcosystemSyncModal({ isOpen, onClose }: EcosystemSyncMod
                     >
                       <div className="flex items-center gap-5 relative z-10">
                         <div className={cn(
-                          "h-14 w-14 rounded-2xl flex items-center justify-center bg-white border border-neutral-100 p-3 shadow-sm transition-transform group-hover:scale-110",
+                          "h-14 w-14 rounded-2xl flex items-center justify-center p-3 shadow-sm transition-transform group-hover:scale-110",
                           app.color
                         )}>
                           {app.logo ? (
-                            <img src={app.logo} alt={app.name} className="w-full h-full object-contain" />
+                            <img 
+                              src={app.logo} 
+                              alt={app.name} 
+                              className="w-full h-full object-contain" 
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                            />
                           ) : app.icon}
                         </div>
                         <div className="flex-1 min-w-0">

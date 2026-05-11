@@ -55,8 +55,8 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
   useEffect(() => {
     if (!activeWorkspace) return;
     
-    // Set loading only if we have no automations and it's the very first mount
-    // This allows cached data to show up instantly or gives a snappy feel
+    // Set loading only if we have no automations and it's truly empty
+    // We don't use a separate loading state initially to make it feel instant
     const q = query(collection(db, 'workspaces', activeWorkspace.id, 'flows'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {

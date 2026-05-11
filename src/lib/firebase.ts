@@ -10,8 +10,6 @@ export const auth = getAuth(app);
 // Forcing long polling is often necessary in sandboxed environments
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  host: 'firestore.googleapis.com',
-  ssl: true,
 }, firebaseConfig.firestoreDatabaseId);
 
 export const googleProvider = new GoogleAuthProvider();
@@ -22,9 +20,11 @@ export { signInWithPopup, signOut, onAuthStateChanged };
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
+    console.log("Firebase connected successfully.");
   } catch (error) {
-    if(error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
+    console.error("Firebase Connection Error Detail:", error);
+    if(error instanceof Error && (error.message.includes('the client is offline') || error.message.includes('Could not reach Cloud Firestore backend'))) {
+      console.warn("Possible connectivity issue detected. Trying to operate in offline mode or force re-sync.");
     }
   }
 }
