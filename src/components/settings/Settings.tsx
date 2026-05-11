@@ -42,9 +42,12 @@ export default function SettingsView() {
   const { user, userProfile, activeWorkspace, workspaces, updateWorkspace, createWorkspace, updateUserProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile'); // Default to profile as requested
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [isAIPersonalityModalOpen, setIsAIPersonalityModalOpen] = useState(false);
+  const [selectedAIStrength, setSelectedAIStrength] = useState<any>(activeWorkspace?.automationConfig?.aiPersonality || 'Normal');
   const [selectedPlatform, setSelectedPlatform] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState(userProfile?.displayName || user?.displayName || '');
+  const [fullName, setFullName] = useState(userProfile?.fullName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -78,7 +81,8 @@ export default function SettingsView() {
       await updateWorkspace(activeWorkspace.id, {
         automationConfig: {
           smartReplyDelay: Number(smartReplyDelay),
-          keywordSensitivity: String(keywordSensitivity)
+          keywordSensitivity: String(keywordSensitivity),
+          aiPersonality: selectedAIStrength
         }
       });
       // Show a success state for the button instead of alert
@@ -178,6 +182,7 @@ export default function SettingsView() {
       // 1. Update User Profile
       await updateUserProfile({
         displayName,
+        fullName,
         photoURL: profilePhoto
       });
 
@@ -256,15 +261,58 @@ export default function SettingsView() {
   const renderProfile = () => (
     <div className="space-y-3 sm:space-y-4">
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-col items-center mb-6 sm:mb-8 text-center border-b border-neutral-50 pb-6">
+            <label className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3">Profile Photo</label>
+            <div className="relative group">
+              <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-3xl bg-neutral-100 border-4 border-neutral-50 overflow-hidden shrink-0 shadow-2xl shadow-blue-900/10 group-hover:border-blue-500 transition-all">
+                {profilePhoto ? <img src={profilePhoto} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-neutral-300"><User size={40} className="sm:w-12 sm:h-12" /></div>}
+              </div>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -right-2 -bottom-2 h-10 w-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-90 transition-all border-4 border-white"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+            {profilePhoto && (
+              <button 
+                onClick={() => setProfilePhoto('')}
+                className="mt-3 text-[10px] font-bold text-red-500 hover:underline"
+              >
+                Remove Photo
+              </button>
+            )}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handlePhotoUpload} 
+              className="hidden" 
+              accept="image/*"
+            />
+        </div>
+
         <h3 className="text-sm sm:text-base font-bold text-neutral-900 mb-3 sm:mb-4">Personal Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <div className="space-y-1 sm:space-y-1.5">
-            <label className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Display Name</label>
+          <div className="sm:col-span-2 space-y-1 sm:space-y-1.5">
+            <label className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Full Name</label>
             <input 
               type="text" 
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="e.g. John Wood"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2 sm:py-2.5 text-base sm:text-xs focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+            />
+          </div>
+          <div className="space-y-1 sm:space-y-1.5">
+            <label className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none">
+                Display Name <span className="lowercase font-normal opacity-60">(max 12)</span>
+            </label>
+            <input 
+              type="text" 
+              maxLength={12}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2 sm:py-2.5 text-[11px] sm:text-xs focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2 sm:py-2.5 text-base sm:text-xs focus:ring-2 focus:ring-blue-500 transition-all font-medium"
             />
           </div>
           <div className="space-y-1 sm:space-y-1.5">
@@ -272,38 +320,9 @@ export default function SettingsView() {
             <input 
               type="email" 
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2 sm:py-2.5 text-[11px] sm:text-xs font-medium focus:ring-2 focus:ring-blue-500"
+              readOnly
+              className="w-full rounded-xl border-neutral-200 bg-neutral-50 px-3 py-2 sm:py-2.5 text-base sm:text-xs font-medium focus:ring-2 focus:ring-blue-500 opacity-60 cursor-not-allowed"
             />
-          </div>
-          <div className="sm:col-span-2 space-y-1 sm:space-y-1.5">
-            <label className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Profile Photo</label>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0">
-                {profilePhoto ? <img src={profilePhoto} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-neutral-300"><User size={20} className="sm:w-6 sm:h-6" /></div>}
-              </div>
-              <div className="flex gap-2">
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handlePhotoUpload} 
-                  className="hidden" 
-                  accept="image/*"
-                />
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-2.5 sm:px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] sm:text-[11px] font-bold shadow-lg shadow-blue-100 hover:bg-blue-700"
-                >
-                  Upload
-                </button>
-                <button 
-                  onClick={() => setProfilePhoto('')}
-                  className="px-2.5 sm:px-3 py-1.5 border border-neutral-200 rounded-lg text-[10px] sm:text-[11px] font-bold text-neutral-600 hover:bg-neutral-50"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
           </div>
         </div>
         <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-neutral-100 flex justify-end">
@@ -318,8 +337,11 @@ export default function SettingsView() {
       </div>
 
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
-        <h3 className="text-sm sm:text-base font-bold text-neutral-900 mb-3 sm:mb-4">Active Workspace</h3>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-blue-50 bg-blue-50/20 gap-3">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h3 className="text-sm sm:text-base font-bold text-neutral-900">Active Workspace</h3>
+          <button className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline">Change</button>
+        </div>
+        <div className="p-3 rounded-xl border border-blue-50 bg-blue-50/20">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
               <Zap size={18} className="sm:w-5 sm:h-5" />
@@ -330,13 +352,12 @@ export default function SettingsView() {
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 onBlur={handleSaveWorkspaceName}
-                className="bg-transparent font-bold text-xs sm:text-sm text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
+                className="bg-transparent font-bold text-base sm:text-sm text-neutral-900 outline-none border-b border-transparent focus:border-blue-200 w-full"
                 placeholder="Profile Name"
               />
               <p className="text-[9px] text-neutral-500">Business Management Profile</p>
             </div>
           </div>
-          <button className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline w-fit">Change</button>
         </div>
       </div>
 
@@ -531,9 +552,21 @@ export default function SettingsView() {
                 <p className="text-sm font-bold text-neutral-900">Smart Reply Delay</p>
                 <p className="text-[11px] text-neutral-500 mt-0.5">Control bot reply speed.</p>
               </div>
-              <span className="text-xs font-bold text-blue-600">
+              <div 
+                className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-black transition-all duration-500 border",
+                    smartReplyDelay === 0 
+                        ? "bg-white text-neutral-400 border-neutral-100" 
+                        : "text-white border-transparent"
+                )}
+                style={{ 
+                    backgroundColor: smartReplyDelay > 0 
+                        ? `rgba(37, 99, 235, ${Math.min(0.2 + (smartReplyDelay / 61) * 0.8, 1)})` 
+                        : 'white' 
+                }}
+              >
                 {smartReplyDelay === 61 ? '24h' : `${smartReplyDelay}s`}
-              </span>
+              </div>
             </div>
             <input 
               type="range" 
@@ -555,7 +588,7 @@ export default function SettingsView() {
             <select 
               value={keywordSensitivity}
               onChange={(e) => setKeywordSensitivity(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-lg pl-3 pr-10 py-2 text-xs font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-blue-500 w-fit appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.75rem_center] bg-[size:1.1em_1.1em] bg-no-repeat transition-all shadow-sm"
+              className="bg-neutral-50 border border-neutral-200 rounded-lg pl-3 pr-10 py-2 text-base sm:text-xs font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-blue-500 w-fit appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.75rem_center] bg-[size:1.1em_1.1em] bg-no-repeat transition-all shadow-sm"
             >
               <option>Strict Match</option>
               <option>Fuzzy Match</option>
@@ -570,13 +603,72 @@ export default function SettingsView() {
               <div className="p-2.5 bg-amber-50 rounded-lg text-amber-600 h-fit">
                 <Sparkles size={18} />
               </div>
-              <div>
-                <p className="text-sm font-bold text-neutral-900">AI Personality Strength</p>
-                <p className="text-[11px] text-neutral-500 max-w-sm mt-0.5 leading-relaxed">Creative Gemini responses beyond fixed nodes.</p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-neutral-900">AI Personality</p>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[9px] font-black uppercase tracking-widest">{selectedAIStrength}</span>
+                </div>
+                <p className="text-[11px] text-neutral-500 max-w-sm mt-0.5 leading-relaxed italic line-clamp-1">
+                    {selectedAIStrength === 'Normal' ? 'Balanced and helpful responses.' : 
+                     selectedAIStrength === 'Playful' ? 'Friendly, informal and energetic.' : 
+                     selectedAIStrength === 'Professional' ? 'Polished, authoritative and clear.' :
+                     'Direct, minimal and efficient.'}
+                </p>
               </div>
             </div>
-            <button className="px-4 py-2 bg-neutral-900 text-white rounded-lg text-xs font-bold w-fit">Configure AI</button>
+            <button 
+              onClick={() => setIsAIPersonalityModalOpen(true)}
+              className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-95 shadow-lg shadow-neutral-100 w-fit"
+            >
+              Configure AI
+            </button>
           </div>
+
+          <AnimatePresence>
+            {isAIPersonalityModalOpen && (
+              <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-md">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl p-6"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <h4 className="text-lg font-black text-neutral-900">AI Personality</h4>
+                        <button onClick={() => setIsAIPersonalityModalOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <div className="space-y-2">
+                        {[
+                            { id: 'Playful', desc: 'Friendly, uses emojis, enthusiastic' },
+                            { id: 'Professional', desc: 'Expert tone, mature, concise' },
+                            { id: 'Concise', desc: 'Short, direct, data-focused' },
+                            { id: 'Normal', desc: 'Balanced, standard helpful AI' }
+                        ].map(p => (
+                            <button 
+                                key={p.id}
+                                onClick={() => {
+                                    setSelectedAIStrength(p.id);
+                                    setIsAIPersonalityModalOpen(false);
+                                }}
+                                className={cn(
+                                    "w-full text-left p-4 rounded-2xl border transition-all group",
+                                    selectedAIStrength === p.id 
+                                        ? "bg-blue-600 border-blue-700 text-white shadow-xl shadow-blue-100" 
+                                        : "bg-white border-neutral-100 hover:border-neutral-200"
+                                )}
+                            >
+                                <p className={cn("text-sm font-bold", selectedAIStrength === p.id ? "text-white" : "text-neutral-900")}>{p.id}</p>
+                                <p className={cn("text-[10px]", selectedAIStrength === p.id ? "text-blue-100" : "text-neutral-500")}>{p.desc}</p>
+                            </button>
+                        ))}
+                    </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

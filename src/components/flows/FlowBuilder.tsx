@@ -70,37 +70,37 @@ interface FlowBuilderProps {
 
 const MessageNode = ({ data, selected }: any) => (
   <div className={cn(
-    "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
-    selected ? "border-blue-500 ring-4 ring-blue-500/10" : "border-neutral-200"
+    "w-full h-full shadow-lg rounded-xl border bg-white overflow-hidden flex flex-col min-h-[60px] min-w-[120px]",
+    selected ? "border-blue-500 ring-2 ring-blue-500/10" : "border-neutral-200"
   )}>
-    <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-3 w-3 bg-white border-2 border-blue-400 rounded-full shadow-lg" />
-    <div className="bg-blue-600 px-3 py-2 flex items-center gap-2 text-white shrink-0">
-      <MessageSquare size={12} className="fill-white/20" />
-      <span className="text-[10px] font-black uppercase tracking-wider">Message</span>
+    <NodeResizer minWidth={120} minHeight={60} isVisible={selected} lineClassName="border-blue-400" handleClassName="h-2 w-2 bg-white border-2 border-blue-400 rounded-full shadow-lg" />
+    <div className="bg-blue-600 px-2 py-1 flex items-center gap-2 text-white shrink-0">
+      <MessageSquare size={10} className="fill-white/20" />
+      <span className="text-[9px] font-black uppercase tracking-wider">Message</span>
     </div>
-    <div className="p-3 flex-1 overflow-y-auto flex flex-col gap-2">
-      <p className="text-xs text-neutral-600 leading-relaxed font-medium">
+    <div className="p-2 flex-1 overflow-y-auto flex flex-col gap-1.5">
+      <p className="text-[11px] text-neutral-600 leading-snug font-medium">
         {data.label || 'Enter your message here...'}
       </p>
       {data.buttons?.length > 0 && (
         <div className="space-y-1">
           {data.buttons.map((btn: any, i: number) => (
-            <div key={i} className="w-full py-1.5 px-3 bg-neutral-50 border border-neutral-100 rounded-lg text-[10px] font-bold text-neutral-500 flex items-center justify-between">
-              <span className="truncate max-w-[120px]">{btn.label}</span>
-              {btn.type === 'external_link' ? <ExternalLink size={9} /> : <ChevronRight size={9} />}
+            <div key={i} className="w-full py-1 px-2 bg-neutral-50 border border-neutral-100 rounded-lg text-[9px] font-bold text-neutral-500 flex items-center justify-between">
+              <span className="truncate max-w-[100px]">{btn.label}</span>
+              {btn.type === 'external_link' ? <ExternalLink size={8} /> : <ChevronRight size={8} />}
             </div>
           ))}
         </div>
       )}
       {data.type === 'email_capture' && (
-        <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-1.5 flex items-center gap-2">
-          <Mail size={11} className="text-emerald-500" />
-          <span className="text-[10px] text-emerald-600 font-bold">Email Capture Active</span>
+        <div className="bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1 flex items-center gap-1.5">
+          <Mail size={10} className="text-emerald-500" />
+          <span className="text-[9px] text-emerald-600 font-bold">Email Capture</span>
         </div>
       )}
       <div className="mt-auto pt-1">
         <div className={cn(
-          "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider inline-block",
+          "px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider inline-block",
           data.type === 'follow_check' ? "bg-purple-100 text-purple-600" :
           data.type === 'email_capture' ? "bg-teal-100 text-teal-600" :
           "bg-blue-100 text-blue-600"
@@ -109,87 +109,87 @@ const MessageNode = ({ data, selected }: any) => (
         </div>
       </div>
     </div>
-    <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-blue-500 !border-2 !border-white" />
-    <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-blue-500 !border-2 !border-white" />
+    <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-blue-500 !border !border-white" />
+    <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-blue-500 !border !border-white" />
   </div>
 );
 
 const TriggerNode = ({ data, selected }: any) => (
   <div className={cn(
-    "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
-    selected ? "border-amber-500 ring-4 ring-amber-500/10" : "border-neutral-200"
+    "w-full h-full shadow-lg rounded-xl border bg-white overflow-hidden flex flex-col min-h-[60px] min-w-[120px]",
+    selected ? "border-amber-500 ring-2 ring-amber-500/10" : "border-neutral-200"
   )}>
-    <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-3 w-3 bg-white border-2 border-amber-400 rounded-full shadow-lg" />
-    <div className="bg-amber-500 px-3 py-2 flex items-center gap-2 text-white shrink-0">
-      <Zap size={12} fill="currentColor" />
-      <span className="text-[10px] font-black uppercase tracking-wider">Trigger</span>
+    <NodeResizer minWidth={120} minHeight={60} isVisible={selected} lineClassName="border-amber-400" handleClassName="h-2 w-2 bg-white border-2 border-amber-400 rounded-full shadow-lg" />
+    <div className="bg-amber-500 px-2 py-1 flex items-center gap-2 text-white shrink-0">
+      <Zap size={10} fill="currentColor" />
+      <span className="text-[9px] font-black uppercase tracking-wider">Trigger</span>
     </div>
-    <div className="p-3 flex-1 overflow-y-auto space-y-2">
-      <div className="bg-amber-50 p-2 rounded-lg border border-amber-100">
-        <p className="text-[9px] text-neutral-400 font-black uppercase tracking-widest mb-0.5">
+    <div className="p-2 flex-1 overflow-y-auto space-y-1.5">
+      <div className="bg-amber-50 p-1.5 rounded-lg border border-amber-100">
+        <p className="text-[8px] text-neutral-400 font-black uppercase tracking-widest mb-0.5">
           On {data.type === 'comment' ? 'Comment' : 'Interaction'}
         </p>
-        <p className="text-xs font-bold text-amber-900 leading-tight">
+        <p className="text-[10px] font-bold text-amber-900 leading-tight">
           {data.postType === 'specific' ? 'SPECIFIC' : data.postType === 'next' ? 'NEXT' : 'ANY'}
         </p>
       </div>
       {data.keywords?.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {data.keywords.map((kw: string, i: number) => (
-            <span key={i} className="px-1.5 py-0.5 bg-neutral-100 text-neutral-600 rounded text-[9px] font-mono border border-neutral-200">{kw}</span>
+            <span key={i} className="px-1 py-0.5 bg-neutral-100 text-neutral-600 rounded text-[8px] font-mono border border-neutral-200">{kw}</span>
           ))}
         </div>
       )}
       {data.replyToComment && (
-        <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md">
-          <Repeat size={9} /><span>Auto-reply active</span>
+        <div className="flex items-center gap-1 text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md">
+          <Repeat size={8} /><span>Auto-reply</span>
         </div>
       )}
     </div>
-    <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white" />
+    <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-amber-500 !border !border-white" />
   </div>
 );
 
 const DelayNode = ({ data, selected }: any) => (
   <div className={cn(
-    "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
-    selected ? "border-purple-500 ring-4 ring-purple-500/10" : "border-neutral-200"
+    "w-full h-full shadow-lg rounded-xl border bg-white overflow-hidden flex flex-col min-h-[60px] min-w-[100px]",
+    selected ? "border-purple-500 ring-2 ring-purple-500/10" : "border-neutral-200"
   )}>
-    <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-3 w-3 bg-white border-2 border-purple-400 rounded-full shadow-lg" />
-    <div className="bg-purple-600 px-3 py-2 flex items-center gap-2 text-white shrink-0">
-      <Clock size={12} />
-      <span className="text-[10px] font-black uppercase tracking-wider">Delay</span>
+    <NodeResizer minWidth={100} minHeight={60} isVisible={selected} lineClassName="border-purple-400" handleClassName="h-2 w-2 bg-white border-2 border-purple-400 rounded-full shadow-lg" />
+    <div className="bg-purple-600 px-2 py-1 flex items-center gap-2 text-white shrink-0">
+      <Clock size={10} />
+      <span className="text-[9px] font-black uppercase tracking-wider">Delay</span>
     </div>
-    <div className="p-3 flex-1 flex items-center justify-center">
-      <div className="bg-purple-50 px-4 py-2 rounded-xl border border-purple-100 text-center">
-        <p className="text-base font-black text-purple-700">{data.duration || '24 hrs'}</p>
-        <p className="text-[9px] text-purple-400 font-bold uppercase tracking-widest">Wait Time</p>
+    <div className="p-2 flex-1 flex items-center justify-center">
+      <div className="bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 text-center">
+        <p className="text-xs font-black text-purple-700">{data.duration || '24 hrs'}</p>
+        <p className="text-[8px] text-purple-400 font-bold uppercase tracking-widest leading-none">Wait</p>
       </div>
     </div>
-    <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-purple-500 !border-2 !border-white" />
-    <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-purple-500 !border-2 !border-white" />
+    <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-purple-500 !border !border-white" />
+    <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-purple-500 !border !border-white" />
   </div>
 );
 
 const AINode = ({ data, selected }: any) => (
   <div className={cn(
-    "w-full h-full shadow-xl rounded-2xl border bg-white overflow-hidden flex flex-col min-h-[80px] min-w-[150px]",
-    selected ? "border-fuchsia-500 ring-4 ring-fuchsia-500/10" : "border-neutral-200"
+    "w-full h-full shadow-lg rounded-xl border bg-white overflow-hidden flex flex-col min-h-[60px] min-w-[120px]",
+    selected ? "border-fuchsia-500 ring-2 ring-fuchsia-500/10" : "border-neutral-200"
   )}>
-    <NodeResizer minWidth={150} minHeight={80} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-3 w-3 bg-white border-2 border-fuchsia-400 rounded-full shadow-lg" />
-    <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-3 py-2 flex items-center gap-2 text-white shrink-0">
-      <Zap size={12} fill="white" />
-      <span className="text-[10px] font-black uppercase tracking-wider">AI Intent</span>
+    <NodeResizer minWidth={120} minHeight={60} isVisible={selected} lineClassName="border-fuchsia-400" handleClassName="h-2 w-2 bg-white border-2 border-fuchsia-400 rounded-full shadow-lg" />
+    <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-2 py-1 flex items-center gap-2 text-white shrink-0">
+      <Zap size={10} fill="white" />
+      <span className="text-[9px] font-black uppercase tracking-wider">AI Intent</span>
     </div>
-    <div className="p-3 flex-1 overflow-y-auto">
-      <div className="bg-neutral-50 px-3 py-2 rounded-xl border border-neutral-100">
-        <p className="text-xs text-neutral-500 leading-relaxed font-medium italic">
-          "{data.prompt || 'Analyze intent and reply accordingly...'}"
+    <div className="p-2 flex-1 overflow-y-auto">
+      <div className="bg-neutral-50 px-2 py-1.5 rounded-lg border border-neutral-100">
+        <p className="text-[10px] text-neutral-500 leading-tight font-medium italic">
+          "{data.prompt || 'Analyze intent...'}"
         </p>
       </div>
     </div>
-    <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-fuchsia-500 !border-2 !border-white" />
-    <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-fuchsia-500 !border-2 !border-white" />
+    <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-fuchsia-500 !border !border-white" />
+    <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-fuchsia-500 !border !border-white" />
   </div>
 );
 
@@ -252,39 +252,39 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
     switch (id) {
       case 'grow-email-list': return base(
         [
-          { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['EMAIL'], trigger: 'Keyword: EMAIL' }, position: { x: 400, y: 50 }, style: { width: 180, height: 130 } },
-          { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I'd love to send you the guide! What's your best email address?", buttons: [] }, position: { x: 400, y: 200 }, style: { width: 200, height: 140 } },
-          { id: 'd1', type: 'delayNode', data: { duration: '5 min' }, position: { x: 400, y: 360 }, style: { width: 150, height: 100 } },
-          { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Just checking in, did you get a chance to type your email?", buttons: [] }, position: { x: 400, y: 480 }, style: { width: 200, height: 140 } }
+          {id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['EMAIL'], trigger: 'Keyword: EMAIL' }, position: { x: 400, y: 50 }, style: { width: 140, height: 110 } },
+          { id: 'm1', type: 'messageNode', data: { type: 'email_capture', label: "I'd love to send you the guide! What's your best email address?", buttons: [] }, position: { x: 400, y: 180 }, style: { width: 160, height: 120 } },
+          { id: 'd1', type: 'delayNode', data: { duration: '5 min' }, position: { x: 400, y: 320 }, style: { width: 120, height: 80 } },
+          { id: 'm2', type: 'messageNode', data: { type: 'dm', label: "Just checking in, did you get a chance to type your email?", buttons: [] }, position: { x: 400, y: 420 }, style: { width: 160, height: 120 } }
         ],
         [{ id: 'e1', source: 't1', target: 'm1', animated: true }, { id: 'e2', source: 'm1', target: 'd1' }, { id: 'e3', source: 'd1', target: 'm2' }]
       );
       case 'auto-dm-comments': return base(
         [
-          { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK'], trigger: 'Comment: LINK' }, position: { x: 400, y: 50 }, style: { width: 180, height: 130 } },
-          { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Here is the exclusive link you requested!", buttons: [{ label: 'Get Link', type: 'external_link', link: 'https://example.com' }] }, position: { x: 400, y: 200 }, style: { width: 200, height: 160 } }
+          { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['LINK'], trigger: 'Comment: LINK' }, position: { x: 400, y: 50 }, style: { width: 140, height: 110 } },
+          { id: 'm1', type: 'messageNode', data: { type: 'link_delivery', label: "Here is the exclusive link you requested!", buttons: [{ label: 'Get Link', type: 'external_link', link: 'https://example.com' }] }, position: { x: 400, y: 180 }, style: { width: 160, height: 130 } }
         ],
         [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
       );
       case 'respond-dms': return base(
         [
-          { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Any DM' }, position: { x: 400, y: 50 }, style: { width: 180, height: 90 } },
-          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Thanks for reaching out! A member of our team will get back to you soon.", buttons: [] }, position: { x: 400, y: 200 }, style: { width: 200, height: 140 } }
+          { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Any DM' }, position: { x: 400, y: 50 }, style: { width: 140, height: 80 } },
+          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "Thanks for reaching out! A member of our team will get back to you soon.", buttons: [] }, position: { x: 400, y: 180 }, style: { width: 160, height: 120 } }
         ],
         [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
       );
       case 'automate-ai': return base(
         [
-          { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Customer Query' }, position: { x: 400, y: 50 }, style: { width: 180, height: 90 } },
-          { id: 'ai1', type: 'aiNode', data: { prompt: 'You are a helpful customer support agent. Answer common questions about shipping, returns, and product availability.' }, position: { x: 400, y: 200 }, style: { width: 200, height: 140 } },
-          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "I've analyzed your request. Here's what I found...", buttons: [] }, position: { x: 400, y: 360 }, style: { width: 200, height: 140 } }
+          { id: 't1', type: 'triggerNode', data: { type: 'dm', trigger: 'Customer Query' }, position: { x: 400, y: 50 }, style: { width: 140, height: 80 } },
+          { id: 'ai1', type: 'aiNode', data: { prompt: 'You are a helpful customer support agent. Answer common questions about shipping, returns, and product availability.' }, position: { x: 400, y: 180 }, style: { width: 160, height: 110 } },
+          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: "I've analyzed your request. Here's what I found...", buttons: [] }, position: { x: 400, y: 310 }, style: { width: 160, height: 120 } }
         ],
         [{ id: 'e1', source: 't1', target: 'ai1' }, { id: 'e2', source: 'ai1', target: 'm1' }]
       );
       default: return base(
         [
-          { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['START'], trigger: 'Trigger' }, position: { x: 400, y: 50 }, style: { width: 180, height: 130 } },
-          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: 'Hello! This is your custom automation.', buttons: [] }, position: { x: 400, y: 250 }, style: { width: 200, height: 140 } }
+          { id: 't1', type: 'triggerNode', data: { type: 'comment', postType: 'any', keywords: ['START'], trigger: 'Trigger' }, position: { x: 400, y: 50 }, style: { width: 140, height: 110 } },
+          { id: 'm1', type: 'messageNode', data: { type: 'dm', label: 'Hello! This is your custom automation.', buttons: [] }, position: { x: 400, y: 210 }, style: { width: 160, height: 120 } }
         ],
         [{ id: 'e1', source: 't1', target: 'm1', animated: true }]
       );
@@ -424,7 +424,7 @@ function FlowBuilder({ flowId: initialFlowId, templateId, onBack }: FlowBuilderP
     const last = nodes[nodes.length - 1];
     
     // Auto-sizing logic: don't force height so content renders fully
-    const style = type === 'triggerNode' ? { width: 180 } : type === 'delayNode' ? { width: 150 } : { width: 220 };
+    const style = type === 'triggerNode' ? { width: 140 } : type === 'delayNode' ? { width: 120 } : { width: 160 };
     
     const x = last ? last.position.x : 300;
     const y = last ? last.position.y + 200 : 100;

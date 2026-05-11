@@ -45,3 +45,10 @@ a[href*="xyflow.com"],
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Prevent auto-zoom on mobile inputs */
+@media screen and (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
