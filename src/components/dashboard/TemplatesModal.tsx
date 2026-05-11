@@ -24,6 +24,17 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showMobileFilter, setShowMobileFilter] = useState(false);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
   const categories = ['All', 'Recommended', 'Grow your followers', 'Engage your audience', 'Drive traffic'];
 
   const filteredTemplates = ALL_TEMPLATES.filter(t => {
@@ -37,7 +48,7 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 md:p-10">
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-6 md:p-10">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -64,7 +75,6 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
                 </button>
                 <h2 className="text-2xl font-bold text-neutral-900">Automation Library</h2>
               </div>
-              <p className="text-neutral-500 text-sm">Choose a template to jumpstart your growth or create from scratch.</p>
             </div>
             
             <div className="flex items-center gap-2 flex-1 sm:flex-none">
@@ -173,8 +183,8 @@ export default function TemplatesModal({ isOpen, onClose, onSelect, onCreateNew 
             </div>
 
             {/* Templates Grid */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 scrollbar-hide">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 pb-32 sm:pb-8 scrollbar-hide">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 pb-20">
                 {/* Create New Mobile Card */}
                 <div 
                   onClick={onCreateNew}
