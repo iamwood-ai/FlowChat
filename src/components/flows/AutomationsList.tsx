@@ -47,7 +47,7 @@ interface AutomationsListProps {
 export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: AutomationsListProps) {
   const { activeWorkspace } = useAuth();
   const [automations, setAutomations] = useState<Automation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
@@ -55,11 +55,8 @@ export default function AutomationsList({ onEdit, onAnalytics, onCreateNew }: Au
   useEffect(() => {
     if (!activeWorkspace) return;
     
-    // Only set loading if we don't have any automations yet
-    if (automations.length === 0) {
-      setLoading(true);
-    }
-
+    // Set loading only if we have no automations and it's the very first mount
+    // This allows cached data to show up instantly or gives a snappy feel
     const q = query(collection(db, 'workspaces', activeWorkspace.id, 'flows'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {

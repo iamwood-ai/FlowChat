@@ -21,19 +21,19 @@ import {
   Undo2,
   Trash,
   Tag as TagIcon,
-  Globe
+  Globe,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 const initialContacts = [
-  { id: 1, name: 'Alex Johnson', email: 'alex@example.com', source: 'Instagram', status: 'Subscribed', lastActive: '2h ago', createdAt: new Date(Date.now() - 3600000 * 2), tags: ['Lead', 'High Intent'], folder: 'Inquiry' },
-  { id: 2, name: 'Sarah Miller', email: 'sarah.m@gmail.com', source: 'Messenger', status: 'Subscribed', lastActive: '5h ago', createdAt: new Date(Date.now() - 3600000 * 5), tags: ['Customer'], folder: 'Customers' },
-  { id: 3, name: 'James Wilson', email: 'jw@company.co', source: 'Direct', status: 'Unsubscribed', lastActive: '2 days ago', createdAt: new Date(Date.now() - 86400000 * 2), tags: ['Cold'], folder: 'Leads' },
-  { id: 4, name: 'Emma Davis', email: 'emma@davis.io', source: 'Instagram', status: 'Subscribed', lastActive: '15m ago', createdAt: new Date(Date.now() - 600000 * 15), tags: ['VIP', 'Lead'], folder: 'Customers' },
-  { id: 5, name: 'Michael Brown', email: 'mbrown@tech.net', source: 'Messenger', status: 'Subscribed', lastActive: '12h ago', createdAt: new Date(Date.now() - 3600000 * 12), tags: ['Inquiry'], folder: 'Leads' },
-  { id: 6, name: 'Lisa Anderson', email: 'lisa.a@house.com', source: 'Instagram', status: 'Subscribed', lastActive: '1h ago', createdAt: new Date(Date.now() - 3600000), tags: ['Lead'], folder: 'Inquiry' },
-  { id: 7, name: 'David Clark', email: 'clark@work.com', source: 'Direct', status: 'Subscribed', lastActive: '4h ago', createdAt: new Date(Date.now() - 3600000 * 4), tags: ['Follow-up'], folder: 'Follow-ups' },
+  { id: 1, name: 'Alex Johnson', email: 'alex@example.com', phone: '+1 555-0101', source: 'Instagram', status: 'Subscribed', lastActive: '2h ago', createdAt: new Date(Date.now() - 3600000 * 2), tags: ['Lead', 'High Intent'], folder: 'Inquiry' },
+  { id: 2, name: 'Sarah Miller', email: 'sarah.m@gmail.com', phone: '+1 555-0102', source: 'Messenger', status: 'Subscribed', lastActive: '5h ago', createdAt: new Date(Date.now() - 3600000 * 5), tags: ['Customer'], folder: 'Customers' },
+  { id: 3, name: 'James Wilson', email: 'jw@company.co', phone: '+1 555-0103', source: 'Direct', status: 'Unsubscribed', lastActive: '2 days ago', createdAt: new Date(Date.now() - 86400000 * 2), tags: ['Cold'], folder: 'Leads' },
+  { id: 4, name: 'Emma Davis', email: 'emma@davis.io', phone: '+1 555-0104', source: 'Instagram', status: 'Subscribed', lastActive: '15m ago', createdAt: new Date(Date.now() - 600000 * 15), tags: ['VIP', 'Lead'], folder: 'Customers' },
+  { id: 5, name: 'Michael Brown', email: 'mbrown@tech.net', phone: '+1 555-0105', source: 'Messenger', status: 'Subscribed', lastActive: '12h ago', createdAt: new Date(Date.now() - 3600000 * 12), tags: ['Inquiry'], folder: 'Leads' },
+  { id: 6, name: 'Lisa Anderson', email: 'lisa.a@house.com', phone: '+1 555-0106', source: 'Instagram', status: 'Subscribed', lastActive: '1h ago', createdAt: new Date(Date.now() - 3600000), tags: ['Lead'], folder: 'Inquiry' },
+  { id: 7, name: 'David Clark', email: 'clark@work.com', phone: '+1 555-0107', source: 'Direct', status: 'Subscribed', lastActive: '4h ago', createdAt: new Date(Date.now() - 3600000 * 4), tags: ['Follow-up'], folder: 'Follow-ups' },
 ];
 
 export default function ContactList() {
@@ -146,12 +146,17 @@ export default function ContactList() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Name', 'Email', 'Source', 'Status', 'Last Active', 'Tags', 'Folder', 'Created At'];
+    const listToExport = selectedIds.length > 0 
+      ? contacts.filter(c => selectedIds.includes(c.id))
+      : filteredContacts;
+
+    const headers = ['Name', 'Email', 'Phone', 'Source', 'Status', 'Last Active', 'Tags', 'Folder', 'Created At'];
     const csvContent = [
       headers.join(','),
-      ...filteredContacts.map(c => [
+      ...listToExport.map(c => [
         `"${c.name}"`,
         `"${c.email}"`,
+        `"${c.phone || ''}"`,
         `"${c.source}"`,
         `"${c.status}"`,
         `"${c.lastActive}"`,
@@ -165,7 +170,7 @@ export default function ContactList() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `audience_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `flowchat_audience_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -660,7 +665,8 @@ export default function ContactList() {
           </div>
         </div>
       </div>
-    </div>
+
+      </div>
     </div>
   );
 }
