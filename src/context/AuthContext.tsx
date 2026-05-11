@@ -23,6 +23,8 @@ interface AuthContextType {
   updateWorkspace: (id: string, data: any) => Promise<void>;
   updateUserProfile: (data: { displayName?: string; photoURL?: string }) => Promise<void>;
   userProfile: any;
+  accounts: any[];
+  removeAccount: (uid: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [accounts, setAccounts] = useState<any[]>([]);
+
+  // Update accounts list whenever user changes
+  useEffect(() => {
+    if (user) {
+      const savedAccounts = JSON.parse(localStorage.getItem('multi_accounts') || '[]');
+      const accountData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || userProfile?.displayName,
+        photoURL: user.photoURL || userProfile?.photoURL,
+        lastActive: Date.now()
+      };
+      
+      const exists = savedAccounts.find((a: any) => a.uid === user.uid);
+      let newAccounts;
+      if (exists) {
+        newAccounts = savedAccounts.map((a: any) => a.uid === user.uid ? { ...a, ...accountData } : a);
+      } else {
+        newAccounts = [...savedAccounts, accountData];
+      }
+      localStorage.setItem('multi_accounts', JSON.stringify(newAccounts));
+      setAccounts(newAccounts);
+    } else {
+      const savedAccounts = JSON.parse(localStorage.getItem('multi_accounts') || '[]');
+      setAccounts(savedAccounts);
+    }
+  }, [user, userProfile]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -267,6 +297,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     }
   };
+  
+  const removeAccount = (uid: string) => {
+    const savedAccounts = JSON.parse(localStorage.getItem('multi_accounts') || '[]');
+    const newAccounts = savedAccounts.filter((a: any) => a.uid !== uid);
+    localStorage.setItem('multi_accounts', JSON.stringify(newAccounts));
+    setAccounts(newAccounts);
+  };
 
   return (
     <AuthContext.Provider value={{ 
@@ -282,7 +319,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createWorkspace,
       updateWorkspace,
       updateUserProfile,
-      userProfile
+      userProfile,
+      accounts,
+      removeAccount
     }}>
       {children}
     </AuthContext.Provider>

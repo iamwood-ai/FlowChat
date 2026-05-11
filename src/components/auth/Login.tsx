@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Zap, LogIn, ShieldCheck, Sparkles, UserPlus, Mail, Lock, User } from 'lucide-react';
+import { Zap, LogIn, ShieldCheck, Sparkles, UserPlus, Mail, Lock, User, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Login() {
-  const { signIn, signInEmail, signUpEmail } = useAuth();
+  const { signIn, signInEmail, signUpEmail, accounts, removeAccount } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showAccountSelector, setShowAccountSelector] = useState(accounts.length > 0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -42,8 +43,63 @@ export default function Login() {
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.form 
-              key={isSignUp ? 'signup' : 'signin'}
+            {showAccountSelector ? (
+              <motion.div
+                key="accounts"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="space-y-4"
+              >
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 text-center mb-6">Choose an account</p>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                  {accounts.map(acc => (
+                    <button
+                      key={acc.uid}
+                      onClick={() => {
+                        setEmail(acc.email);
+                        setShowAccountSelector(false);
+                      }}
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-blue-200 transition-all text-left relative group"
+                    >
+                      <div className="h-10 w-10 rounded-xl bg-white border border-neutral-100 overflow-hidden shrink-0">
+                        {acc.photoURL ? (
+                          <img src={acc.photoURL} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                            <User size={20} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-neutral-900 truncate">{acc.displayName || 'User'}</p>
+                        <p className="text-[11px] text-neutral-500 truncate">{acc.email}</p>
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeAccount(acc.uid);
+                          if (accounts.length <= 1) setShowAccountSelector(false);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg text-neutral-300 transition-all"
+                      >
+                        <X size={14} />
+                      </button>
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => setShowAccountSelector(false)}
+                  className="w-full flex items-center justify-center gap-2 py-4 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-50 rounded-2xl transition-all"
+                >
+                  <UserPlus size={16} />
+                  Use another account
+                </button>
+              </motion.div>
+            ) : (
+              <motion.form 
+                key={isSignUp ? 'signup' : 'signin'}
               initial={{ opacity: 0, x: isSignUp ? 20 : -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: isSignUp ? -20 : 20 }}
@@ -134,7 +190,19 @@ export default function Login() {
                   {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
                 </button>
               </div>
+              {accounts.length > 0 && !isSignUp && (
+                <div className="pt-2 text-center border-t border-neutral-50 mt-4">
+                  <button 
+                    type="button"
+                    onClick={() => setShowAccountSelector(true)}
+                    className="text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-blue-600 transition-all"
+                  >
+                    Switch saved account
+                  </button>
+                </div>
+              )}
             </motion.form>
+            )}
           </AnimatePresence>
         </motion.div>
 

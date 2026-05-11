@@ -58,6 +58,7 @@ export default function SettingsView() {
   const [keywordSensitivity, setKeywordSensitivity] = useState(activeWorkspace?.automationConfig?.keywordSensitivity || 'Strict Match');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isWorkspaceSwitchModalOpen, setIsWorkspaceSwitchModalOpen] = useState(false);
+  const [isAccountSwitchModalOpen, setIsAccountSwitchModalOpen] = useState(false);
   const [integrationToDelete, setIntegrationToDelete] = useState<any>(null);
   const [platforms, setPlatforms] = useState([
     { id: 'fb', name: 'Facebook Messenger', icon: Facebook, color: 'text-blue-600', bg: 'bg-blue-50', connected: true },
@@ -67,7 +68,7 @@ export default function SettingsView() {
     { id: 'sms', name: 'SMS', icon: Smartphone, color: 'text-neutral-600', bg: 'bg-neutral-100', connected: false },
     { id: 'tg', name: 'Telegram', icon: Send, color: 'text-sky-500', bg: 'bg-sky-50', connected: false },
   ]);
-  const { logout, switchWorkspace } = useAuth();
+  const { logout, switchWorkspace, accounts, removeAccount } = useAuth();
 
   const handleDeleteAccount = async () => {
     // In a real app, this would call an API
@@ -168,8 +169,8 @@ export default function SettingsView() {
   };
 
   const handleAddWorkspace = async () => {
-    if (workspaces.length >= 5) {
-      alert("You have already reached the maximum limit of 5 accounts.");
+    if (workspaces.length >= 10) {
+      alert("You have already reached the maximum limit of 10 profiles.");
       return;
     }
     const name = prompt("Enter account name (e.g. My Agency, Personal Brand):");
@@ -346,12 +347,12 @@ export default function SettingsView() {
 
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h3 className="text-sm sm:text-base font-bold text-neutral-900">Active Workspace</h3>
+          <h3 className="text-sm sm:text-base font-bold text-neutral-900">Active Profile</h3>
           <button 
             onClick={() => setIsWorkspaceSwitchModalOpen(true)}
             className="text-[10px] sm:text-xs font-bold text-blue-600 hover:underline"
           >
-            Change
+            Switch Profile
           </button>
         </div>
         <div className="p-3 rounded-xl border border-blue-50 bg-blue-50/20">
@@ -372,6 +373,13 @@ export default function SettingsView() {
             </div>
           </div>
         </div>
+        <button 
+          onClick={handleAddWorkspace}
+          className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-neutral-200 text-neutral-600 font-bold text-xs hover:bg-neutral-50 transition-all active:scale-95"
+        >
+          <Plus size={14} />
+          Add New Profile
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 shadow-sm space-y-6">
@@ -417,7 +425,7 @@ export default function SettingsView() {
             Sign Out
           </button>
           <button 
-            onClick={handleAddWorkspace}
+            onClick={() => setIsAccountSwitchModalOpen(true)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-neutral-200 text-neutral-600 font-bold text-xs hover:bg-neutral-50 transition-all active:scale-95"
           >
             <UserPlus size={16} />
@@ -787,9 +795,9 @@ export default function SettingsView() {
               : 'Switch between different business profiles instantly. Manage multiple distinct brands easily.'}
           </p>
           <div className="flex gap-2">
-             {workspaces.length > 1 ? (
+             {accounts.length > 1 ? (
                <button 
-                 onClick={() => setIsWorkspaceSwitchModalOpen(true)}
+                 onClick={() => setIsAccountSwitchModalOpen(true)}
                  className="flex-1 bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-neutral-50 shadow-lg shadow-blue-900/20 text-center flex items-center justify-center gap-2"
                >
                  <Share2 size={14} />
@@ -1211,7 +1219,7 @@ export default function SettingsView() {
                     className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
                 >
                     <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Account</h4>
+                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Profile</h4>
                         <button onClick={() => setIsWorkspaceSwitchModalOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
                             <X size={20} />
                         </button>
@@ -1255,12 +1263,104 @@ export default function SettingsView() {
                                 setIsWorkspaceSwitchModalOpen(false);
                                 handleAddWorkspace();
                             }}
-                            disabled={workspaces.length >= 5}
-                            className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-xs font-black text-neutral-400 uppercase tracking-widest hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            disabled={workspaces.length >= 10}
+                            className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-sm font-black text-neutral-400 uppercase tracking-widest hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <Plus size={16} />
-                            Add New Account
+                            Add New Profile
                         </button>
+                    </div>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+      
+      {/* Account Switch Modal */}
+      <AnimatePresence>
+        {isAccountSwitchModalOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-sm">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
+                >
+                    <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                        <h4 className="text-lg font-black text-neutral-900 uppercase tracking-widest">Switch Account</h4>
+                        <button onClick={() => setIsAccountSwitchModalOpen(false)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400">
+                            <X size={20} />
+                        </button>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest px-2 mb-1">Authenticated Accounts</p>
+                        {accounts.map(acc => (
+                            <div 
+                                key={acc.uid}
+                                className={cn(
+                                    "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative",
+                                    user?.uid === acc.uid 
+                                        ? "bg-blue-50/50 border-blue-200" 
+                                        : "bg-white border-neutral-100 hover:border-neutral-200"
+                                )}
+                            >
+                                <div className="h-12 w-12 rounded-xl bg-neutral-100 overflow-hidden shrink-0 border border-neutral-200">
+                                    {acc.photoURL ? (
+                                      <img src={acc.photoURL} alt="" className="w-full h-full object-cover shadow-inner" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                                        <User size={24} />
+                                      </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-bold text-neutral-900 truncate">{acc.displayName || 'User'}</p>
+                                      {user?.uid === acc.uid && (
+                                        <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[8px] font-black uppercase tracking-widest">Active</span>
+                                      )}
+                                    </div>
+                                    <p className="text-[11px] text-neutral-500 truncate">{acc.email}</p>
+                                </div>
+                                {user?.uid !== acc.uid ? (
+                                  <button 
+                                    onClick={() => {
+                                      logout();
+                                      setIsAccountSwitchModalOpen(false);
+                                    }}
+                                    className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all"
+                                  >
+                                    Switch
+                                  </button>
+                                ) : (
+                                  <CheckCircle2 size={20} className="text-blue-600" />
+                                )}
+                                {user?.uid !== acc.uid && (
+                                  <button 
+                                    onClick={() => removeAccount(acc.uid)}
+                                    className="absolute -top-1 -right-1 h-6 w-6 bg-white border border-neutral-200 rounded-full flex items-center justify-center text-neutral-400 hover:text-red-500 hover:border-red-200 shadow-sm transition-all"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="p-6 border-t border-neutral-100 space-y-3">
+                        <button 
+                            onClick={() => {
+                                logout();
+                                setIsAccountSwitchModalOpen(false);
+                            }}
+                            className="w-full py-4 bg-blue-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-3"
+                        >
+                            <UserPlus size={18} />
+                            Add a new account
+                        </button>
+                        <p className="text-[10px] text-neutral-400 text-center font-medium">
+                            You will be redirected to the sign-in page to add or switch to another account.
+                        </p>
                     </div>
                 </motion.div>
             </div>
